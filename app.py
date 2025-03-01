@@ -55,7 +55,6 @@ if search_button:  # 고유 키 추가
         schedule_data['businessName'] = row.businessName
         schedule_data['bizItemName'] = row.bizItemName
         schedule_data['address'] = row.address_new
-        print(schedule_data)
         
         # 결과를 필터링하고 필요한 열만 선택
         filtered_schedule_data = schedule_data[schedule_data['isSaleDay'] == True]
