@@ -77,7 +77,6 @@ class Naver:
         }
 
         response = req.post(self.url_schedule, json=payload)
-        print(response.status_code)
         data = response.json()["data"]["schedule"]["bizItemSchedule"]["daily"]['date']
         result = []
         for date_key, datum in data.items():
