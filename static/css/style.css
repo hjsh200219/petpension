@@ -1,0 +1,38 @@
+/* 푸터 스타일 */
+.footer {
+    position: fixed;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    padding: 10px;
+    border-top: 1px solid #ddd;
+    z-index: 999;
+}
+
+/* 배너 스타일 */
+.banner {
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 60px;  /* footer 높이만큼 여백 추가 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.banner iframe {
+    display: block;
+    width: 100%;
+    border: none;
+    overflow: hidden;
+    margin: 0;
+    aspect-ratio: 8 / 1; /* 쿠팡 배너의 일반적인 비율 8:1 */
+}
+
+/* iframe 관련 Streamlit 기본 여백 제거 */
+iframe {
+    margin-bottom: 0 !important;
+}

@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta
 from src.common import Naver
+from src.ui import load_css, display_footer, display_banner
+from pathlib import Path
 
 naver = Naver()
 
@@ -91,5 +93,11 @@ if search_button:  # 고유 키 추가
         )
     else:
         st.warning("조회된 일정이 없습니다.")
+
+css_path = Path(__file__).parent / "static" / "css" / "style.css"
+load_css(str(css_path))
+
+display_banner()
+display_footer()
 
 # streamlit run app.py
