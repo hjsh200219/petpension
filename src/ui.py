@@ -30,7 +30,7 @@ def display_footer():
     st.markdown(
         f"""
         <div class="footer">
-            <p>© {current_year} Pet Companion. All rights reserved.</p>
+            <p>© {current_year} SH Consulting. All rights reserved.</p>
         </div>
         """,
         unsafe_allow_html=True
