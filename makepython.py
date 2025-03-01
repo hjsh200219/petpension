@@ -7,11 +7,11 @@ naver = Naver()
 # print(data)
 
 
-start_date = datetime.now().strftime("%Y-%m-%d")
-end_date = (datetime.now() + timedelta(days=30)).strftime("%Y-%m-%d")
+# start_date = datetime.now().strftime("%Y-%m-%d")
+# end_date = (datetime.now() + timedelta(days=30)).strftime("%Y-%m-%d")
 
-data = naver.get_schedule("896898", "5041266", "2025-03-01", "2025-03-31")
-print(data)
+# data = naver.get_schedule("896898", "5041266", "2025-03-01", "2025-03-31")
+# print(data)
 
 
 business_name = '카페이안'

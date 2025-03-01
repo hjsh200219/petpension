@@ -6,6 +6,7 @@ from pathlib import Path
 
 def show_schedule_page():
     # Naver 객체 생성
+    st.subheader("🐾반려동물 동반 숙박시설 조회")
     naver = Naver()
     
     # 세션 상태 초기화
@@ -129,6 +130,7 @@ def show_schedule_page():
     # 결과 표시 (검색 결과가 있는 경우)
     if not st.session_state.result.empty:
         st.success("일정 조회가 완료되었습니다.")
+        
         filter_col1, filter_col2, filter_col3 = st.columns(3)
 
         # 숙박업소 필터 옵션 및 인덱스 계산

@@ -1,0 +1,8 @@
+[server]
+runOnSave = true
+
+[theme]
+
+[client]
+toolbarMode = "minimal"
+showSidebarNavigation = false 
