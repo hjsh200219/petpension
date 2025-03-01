@@ -131,31 +131,48 @@ def show_schedule_page():
         st.success("일정 조회가 완료되었습니다.")
         filter_col1, filter_col2, filter_col3 = st.columns(3)
 
+        # 숙박업소 필터 옵션 및 인덱스 계산
+        business_options = ["전체"] + list(st.session_state.result['숙박업소'].unique())
+        business_index = 0  # 기본값
+        if st.session_state.business_name_filter in business_options:
+            business_index = business_options.index(st.session_state.business_name_filter)
+
         with filter_col1:
             st.selectbox(
                 "숙박업소 선택", 
-                options=["전체"] + list(st.session_state.result['숙박업소'].unique()),
+                options=business_options,
                 key="business_filter_widget",
-                index=["전체"] + list(st.session_state.result['숙박업소'].unique()).index(st.session_state.business_name_filter) if st.session_state.business_name_filter in list(st.session_state.result['숙박업소'].unique()) else 0,
+                index=business_index,
                 on_change=on_business_filter_change
             )
+
+        # 숙박상품 필터 옵션 및 인덱스 계산
+        item_options = ["전체"] + list(st.session_state.result['숙박상품'].unique())
+        item_index = 0  # 기본값
+        if st.session_state.biz_item_name_filter in item_options:
+            item_index = item_options.index(st.session_state.biz_item_name_filter)
 
         with filter_col2:
             st.selectbox(
                 "숙박상품 선택", 
-                options=["전체"] + list(st.session_state.result['숙박상품'].unique()),
+                options=item_options,
                 key="item_filter_widget",
-                index=["전체"] + list(st.session_state.result['숙박상품'].unique()).index(st.session_state.biz_item_name_filter) if st.session_state.biz_item_name_filter in list(st.session_state.result['숙박상품'].unique()) else 0,
+                index=item_index,
                 on_change=on_item_filter_change
             )
 
+        # 지역 필터 옵션 및 인덱스 계산
+        region_options = ["전체", "서울", "부산", "대구", "인천", "광주", "대전", "울산", "세종", "경기", "강원", "충북", "충남", "전북", "전남", "경북", "경남", "제주"]
+        region_index = 0  # 기본값
+        if st.session_state.region_filter in region_options:
+            region_index = region_options.index(st.session_state.region_filter)
+
         with filter_col3:
-            region_options = ["전체", "서울", "부산", "대구", "인천", "광주", "대전", "울산", "세종", "경기", "강원", "충북", "충남", "전북", "전남", "경북", "경남", "제주"]
             st.selectbox(
                 "지역 선택", 
                 options=region_options,
                 key="region_filter_widget",
-                index=region_options.index(st.session_state.region_filter) if st.session_state.region_filter in region_options else 0,
+                index=region_index,
                 on_change=on_region_filter_change
             )
 
