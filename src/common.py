@@ -1,7 +1,9 @@
 from tqdm import tqdm
 import pandas as pd
 import requests as req
-import json, math, datetime
+import json
+import math
+import datetime
 import concurrent.futures
 from io import BytesIO, StringIO
 import xml.etree.ElementTree as ET
@@ -9,6 +11,9 @@ from datetime import datetime, timedelta
 import numpy as np
 from pathlib import Path
 import os
+from bs4 import BeautifulSoup as BS
+from playwright.sync_api import sync_playwright
+
 
 class Common:
     def __init__(self):
@@ -19,7 +24,7 @@ class Naver:
     def __init__(self):
         self.url_schedule = "https://m.booking.naver.com/graphql?opName=schedule"
         self.url_booking_list = "https://m.booking.naver.com/graphql?opName=bizItems"
-
+        self.url_pension_info = "https://m.place.naver.com/accommodation/"
 
     def get_schedule(self, businessId, bizItemId, startDateTime, endDateTime):
         payload = {
@@ -100,7 +105,7 @@ class Naver:
         result = pd.DataFrame(result)
         return result
     
-    def get_booking_list(self, businessId):
+    def get_booking_list(self, businessId, address_old=None, address_new=None):
         payload = {
             "operationName": "bizItems",
             "query": """
@@ -275,15 +280,30 @@ class Naver:
             result.append({
                 'bizItemId': item['bizItemId'],
                 'bizItemName': item['name'],
-                'address_old': item['addressJson']['jibun'],
-                'address_new': item['addressJson']['roadAddr'],
             })
-
+            address_json = item.get('addressJson', {})
+            if address_old is not None and 'jibun' in address_json and address_json['jibun']:
+                result.append({
+                    'address_old': address_old,
+                    'address_new': address_json.get('roadAddr')
+                })
+            elif address_new is not None and 'roadAddr' in address_json and address_json['roadAddr']:
+                result.append({
+                    'address_old': address_json.get('roadAddr'),
+                    'address_new': address_new
+                })
+            elif 'jibun' in address_json and address_json['jibun']:
+                result.append({
+                    'address_old': address_json['jibun'],
+                    'address_new': address_json.get('roadAddr')
+                })
+                
         result = pd.DataFrame(result)
+        print(result)
         return result
     
-    def insert_pension_info(self, business_name, business_id):
-        result = self.get_booking_list(business_id)
+    def insert_pension_info(self, business_name, business_id, address_old=None, address_new=None):
+        result = self.get_booking_list(business_id, address_old, address_new)
         result['businessName'] = business_name
         result['businessId'] = business_id
 
@@ -300,4 +320,13 @@ class Naver:
         result.drop_duplicates(inplace=True)
         result.to_csv('./static/pension_info.csv', index=False)
 
-
+    def get_pension_info(self, business_name, channel_id):
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True) 
+            page = browser.new_page()
+            url = f"{self.url_pension_info}{channel_id}"
+            page.goto(url)
+            page.wait_for_load_state('networkidle')
+            address_div = page.locator('a#_btp.share').get_attribute('data-line-description')
+            print(address_div)
+            browser.close()

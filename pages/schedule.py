@@ -12,29 +12,36 @@ def show_schedule_page():
     # 세션 상태 초기화
     if 'result' not in st.session_state:
         st.session_state.result = pd.DataFrame()
+        
     if 'filtered_result' not in st.session_state:
         st.session_state.filtered_result = pd.DataFrame()
+        
     if 'business_name_filter' not in st.session_state:
         st.session_state.business_name_filter = "전체"
+        
     if 'biz_item_name_filter' not in st.session_state:
         st.session_state.biz_item_name_filter = "전체"
+        
     if 'region_filter' not in st.session_state:
         st.session_state.region_filter = "전체"
     
     # 날짜 선택
     col1, col2, col3 = st.columns((1, 1, 3))
+    
     with col1:
         start_date = st.date_input(
             "시작 날짜", 
             datetime.now(), 
             label_visibility="collapsed"
         )
+        
     with col2:
         end_date = st.date_input(
             "종료 날짜", 
             datetime.now() + timedelta(days=30), 
             label_visibility="collapsed"
         )
+        
     with col3:
         search_button = st.button(
             "일정 조회", 
@@ -55,32 +62,50 @@ def show_schedule_page():
             businessId = str(row.businessId).strip()
             biz_item_id = str(row.bizItemId).strip()
 
-            schedule_data = naver.get_schedule(
-                businessId, 
-                biz_item_id, 
-                start_date.strftime("%Y-%m-%d"), 
-                end_date.strftime("%Y-%m-%d")
-            )
-            schedule_data['businessName'] = row.businessName
-            schedule_data['bizItemName'] = row.bizItemName
-            schedule_data['address'] = row.address_new
-            
-            # 결과를 필터링하고 필요한 열만 선택
-            filtered_schedule_data = schedule_data[
-                schedule_data['isSaleDay'] == True
-            ]
-            filtered_schedule_data = filtered_schedule_data[
-                ['businessName', 'bizItemName', 'date', 'prices', 'address']
-            ].rename(columns={
-                'businessName': '숙박업소', 
-                'bizItemName': '숙박상품', 
-                'date': '날짜', 
-                'prices': '가격',
-                'address': '주소'
-            })
-            
-            result = pd.concat([result, filtered_schedule_data], 
-                               ignore_index=True)  # 결과를 누적 저장
+            try:
+                schedule_data = naver.get_schedule(
+                    businessId, 
+                    biz_item_id, 
+                    start_date.strftime("%Y-%m-%d"), 
+                    end_date.strftime("%Y-%m-%d")
+                )
+                
+                # schedule_data가 None인 경우 건너뜀
+                if schedule_data is None:
+                    st.warning(
+                        f"{row.businessName} - {row.bizItemName}의 일정을 가져오는데 실패했습니다."
+                    )
+                    continue
+                    
+                schedule_data['businessName'] = row.businessName
+                schedule_data['bizItemName'] = row.bizItemName
+                schedule_data['address'] = row.address_new
+                
+                # 결과를 필터링하고 필요한 열만 선택
+                filtered_schedule_data = schedule_data[
+                    schedule_data['isSaleDay'] == True
+                ]
+                
+                filtered_schedule_data = filtered_schedule_data[
+                    ['businessName', 'bizItemName', 'date', 'prices', 'address']
+                ].rename(columns={
+                    'businessName': '숙박업소', 
+                    'bizItemName': '숙박상품', 
+                    'date': '날짜', 
+                    'prices': '가격',
+                    'address': '주소'
+                })
+                
+                result = pd.concat(
+                    [result, filtered_schedule_data], 
+                    ignore_index=True
+                )  # 결과를 누적 저장
+                
+            except Exception as e:
+                st.warning(
+                    f"{row.businessName} - {row.bizItemName} 조회 중 오류 발생: {str(e)}"
+                )
+                continue
 
         st.session_state.result = result
         # 검색 결과 저장 후 필터링된 결과도 초기화
@@ -126,7 +151,8 @@ def show_schedule_page():
             }
             filtered_data = filtered_data[
                 filtered_data['주소'].str.contains(
-                    '|'.join(region_mapping[st.session_state.region_filter])
+                    '|'.join(region_mapping[st.session_state.region_filter]),
+                    na=False
                 )
             ]
             
@@ -134,6 +160,10 @@ def show_schedule_page():
 
     # 필터 변경 콜백 함수
     def on_business_filter_change():
+        # 이전에 선택한 업소와 다른 업소를 선택한 경우 상품 필터 초기화
+        if st.session_state.business_name_filter != st.session_state.business_filter_widget:
+            st.session_state.biz_item_name_filter = "전체"
+        
         st.session_state.business_name_filter = st.session_state.business_filter_widget
         apply_filters()
         
@@ -154,6 +184,7 @@ def show_schedule_page():
         # 숙박업소 필터 옵션 및 인덱스 계산
         business_options = ["전체"] + list(st.session_state.result['숙박업소'].unique())
         business_index = 0  # 기본값
+        
         if st.session_state.business_name_filter in business_options:
             business_index = business_options.index(
                 st.session_state.business_name_filter
@@ -168,20 +199,32 @@ def show_schedule_page():
                 on_change=on_business_filter_change
             )
 
-        # 숙박상품 필터 옵션 및 인덱스 계산
-        item_options = ["전체"] + list(st.session_state.result['숙박상품'].unique())
-        item_index = 0  # 기본값
-        if st.session_state.biz_item_name_filter in item_options:
-            item_index = item_options.index(st.session_state.biz_item_name_filter)
+        # 숙박상품 필터 옵션 생성
+        # 숙박업소가 전체인 경우, 모든 숙박상품을 표시
+        # 숙박업소가 특정 업소인 경우, 해당 업소의 숙박상품만 표시
+        if st.session_state.business_name_filter != "전체":
+            # 선택된 숙박업소의 숙박상품만 필터링
+            filtered_items = st.session_state.result[
+                st.session_state.result['숙박업소'] == st.session_state.business_name_filter
+            ]['숙박상품'].unique()
+            
+            item_options = ["전체"] + list(filtered_items)
+            item_index = 0  # 기본값
+            
+            if st.session_state.biz_item_name_filter in item_options:
+                item_index = item_options.index(st.session_state.biz_item_name_filter)
+            else:
+                # 선택된 숙박업소에 해당 상품이 없는 경우 필터 초기화
+                st.session_state.biz_item_name_filter = "전체"
 
-        with filter_col2:
-            st.selectbox(
-                "숙박상품 선택", 
-                options=item_options,
-                key="item_filter_widget",
-                index=item_index,
-                on_change=on_item_filter_change
-            )
+            with filter_col2:
+                st.selectbox(
+                    "숙박상품 선택", 
+                    options=item_options,
+                    key="item_filter_widget",
+                    index=item_index,
+                    on_change=on_item_filter_change
+                )
 
         # 지역 필터 옵션 및 인덱스 계산
         region_options = [
@@ -190,7 +233,9 @@ def show_schedule_page():
             "충북", "충남", "전북", "전남", "경북", 
             "경남", "제주"
         ]
+        
         region_index = 0  # 기본값
+        
         if st.session_state.region_filter in region_options:
             region_index = region_options.index(st.session_state.region_filter)
 
@@ -216,6 +261,7 @@ def show_schedule_page():
         
         # 결과 개수 표시
         st.info(f"총 {len(st.session_state.filtered_result)}개의 결과가 있습니다.")
+        
     elif search_button:
         st.warning("조회된 일정이 없습니다.")
 
