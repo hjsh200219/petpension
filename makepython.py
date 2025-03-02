@@ -27,7 +27,7 @@ naver = Naver()
 
 # result = naver.get_pension_info('13414710')
 
-# naver.insert_pension_info('896898', '1306861767')
+naver.insert_pension_info('1223109', '1306861767')
 
-result = naver.get_rating('1306861767')
-print(result)
+# result = naver.get_rating('1306861767')
+# print(result)

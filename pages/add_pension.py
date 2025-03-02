@@ -18,6 +18,10 @@ def show_add_pension_page():
     
     if 'password_error' not in st.session_state:
         st.session_state.password_error = False
+        
+    # 성공 메시지를 위한 세션 상태 변수
+    if 'success_message' not in st.session_state:
+        st.session_state.success_message = None
 
     # 비밀번호 검증 함수
     def check_password():
@@ -40,6 +44,12 @@ def show_add_pension_page():
         return
 
     st.subheader("🐾 관리자 메뉴")
+    
+    # 성공 메시지가 있으면 표시
+    if st.session_state.success_message:
+        st.success(st.session_state.success_message)
+        # 메시지를 표시한 후 초기화
+        st.session_state.success_message = None
     
     # 기존 펜션 정보 파일 로드
     csv_path = './static/pension_info.csv'
@@ -142,7 +152,8 @@ def show_add_pension_page():
                             
                             # 변경된 정보 저장
                             pension_info.to_csv(csv_path, index=False)
-                            st.success(
+                            # 성공 메시지를 세션 상태에 저장
+                            st.session_state.success_message = (
                                 f"{selected_business} - {selected_item} 정보가 수정되었습니다."
                             )
                             st.rerun()  # 페이지 새로고침
@@ -204,11 +215,15 @@ def show_add_pension_page():
                 
                 # 변경된 정보 저장
                 pension_info.to_csv(csv_path, index=False)
-                st.dataframe(
-                    pension_info, 
-                    use_container_width=True, 
-                    hide_index=True
-                )  # 삭제 후 데이터프레임 갱신
+                # 성공 메시지를 세션 상태에 저장
+                if delete_entire_pension:
+                    st.session_state.success_message = (
+                        f"{selected_business_to_delete}가 삭제되었습니다."
+                    )
+                else:
+                    st.session_state.success_message = (
+                        f"{selected_business_to_delete}가 삭제되었습니다."
+                    )
                 st.rerun()  # 페이지 새로고침
     
     # 새 펜션 추가 기능
@@ -223,11 +238,18 @@ def show_add_pension_page():
         # 추가 버튼
         button_add = st.form_submit_button("펜션 추가")
         if button_add:
+            # 펜션 정보 추가
             naver.insert_pension_info(
+                new_business_id,
                 new_channel_id, 
-                new_business_id
             )
-            st.success("펜션 추가 완료")
+            
+            # 펜션 이름 가져오기
+            pension_name, _, _ = naver.get_pension_info(new_channel_id)
+            
+            # 성공 메시지를 세션 상태에 저장
+            st.session_state.success_message = f"{pension_name} 추가 완료: "
+            st.rerun()  # 페이지 새로고침하여 pension_info를 다시 로드
 
     # 로그아웃 버튼
     if st.button("로그아웃", key="logout", type="primary"):
