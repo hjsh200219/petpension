@@ -23,250 +23,6 @@ class Common:
         pass
 
 
-class UI:
-    @staticmethod
-    def load_css(css_file):
-        """CSS 파일을 로드하는 함수"""
-        with open(css_file) as f:
-            st.markdown(
-                f'<style>{f.read()}</style>', 
-                unsafe_allow_html=True
-            )
-
-    @staticmethod
-    def display_banner():
-        """페이지 상단에 배너를 표시하는 함수"""
-        st.markdown(
-            """
-             <div class="banner">
-                    <iframe 
-                        src="https://ads-partners.coupang.com/widgets.html?id=842740&template=carousel&trackingCode=AF6451134&subId=&width=680&height=140&tsource=" 
-                        frameborder="0" 
-                        scrolling="no" 
-                        referrerpolicy="unsafe-url" 
-                        browsingtopics>
-                    </iframe>
-                </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-    @staticmethod
-    def display_footer():
-        """페이지 하단에 푸터를 표시하는 함수"""
-        current_year = datetime.now().year
-        st.markdown(
-            f"""
-            <div class="footer">
-                <p>© {current_year} SH Consulting. All rights reserved.</p>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-    @staticmethod
-    def add_input_focus_js(selector="input[type='password']", delay=800):
-        """
-        특정 입력 필드에 자동 포커스를 추가하는 JavaScript 코드
-        
-        Parameters:
-        -----------
-        selector : str
-            포커스할 HTML 요소의 CSS 선택자
-        delay : int
-            페이지 로드 후 포커스를 적용할 지연 시간(밀리초)
-        """
-        js_code = f"""
-        <script>
-        // 페이지 로드 후 {delay}ms 후에 포커스 시도
-        setTimeout(function() {{
-            const inputs = parent.document.querySelectorAll('{selector}');
-            if (inputs.length > 0) {{
-                inputs[0].focus();
-            }}
-        }}, {delay});
-        </script>
-        """
-        st.components.v1.html(js_code, height=0)
-
-    @staticmethod
-    def create_password_input(on_change_callback: Callable, 
-                            error_message: str = "비밀번호가 틀렸습니다. 다시 시도해주세요.",
-                            has_error: bool = False,
-                            placeholder: str = "비밀번호를 입력하세요",
-                            key: str = "password_input"):
-        """
-        비밀번호 입력 양식을 생성합니다.
-        
-        Parameters:
-        -----------
-        on_change_callback : Callable
-            비밀번호 입력 시 호출될 콜백 함수
-        error_message : str
-            오류 발생 시 표시할 메시지
-        has_error : bool
-            오류 상태 여부
-        placeholder : str
-            입력 필드에 표시할 안내 텍스트
-        key : str
-            입력 필드의 고유 키 (기본값: "password_input")
-        """
-        # 자동 포커스 스크립트 추가
-        UI.add_input_focus_js()
-        
-        # 오류 메시지 표시
-        if has_error:
-            st.error(error_message)
-        
-        # 비밀번호 입력 UI
-        col1, col2 = st.columns(2)
-        with col1:
-            password = st.text_input(
-                placeholder, 
-                type="password", 
-                key=key, 
-                label_visibility="collapsed", 
-                on_change=on_change_callback
-            )
-        with col2:
-            st.button(
-                "확인", 
-                key=f"{key}_button", 
-                use_container_width=False,
-                on_click=on_change_callback
-            )
-        
-        return password
-
-    @staticmethod
-    def create_filter_ui(data: pd.DataFrame, 
-                        filter_values: Dict[str, str], 
-                        on_change_callbacks: Dict[str, Callable],
-                        column_names: Dict[str, str]) -> None:
-        """
-        필터링 UI를 생성합니다.
-        
-        Parameters:
-        -----------
-        data : pd.DataFrame
-            필터링할 데이터
-        filter_values : Dict[str, str]
-            현재 필터 값 (key: 필터 이름, value: 선택된 값)
-        on_change_callbacks : Dict[str, Callable]
-            각 필터의 값이 변경될 때 호출할 콜백 함수
-        column_names : Dict[str, str]
-            컬럼 매핑 정보 (key: 내부 컬럼명, value: 표시 컬럼명)
-        """
-        # 컬럼 생성
-        filter_cols = st.columns(len(filter_values))
-        
-        # 필터 값 목록 추출
-        for i, (filter_key, current_value) in enumerate(filter_values.items()):
-            if filter_key not in column_names:
-                continue
-                
-            display_name = column_names[filter_key]
-            column_name = column_names[filter_key]
-            
-            # 필터 옵션 생성
-            options = ["전체"]
-            if filter_key in data.columns:
-                options.extend(list(data[filter_key].unique()))
-            
-            # 현재 선택 인덱스
-            selected_index = 0
-            if current_value in options:
-                selected_index = options.index(current_value)
-                
-            # 셀렉트박스 생성
-            with filter_cols[i]:
-                st.selectbox(
-                    f"{display_name} 선택",
-                    options=options,
-                    key=f"{filter_key}_filter_widget",
-                    index=selected_index,
-                    on_change=on_change_callbacks.get(filter_key, None)
-                )
-
-    @staticmethod
-    def show_dataframe_with_info(df: pd.DataFrame, 
-                                hide_index: bool = True, 
-                                use_container_width: bool = True) -> None:
-        """
-        데이터프레임을 표시하고 결과 개수도 함께 보여줍니다.
-        
-        Parameters:
-        -----------
-        df : pd.DataFrame
-            표시할 데이터프레임
-        hide_index : bool
-            인덱스 숨김 여부
-        use_container_width : bool
-            컨테이너 너비 사용 여부
-        """
-        # 데이터프레임 표시
-        st.dataframe(
-            df, 
-            use_container_width=use_container_width,
-            hide_index=hide_index
-        )
-        
-        # 결과 개수 표시
-        st.info(f"총 {len(df)}개의 결과가 있습니다.")
-
-    @staticmethod
-    def show_date_range_selector(default_start_date=None, 
-                                default_end_date=None, 
-                                search_button_label="검색") -> Tuple:
-        """
-        날짜 범위 선택기를 표시합니다.
-        
-        Parameters:
-        -----------
-        default_start_date : datetime.date, optional
-            기본 시작 날짜
-        default_end_date : datetime.date, optional
-            기본 종료 날짜
-        search_button_label : str
-            검색 버튼 라벨
-            
-        Returns:
-        --------
-        Tuple[datetime.date, datetime.date, bool]
-            선택된 시작 날짜, 종료 날짜, 검색 버튼 클릭 여부
-        """
-        if default_start_date is None:
-            default_start_date = datetime.now().date()
-            
-        if default_end_date is None:
-            default_end_date = (datetime.now() + timedelta(days=30)).date()
-        
-        # 날짜 선택 레이아웃
-        col1, col2, col3 = st.columns((1, 1, 3))
-        
-        with col1:
-            start_date = st.date_input(
-                "시작 날짜", 
-                default_start_date, 
-                label_visibility="collapsed"
-            )
-            
-        with col2:
-            end_date = st.date_input(
-                "종료 날짜", 
-                default_end_date, 
-                label_visibility="collapsed"
-            )
-            
-        with col3:
-            search_button = st.button(
-                search_button_label, 
-                use_container_width=False
-            )
-        
-        return start_date, end_date, search_button
-
-
 class Naver:
     def __init__(self):
         self.url_schedule = "https://m.booking.naver.com/graphql?opName=schedule"
@@ -350,9 +106,7 @@ class Naver:
                 'maxBookingCount': datum['maxBookingCount'],
                 'startTime': datum['startTime'],
                 'endTime': datum['endTime'],
-                'prices': datum['prices'][0]['price'] 
-                          if datum['prices'] and len(datum['prices']) > 0 
-                          else 0
+                'prices': datum['prices'][0]['price'] if datum['prices'] and len(datum['prices']) > 0 else 0
             })
         
         result = pd.DataFrame(result)
@@ -682,8 +436,8 @@ class Naver:
                     
                     # 페이지 생성 및 설정
                     page = context.new_page()
-                    page.set_default_navigation_timeout(60000)  # 60초로 타임아웃 증가
-                    page.set_default_timeout(60000)
+                    page.set_default_navigation_timeout(15000)  # 타임아웃을 15초로 줄임
+                    page.set_default_timeout(15000)
                     
                     # 봇 감지 우회 스크립트 실행
                     page.evaluate("""
@@ -692,22 +446,22 @@ class Naver:
                         });
                     """)
                     
-                    # 무작위 지연 시간 추가 (10~20초, 첫 시도에서는 더 짧게)
-                    delay = random.uniform(5, 10) if retry_count == 0 else random.uniform(10, 20)
+                    # 무작위 지연 시간 추가 (1.25~2.5초, 첫 시도에서는 더 짧게)
+                    delay = random.uniform(0.125, 0.25) if retry_count == 0 else random.uniform(0.125, 0.25)
                     print(f"요청 전 {delay:.1f}초 대기 중...")
                     time.sleep(delay)
                     
                     # 네이버 메인 페이지 먼저 방문
                     page.goto("https://www.naver.com")
-                    time.sleep(random.uniform(3, 5))
+                    time.sleep(random.uniform(0.125, 0.25))
                     
                     # 마우스 움직임 시뮬레이션
                     page.mouse.move(random.randint(100, 800), random.randint(100, 600))
-                    time.sleep(random.uniform(0.5, 2))
+                    time.sleep(random.uniform(0.0625, 0.125))
                     
                     # 페이지 스크롤
-                    page.evaluate("window.scrollBy(0, 300)")
-                    time.sleep(random.uniform(0.5, 2))
+                    page.evaluate("window.scrollBy(0, 150)")
+                    time.sleep(random.uniform(0.0625, 0.125))
                     
                     # 페이지 접속
                     print(f"리뷰 페이지로 이동 중...")
@@ -721,7 +475,7 @@ class Naver:
                         button = page.query_selector("a.dP0sq[role='button']")
                         if button:
                             button.click()
-                            time.sleep(random.uniform(1, 2))  # 클릭 후 대기
+                            time.sleep(random.uniform(0.0625, 0.125))  # 클릭 후 대기
                     
                     # 페이지에 "과도한 접근 요청" 문구가 있는지 확인
                     content = page.content()
@@ -730,17 +484,17 @@ class Naver:
                         browser.close()
                         retry_count += 1
                         # 더 긴 대기 시간
-                        wait_time = 30 + retry_count * 30  # 30초, 60초, 90초...
+                        wait_time = 15 + retry_count * 15  # 15초, 30초, 45초...
                         print(f"{wait_time}초 후에 재시도합니다...")
                         time.sleep(wait_time)
                         continue
                     
                     # 추가 지연 시간 및 활동 시뮬레이션
-                    time.sleep(random.uniform(1, 3))
+                    time.sleep(random.uniform(0.125, 0.375))
                     
                     # 페이지에서 스크롤
-                    page.evaluate("window.scrollBy(0, 300)")
-                    time.sleep(random.uniform(1, 2))
+                    page.evaluate("window.scrollBy(0, 150)")
+                    time.sleep(random.uniform(0.125, 0.25))
                     
                     # 페이지 내용 가져오기
                     html = page.content()
@@ -753,7 +507,7 @@ class Naver:
                     for li in lis:
                         review_text = li.find('span', class_='t3JSf').text.strip().replace('"', '')
                         participant_count = ''.join(filter(str.isdigit, li.find('span', class_='CUoLy').text.strip()))
-                        reviews_data.append({"channelId": channel_id, "review_item": review_text, "raing": participant_count})
+                        reviews_data.append({"channelId": channel_id, "review_item": review_text, "rating": participant_count})
                     reviews_data = pd.DataFrame(reviews_data)
                             
                     # 세션 정리
@@ -764,7 +518,7 @@ class Naver:
                 print(f"오류 발생: {str(e)}")
                 retry_count += 1
                 if retry_count < max_retries:
-                    wait_time = 30 + retry_count * 30
+                    wait_time = 15 + retry_count * 15
                     print(f"{wait_time}초 후에 재시도합니다...")
                     time.sleep(wait_time)
                 else:
@@ -772,13 +526,12 @@ class Naver:
         
         return {"error": "최대 재시도 횟수 초과", "status": "failed"}
         
-    def get_rating_data(self):
-        pension_info = pd.read_csv('./static/pension_info.csv')[['businessName', 'channelId']].drop_duplicates()
+    def get_rating_data(self, df):
         rating_data = pd.DataFrame()
-        for index, row in tqdm(pension_info.iterrows(), total=len(pension_info)):
+        for index, row in tqdm(df.iterrows(), total=len(df)):
             result = self._get_rating(row['channelId'])
             result['businessName'] = row['businessName']
             result['channelId'] = row['channelId']
             rating_data = pd.concat([rating_data, result], ignore_index=True)
         rating_data.to_csv('./static/rating_data.csv', index=False)
-        return rating_data
+        return rating_data 

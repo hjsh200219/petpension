@@ -3,7 +3,8 @@ import importlib
 import sys
 from pathlib import Path
 
-from src.common import Naver, UI
+from src.data import Naver
+from src.ui import UI
 # 모듈에서 함수 가져오기
 from pages.schedule import show_schedule_page
 from pages.admin import show_admin_page
@@ -19,9 +20,13 @@ def reload_modules():
     importlib.reload(admin)
     importlib.reload(review_analysis)
     # 하위 모듈도 필요한 경우 재로드
-    if 'src.common' in sys.modules:
-        import src.common
-        importlib.reload(src.common)
+    if 'src.data' in sys.modules:
+        import src.data
+        importlib.reload(src.data)
+    if 'src.ui' in sys.modules:
+        import src.ui
+        importlib.reload(src.ui)
+    
 
 # 페이지 설정
 st.set_page_config(

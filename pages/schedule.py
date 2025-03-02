@@ -2,7 +2,8 @@ import streamlit as st
 import pandas as pd
 import os
 from datetime import datetime, timedelta
-from src.common import Naver, UI
+from src.data import Naver
+from src.ui import UI
 from pathlib import Path
 
 # 개발 모드에서만 캐싱 설정 비활성화
