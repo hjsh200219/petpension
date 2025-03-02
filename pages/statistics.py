@@ -273,7 +273,7 @@ def show_statistics_page():
             fig1.update_layout(
                 xaxis_title='펜션/상품',
                 yaxis_title='평균 가격 (원)',
-                yaxis=dict(tickformat=',d')
+                yaxis=dict(tickformat=',d', range=[0, None])
             )
             
             st.plotly_chart(fig1, use_container_width=True)
@@ -325,7 +325,7 @@ def show_statistics_page():
                 xaxis_title='날짜',
                 yaxis_title='평균 가격 (원)',
                 yaxis=dict(tickformat=',d', range=[0, None]),
-                legend={'traceorder': 'normal'}
+                legend={'traceorder': 'normal'},
             )
             
             st.plotly_chart(fig3, use_container_width=True)
