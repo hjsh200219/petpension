@@ -4,6 +4,12 @@ import os
 from pathlib import Path
 from src.common import Naver
 
+# 개발 모드에서만 캐싱 설정 비활성화
+if os.environ.get('STREAMLIT_DEVELOPMENT', 'false').lower() == 'true':
+    st.cache_data.clear()
+    st.cache_resource.clear()
+    print("Admin 페이지 캐시 클리어 - 개발 모드")
+
 naver = Naver()
 
 def show_admin_page():
@@ -23,7 +29,7 @@ def show_admin_page():
             st.session_state.password_error = True
 
     if not st.session_state.password_verified:
-        st.subheader("🔒 관리자 로그인")
+        st.subheader("🔒 관리111자 로그11인")
         
         # 자동 포커스를 위한 JavaScript 코드 추가
         st.components.v1.html("""

@@ -1,8 +1,15 @@
 import streamlit as st
 import pandas as pd
+import os
 from datetime import datetime, timedelta
 from src.common import Naver
 from pathlib import Path
+
+# 개발 모드에서만 캐싱 설정 비활성화
+if os.environ.get('STREAMLIT_DEVELOPMENT', 'false').lower() == 'true':
+    st.cache_data.clear()
+    st.cache_resource.clear()
+    print("Schedule 페이지 캐시 클리어 - 개발 모드")
 
 def show_schedule_page():
     # Naver 객체 생성
