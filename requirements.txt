@@ -6,3 +6,5 @@ numpy==1.26.3
 tqdm==4.66.1
 playwright==1.40.0
 python-dotenv==1.0.0
+beautifulsoup4==4.12.2
+lxml==4.9.3
