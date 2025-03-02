@@ -42,10 +42,16 @@ def show_review_analysis_page():
         )
         return
     
-    # 비밀번호 검증 완료 후 실제 통계 페이지 표시
-    st.subheader("🔍 펜션 리뷰 비교")  
-    
-    
+    st.subheader("🔍 펜션 리뷰 비교")
+
+    pension_info = pd.read_csv('./static/pension_info.csv')
+    selected_pensions = st.multiselect(
+        "분석할 펜션을 선택 (최대 5개)",
+        options=pension_info['businessName'].unique(),  # pension_info에서 숙박업소 목록 추출
+        default=pension_info['businessName'].unique()[:5],  # 기본 선택값으로 첫 5개 펜션 설정
+        key="review_selected_pensions",
+        max_selections=5
+    )
 
 if __name__ == "__main__":
     show_review_analysis_page() 
