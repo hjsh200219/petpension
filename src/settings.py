@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 # .env 파일 로드 (존재하는 경우)
 load_dotenv()
 
-# "200219"의 정확한 SHA-256 해시값
 DEFAULT_PASSWORD_HASH = "97f41176b020df3c9da7a55c1d725fd2f84e639e40c94283253d9fbfb807dd93"
 
 # 환경 변수에서 비밀번호 해시 가져오기, 없으면 기본값 사용
