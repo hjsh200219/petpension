@@ -22,7 +22,7 @@ def show_schedule_page():
         st.session_state.region_filter = "전체"
     
     # 날짜 선택
-    col1, col2, col3 = st.columns((1,1,3))
+    col1, col2, col3 = st.columns((1, 1, 3))
     with col1:
         start_date = st.date_input(
             "시작 날짜", 
@@ -33,9 +33,14 @@ def show_schedule_page():
         end_date = st.date_input(
             "종료 날짜", 
             datetime.now() + timedelta(days=30), 
-            label_visibility="collapsed")
+            label_visibility="collapsed"
+        )
     with col3:
-        search_button = st.button("일정 조회", key="unique_schedule_button", use_container_width=False)
+        search_button = st.button(
+            "일정 조회", 
+            key="unique_schedule_button", 
+            use_container_width=False
+        )
 
     # CSV 파일에서 데이터 읽기
     pension_info = pd.read_csv('./static/pension_info.csv')
@@ -61,8 +66,12 @@ def show_schedule_page():
             schedule_data['address'] = row.address_new
             
             # 결과를 필터링하고 필요한 열만 선택
-            filtered_schedule_data = schedule_data[schedule_data['isSaleDay'] == True]
-            filtered_schedule_data = filtered_schedule_data[['businessName', 'bizItemName', 'date', 'prices', 'address']].rename(columns={
+            filtered_schedule_data = schedule_data[
+                schedule_data['isSaleDay'] == True
+            ]
+            filtered_schedule_data = filtered_schedule_data[
+                ['businessName', 'bizItemName', 'date', 'prices', 'address']
+            ].rename(columns={
                 'businessName': '숙박업소', 
                 'bizItemName': '숙박상품', 
                 'date': '날짜', 
@@ -70,7 +79,8 @@ def show_schedule_page():
                 'address': '주소'
             })
             
-            result = pd.concat([result, filtered_schedule_data], ignore_index=True)  # 결과를 누적 저장
+            result = pd.concat([result, filtered_schedule_data], 
+                               ignore_index=True)  # 결과를 누적 저장
 
         st.session_state.result = result
         # 검색 결과 저장 후 필터링된 결과도 초기화
@@ -85,10 +95,14 @@ def show_schedule_page():
         filtered_data = st.session_state.result.copy()
         
         if st.session_state.business_name_filter != "전체":
-            filtered_data = filtered_data[filtered_data['숙박업소'] == st.session_state.business_name_filter]
+            filtered_data = filtered_data[
+                filtered_data['숙박업소'] == st.session_state.business_name_filter
+            ]
             
         if st.session_state.biz_item_name_filter != "전체":
-            filtered_data = filtered_data[filtered_data['숙박상품'] == st.session_state.biz_item_name_filter]
+            filtered_data = filtered_data[
+                filtered_data['숙박상품'] == st.session_state.biz_item_name_filter
+            ]
             
         if st.session_state.region_filter != "전체":
             region_mapping = {
@@ -110,7 +124,11 @@ def show_schedule_page():
                 "경남": ["경남", "경상남도"],
                 "제주": ["제주", "제주특별자치도"]
             }
-            filtered_data = filtered_data[filtered_data['주소'].str.contains('|'.join(region_mapping[st.session_state.region_filter]))]
+            filtered_data = filtered_data[
+                filtered_data['주소'].str.contains(
+                    '|'.join(region_mapping[st.session_state.region_filter])
+                )
+            ]
             
         st.session_state.filtered_result = filtered_data
 
@@ -137,7 +155,9 @@ def show_schedule_page():
         business_options = ["전체"] + list(st.session_state.result['숙박업소'].unique())
         business_index = 0  # 기본값
         if st.session_state.business_name_filter in business_options:
-            business_index = business_options.index(st.session_state.business_name_filter)
+            business_index = business_options.index(
+                st.session_state.business_name_filter
+            )
 
         with filter_col1:
             st.selectbox(
@@ -164,7 +184,12 @@ def show_schedule_page():
             )
 
         # 지역 필터 옵션 및 인덱스 계산
-        region_options = ["전체", "서울", "부산", "대구", "인천", "광주", "대전", "울산", "세종", "경기", "강원", "충북", "충남", "전북", "전남", "경북", "경남", "제주"]
+        region_options = [
+            "전체", "서울", "부산", "대구", "인천", "광주", 
+            "대전", "울산", "세종", "경기", "강원", 
+            "충북", "충남", "전북", "전남", "경북", 
+            "경남", "제주"
+        ]
         region_index = 0  # 기본값
         if st.session_state.region_filter in region_options:
             region_index = region_options.index(st.session_state.region_filter)
