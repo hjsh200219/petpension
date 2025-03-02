@@ -129,15 +129,6 @@ def show_schedule_page():
         st.session_state.biz_item_name_filter = "전체"
         st.session_state.region_filter = "전체"
 
-        # 검색 결과를 CSV 파일로 저장 (통계 분석용)
-        if not result.empty:
-            # static 폴더가 없으면 생성
-            static_dir = Path('./static')
-            static_dir.mkdir(exist_ok=True)
-            
-            # 결과를 CSV 파일로 저장
-            result.to_csv('./static/schedule_data.csv', index=False)
-
     # 필터링 함수 정의
     def apply_filters():
         filtered_data = st.session_state.result.copy()

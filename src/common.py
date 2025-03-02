@@ -14,6 +14,8 @@ from bs4 import BeautifulSoup as BS
 from playwright.sync_api import sync_playwright
 import streamlit as st
 from typing import List, Dict, Any, Callable, Optional, Union, Tuple
+import time
+import random
 
 
 class Common:
@@ -273,6 +275,7 @@ class Naver:
         self.url_place_info = "https://pages.map.naver.com/save-widget/api/maps-search/place?id="
         self.url_booking = "https://map.naver.com/p/entry/place/"
         self.url_rating = "https://api.place.naver.com/graphql"
+        self.url_rating_detail = "https://m.place.naver.com/place/"
 
     def get_schedule(self, businessId, bizItemId, startDateTime, endDateTime):
         payload = {
@@ -640,3 +643,142 @@ class Naver:
 
         response = req.post(self.url_rating, json=payload)
         return response
+
+    def _get_rating(self, channel_id):
+        # 재시도 횟수 설정
+        max_retries = 3
+        retry_count = 0
+        
+        while retry_count < max_retries:
+            try:
+                with sync_playwright() as p:
+                    # 브라우저 런치 옵션 설정
+                    browser = p.chromium.launch(
+                        headless=True,
+                        args=[
+                            '--disable-blink-features=AutomationControlled',
+                            '--disable-extensions',
+                            '--no-sandbox',
+                            '--disable-setuid-sandbox'
+                        ]
+                    )
+                    
+                    # 브라우저 컨텍스트 생성 및 더 실제 같은 설정
+                    context = browser.new_context(
+                        user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                        viewport={"width": 1920, "height": 1080},
+                        has_touch=False,
+                        java_script_enabled=True,
+                        locale="ko-KR",
+                        timezone_id="Asia/Seoul",
+                        geolocation={"latitude": 37.5665, "longitude": 126.9780, "accuracy": 100},
+                        color_scheme="light"
+                    )
+                    
+                    # 쿠키 및 로컬 스토리지 설정 추가
+                    context.add_cookies([
+                        {"name": "NNB", "value": "".join(random.choices("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", k=12)), "domain": ".naver.com", "path": "/"}
+                    ])
+                    
+                    # 페이지 생성 및 설정
+                    page = context.new_page()
+                    page.set_default_navigation_timeout(60000)  # 60초로 타임아웃 증가
+                    page.set_default_timeout(60000)
+                    
+                    # 봇 감지 우회 스크립트 실행
+                    page.evaluate("""
+                        Object.defineProperty(navigator, 'webdriver', {
+                            get: () => false,
+                        });
+                    """)
+                    
+                    # 무작위 지연 시간 추가 (10~20초, 첫 시도에서는 더 짧게)
+                    delay = random.uniform(5, 10) if retry_count == 0 else random.uniform(10, 20)
+                    print(f"요청 전 {delay:.1f}초 대기 중...")
+                    time.sleep(delay)
+                    
+                    # 네이버 메인 페이지 먼저 방문
+                    page.goto("https://www.naver.com")
+                    time.sleep(random.uniform(3, 5))
+                    
+                    # 마우스 움직임 시뮬레이션
+                    page.mouse.move(random.randint(100, 800), random.randint(100, 600))
+                    time.sleep(random.uniform(0.5, 2))
+                    
+                    # 페이지 스크롤
+                    page.evaluate("window.scrollBy(0, 300)")
+                    time.sleep(random.uniform(0.5, 2))
+                    
+                    # 페이지 접속
+                    print(f"리뷰 페이지로 이동 중...")
+                    page.goto(f"{self.url_rating_detail}{channel_id}/review/visitor")
+                    
+                    # 페이지가 완전히 로드될 때까지 대기
+                    page.wait_for_load_state('networkidle')
+
+                    # '더보기' 버튼을 두 번 클릭하는 코드
+                    for _ in range(2):
+                        button = page.query_selector("a.dP0sq[role='button']")
+                        if button:
+                            button.click()
+                            time.sleep(random.uniform(1, 2))  # 클릭 후 대기
+                    
+                    # 페이지에 "과도한 접근 요청" 문구가 있는지 확인
+                    content = page.content()
+                    if "과도한 접근 요청으로 서비스 이용이 제한되었습니다" in content:
+                        print(f"접근 제한 감지됨. 재시도 {retry_count + 1}/{max_retries}")
+                        browser.close()
+                        retry_count += 1
+                        # 더 긴 대기 시간
+                        wait_time = 30 + retry_count * 30  # 30초, 60초, 90초...
+                        print(f"{wait_time}초 후에 재시도합니다...")
+                        time.sleep(wait_time)
+                        continue
+                    
+                    # 추가 지연 시간 및 활동 시뮬레이션
+                    time.sleep(random.uniform(1, 3))
+                    
+                    # 페이지에서 스크롤
+                    page.evaluate("window.scrollBy(0, 300)")
+                    time.sleep(random.uniform(1, 2))
+                    
+                    # 페이지 내용 가져오기
+                    html = page.content()
+                    soup = BS(html, 'html.parser')
+                    divs = soup.find_all('div', class_='place_section_content')
+                    div = divs[0]
+                    ul = div.find('ul')
+                    lis = ul.find_all('li')
+                    reviews_data = []
+                    for li in lis:
+                        review_text = li.find('span', class_='t3JSf').text.strip().replace('"', '')
+                        participant_count = ''.join(filter(str.isdigit, li.find('span', class_='CUoLy').text.strip()))
+                        reviews_data.append({"channelId": channel_id, "review_item": review_text, "raing": participant_count})
+                    reviews_data = pd.DataFrame(reviews_data)
+                            
+                    # 세션 정리
+                    browser.close()
+                    return reviews_data
+                    
+            except Exception as e:
+                print(f"오류 발생: {str(e)}")
+                retry_count += 1
+                if retry_count < max_retries:
+                    wait_time = 30 + retry_count * 30
+                    print(f"{wait_time}초 후에 재시도합니다...")
+                    time.sleep(wait_time)
+                else:
+                    return {"error": str(e), "status": "error"}
+        
+        return {"error": "최대 재시도 횟수 초과", "status": "failed"}
+        
+    def get_rating_data(self):
+        pension_info = pd.read_csv('./static/pension_info.csv')[['businessName', 'channelId']].drop_duplicates()
+        rating_data = pd.DataFrame()
+        for index, row in tqdm(pension_info.iterrows(), total=len(pension_info)):
+            result = self._get_rating(row['channelId'])
+            result['businessName'] = row['businessName']
+            result['channelId'] = row['channelId']
+            rating_data = pd.concat([rating_data, result], ignore_index=True)
+        rating_data.to_csv('./static/rating_data.csv', index=False)
+        return rating_data

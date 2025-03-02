@@ -1,6 +1,7 @@
 from src.common import Naver
 from datetime import datetime, timedelta
 import pandas as pd
+from tqdm import tqdm
 naver = Naver()
 
 # data = naver._waiting_status("1010023")
@@ -27,7 +28,20 @@ naver = Naver()
 
 # result = naver.get_pension_info('13414710')
 
-naver.insert_pension_info('1223109', '1306861767')
+# naver.insert_pension_info('1223109', '1306861767')
 
-# result = naver.get_rating('1306861767')
+# result = naver._get_rating('1110323563')
 # print(result)
+
+
+# pension_info = pd.read_csv('./static/pension_info.csv')[['businessName', 'channelId']].drop_duplicates()
+# rating_data = pd.DataFrame()
+# for index, row in tqdm(pension_info.iterrows(), total=len(pension_info)):
+#     result = naver._get_rating(row['channelId'])
+#     result['businessName'] = row['businessName']
+#     result['channelId'] = row['channelId']
+#     rating_data = pd.concat([rating_data, result], ignore_index=True)
+# print(rating_data)
+# rating_data.to_csv('./static/rating_data.csv', index=False)
+
+rating_data = pd.read_csv('./static/rating_data.csv')
