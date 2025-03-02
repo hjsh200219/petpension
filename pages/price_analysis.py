@@ -538,7 +538,7 @@ def handle_logout():
         st.session_state.password_verified = False
         st.rerun()
 
-def show_statistics_page():
+def show_price_analysis_page():
     """통계 페이지 메인 함수"""
     # 비밀번호 검증
     if not verify_user_password():
@@ -547,7 +547,7 @@ def show_statistics_page():
     # 페이지 제목 & 로그아웃 버튼
     col1, col2 = st.columns([5, 1])
     with col1:
-        st.subheader("📊 펜션 통계 정보")
+        st.subheader("📊 펜션 가격 분석")
     with col2:
         handle_logout()
     
