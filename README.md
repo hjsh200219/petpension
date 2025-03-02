@@ -30,9 +30,24 @@ source venv/bin/activate  # macOS/Linux
 pip install -r requirements.txt
 ```
 
-4. 애플리케이션 실행
+4. 환경 설정
 ```bash
-streamlit run main.py
+# .env.example 파일을 .env로 복사
+cp .env.example .env
+
+# 필요에 따라 .env 파일을 수정
+# 관리자 비밀번호를 변경하려면:
+python -c "from src.settings import set_password; set_password('새_비밀번호')"
+# 이 명령은 새 비밀번호의 해시값을 출력합니다. 이 값을 .env 파일의 ADMIN_PASSWORD_HASH에 설정하세요.
+```
+
+5. 애플리케이션 실행
+```bash
+# 일반 실행
+streamlit run app.py
+
+# 개발 모드 실행 (자동 새로고침)
+python run_dev.py
 ```
 
 ## 기술 스택

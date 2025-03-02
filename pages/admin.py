@@ -3,6 +3,7 @@ import pandas as pd
 import os
 from pathlib import Path
 from src.common import Naver
+from src.settings import verify_password
 
 # 개발 모드에서만 캐싱 설정 비활성화
 if os.environ.get('STREAMLIT_DEVELOPMENT', 'false').lower() == 'true':
@@ -20,9 +21,9 @@ def show_admin_page():
         st.session_state.password_error = False
 
     # 비밀번호 검증 함수
-    def verify_password():
+    def check_password():
         password = st.session_state.password_input
-        if password == "200219":
+        if verify_password(password):
             st.session_state.password_verified = True
             st.session_state.password_error = False
         else:
@@ -55,14 +56,14 @@ def show_admin_page():
                 type="password", 
                 key="password_input", 
                 label_visibility="collapsed", 
-                on_change=verify_password
+                on_change=check_password
             )
         with col2:
             st.button(
                 "확인", 
                 key="password_button", 
                 use_container_width=False,
-                on_click=verify_password
+                on_click=check_password
             )
         return
 
