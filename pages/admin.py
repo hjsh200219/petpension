@@ -29,7 +29,7 @@ def show_admin_page():
             st.session_state.password_error = True
 
     if not st.session_state.password_verified:
-        st.subheader("🔒 관리111자 로그11인")
+        st.subheader("🔒 관리자 로그인")
         
         # 자동 포커스를 위한 JavaScript 코드 추가
         st.components.v1.html("""
