@@ -6,12 +6,13 @@ from pathlib import Path
 from src.common import Naver, UI
 
 # 직접 import 방식 변경
-from pages import schedule, add_pension
+from pages import schedule, add_pension, statistics
 
 # 페이지 모듈 재로드 함수
 def reload_modules():
     importlib.reload(schedule)
     importlib.reload(add_pension)
+    importlib.reload(statistics)
     # 하위 모듈도 필요한 경우 재로드
     if 'src.common' in sys.modules:
         import src.common
@@ -30,17 +31,22 @@ reload_modules()
 # 모듈에서 함수 가져오기
 from pages.schedule import show_schedule_page
 from pages.add_pension import show_add_pension_page
+from pages.statistics import show_statistics_page
 
 # 탭 추가
-tab1, tab2 = st.tabs(["숙박시설 조회", "펜션 추가/관리"])
+tab1, tab2, tab3 = st.tabs(["숙박시설 조회", "펜션 추가/관리", "통계 분석"])
 
 # 일정 조회 탭
 with tab1:
     show_schedule_page()
 
-# 관리자 메뉴 탭
+# 펜션 추가/관리 탭
 with tab2:
     show_add_pension_page()
+
+# 통계 분석 탭
+with tab3:
+    show_statistics_page()
 
 # CSS 로드 및 배너, 푸터 표시
 css_path = Path(__file__).parent / "static" / "css" / "style.css"

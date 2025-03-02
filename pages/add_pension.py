@@ -9,7 +9,6 @@ from src.settings import verify_password
 if os.environ.get('STREAMLIT_DEVELOPMENT', 'false').lower() == 'true':
     st.cache_data.clear()
     st.cache_resource.clear()
-    print("Add Pension 페이지 캐시 클리어 - 개발 모드")
 
 naver = Naver()
 
@@ -22,7 +21,7 @@ def show_add_pension_page():
 
     # 비밀번호 검증 함수
     def check_password():
-        password = st.session_state.password_input
+        password = st.session_state.add_pension_password_input
         if verify_password(password):
             st.session_state.password_verified = True
             st.session_state.password_error = False
@@ -35,7 +34,8 @@ def show_add_pension_page():
         # UI 컴포넌트 사용하여 비밀번호 입력 폼 생성
         UI.create_password_input(
             on_change_callback=check_password,
-            has_error=st.session_state.password_error
+            has_error=st.session_state.password_error,
+            key="add_pension_password_input"
         )
         return
 
@@ -50,6 +50,13 @@ def show_add_pension_page():
         st.subheader("현재 등록된 펜션 정보")
         pension_info['businessId'] = pension_info['businessId'].astype(str)
         pension_info['bizItemId'] = pension_info['bizItemId'].astype(str)
+        pension_info['channelId'] = pension_info['channelId'].astype(str)
+        
+        # businessName 컬럼이 가장 먼저 오도록 컬럼 순서 재정렬
+        pension_info = pension_info[
+            ['businessName', 'channelId', 'businessId', 'bizItemName', 'bizItemId', 'addressNew']
+        ]
+        
         UI.show_dataframe_with_info(pension_info)
         
         # 펜션 정보 수정/삭제 기능
@@ -114,7 +121,7 @@ def show_add_pension_page():
                     col1, col2 = st.columns(2)
                     address = st.text_input(
                         "주소", 
-                        value=selected_pension['address_new']
+                        value=selected_pension['addressNew']
                     )
                     
                     # 수정 버튼
@@ -130,7 +137,7 @@ def show_add_pension_page():
                             pension_info.loc[idx, 'businessId'] = business_id
                             pension_info.loc[idx, 'bizItemName'] = biz_item_name
                             pension_info.loc[idx, 'bizItemId'] = biz_item_id
-                            pension_info.loc[idx, 'address_new'] = address
+                            pension_info.loc[idx, 'addressNew'] = address
                             
                             # 변경된 정보 저장
                             pension_info.to_csv(csv_path, index=False)

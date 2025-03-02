@@ -7,11 +7,11 @@ naver = Naver()
 # print(data)
 
 
-start_date = datetime.now().strftime("%Y-%m-%d")
-end_date = (datetime.now() + timedelta(days=30)).strftime("%Y-%m-%d")
+# start_date = datetime.now().strftime("%Y-%m-%d")
+# end_date = (datetime.now() + timedelta(days=30)).strftime("%Y-%m-%d")
 
-data = naver.get_schedule("630736", "4739353", "2025-03-01", "2025-03-31")
-print(data)
+# data = naver.get_schedule("630736", "4739353", "2025-03-01", "2025-03-31")
+# print(data)
 
 
 # business_name = '펜션숲'
@@ -25,4 +25,9 @@ print(data)
 
 # naver.insert_pension_info('펜션숲', '630736')
 
-naver.get_pension_info('펜션숲', '13414710')
+# result = naver.get_pension_info('13414710')
+
+# naver.insert_pension_info('896898', '1306861767')
+
+result = naver.get_rating('1306861767')
+print(result)
