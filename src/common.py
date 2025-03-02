@@ -4,7 +4,6 @@ import requests as req
 import json
 import math
 import datetime
-import concurrent.futures
 from io import BytesIO, StringIO
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
