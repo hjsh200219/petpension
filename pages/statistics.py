@@ -178,7 +178,7 @@ def show_statistics_page():
     selected_pensions = st.multiselect(
         "펜션 선택",
         options=other_pensions,
-        default=other_pensions[:3] if len(other_pensions) >= 3 else other_pensions,
+        default=other_pensions,  # 모든 펜션이 기본적으로 선택되도록 수정
         key="selected_pensions"
     )
     
@@ -302,7 +302,7 @@ def show_statistics_page():
             fig2.update_layout(
                 xaxis_title='펜션/상품',
                 yaxis_title='가격 (원)',
-                yaxis=dict(tickformat=',d')
+                yaxis=dict(tickformat=',d', range=[0, None])
             )
             
             st.plotly_chart(fig2, use_container_width=True)
@@ -324,7 +324,7 @@ def show_statistics_page():
             fig3.update_layout(
                 xaxis_title='날짜',
                 yaxis_title='평균 가격 (원)',
-                yaxis=dict(tickformat=',d'),
+                yaxis=dict(tickformat=',d', range=[0, None]),
                 legend={'traceorder': 'normal'}
             )
             
@@ -371,7 +371,7 @@ def show_statistics_page():
             fig4.update_layout(
                 xaxis={'categoryorder': 'array', 'categoryarray': day_order_korean},
                 yaxis_title='평균 가격 (원)',
-                yaxis=dict(tickformat=',d'),
+                yaxis=dict(tickformat=',d', range=[0, None]),
                 legend={'traceorder': 'normal'}
             )
             
