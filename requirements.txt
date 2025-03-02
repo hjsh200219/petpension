@@ -1,13 +1,15 @@
+plotly==5.18.0
+tenacity>=6.2.0
+packaging
 streamlit==1.32.0
 pandas==2.2.0
+numpy==1.26.3
 pillow==10.2.0
 requests==2.31.0
-numpy==1.26.3
 tqdm==4.66.1
 playwright==1.40.0
 python-dotenv==1.0.0
 beautifulsoup4==4.12.2
 lxml==4.9.3
-plotly==5.18.0
 importlib-metadata==6.8.0
 concurrent-futures-pool==1.1.0
