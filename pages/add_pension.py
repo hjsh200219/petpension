@@ -2,18 +2,18 @@ import streamlit as st
 import pandas as pd
 import os
 from pathlib import Path
-from src.common import Naver
+from src.common import Naver, UI
 from src.settings import verify_password
 
 # 개발 모드에서만 캐싱 설정 비활성화
 if os.environ.get('STREAMLIT_DEVELOPMENT', 'false').lower() == 'true':
     st.cache_data.clear()
     st.cache_resource.clear()
-    print("Admin 페이지 캐시 클리어 - 개발 모드")
+    print("Add Pension 페이지 캐시 클리어 - 개발 모드")
 
 naver = Naver()
 
-def show_admin_page():
+def show_add_pension_page():
     if 'password_verified' not in st.session_state:
         st.session_state.password_verified = False
     
@@ -32,39 +32,11 @@ def show_admin_page():
     if not st.session_state.password_verified:
         st.subheader("🔒 관리자 로그인")
         
-        # 자동 포커스를 위한 JavaScript 코드 추가
-        st.components.v1.html("""
-        <script>
-        // 페이지 로드 후 일정 시간 후에 포커스 시도
-        setTimeout(function() {
-            const inputs = parent.document.querySelectorAll('input[type="password"]');
-            if (inputs.length > 0) {
-                inputs[0].focus();
-            }
-        }, 800);
-        </script>
-        """, height=0)
-        
-        # 비밀번호가 틀렸을 때 에러 메시지 표시
-        if st.session_state.password_error:
-            st.error("비밀번호가 틀렸습니다. 다시 시도해주세요.")
-        
-        col1, col2 = st.columns(2)
-        with col1:
-            st.text_input(
-                "비밀번호를 입력하세요", 
-                type="password", 
-                key="password_input", 
-                label_visibility="collapsed", 
-                on_change=check_password
-            )
-        with col2:
-            st.button(
-                "확인", 
-                key="password_button", 
-                use_container_width=False,
-                on_click=check_password
-            )
+        # UI 컴포넌트 사용하여 비밀번호 입력 폼 생성
+        UI.create_password_input(
+            on_change_callback=check_password,
+            has_error=st.session_state.password_error
+        )
         return
 
     st.subheader("🐾관리자 메뉴")
@@ -78,7 +50,7 @@ def show_admin_page():
         st.subheader("현재 등록된 펜션 정보")
         pension_info['businessId'] = pension_info['businessId'].astype(str)
         pension_info['bizItemId'] = pension_info['bizItemId'].astype(str)
-        st.dataframe(pension_info, use_container_width=True, hide_index=True)
+        UI.show_dataframe_with_info(pension_info)
         
         # 펜션 정보 수정/삭제 기능
         st.subheader("펜션 정보 수정/삭제")
@@ -230,23 +202,16 @@ def show_admin_page():
     with st.form("add_pension_form"):
         col1, col2 = st.columns((1, 1))
         with col1:
-            new_business_name = st.text_input("펜션 이름")
+            new_channel_id = st.text_input("channelId")
         with col2:
-            new_business_id = st.text_input("업체 ID")
-        col1, col2 = st.columns((1, 1))
-        with col1:
-            new_address_old = st.text_input("신주소")
-        with col2:
-            new_address_new = st.text_input("구주소")
+            new_business_id = st.text_input("business_id")
         
         # 추가 버튼
         button_add = st.form_submit_button("펜션 추가")
         if button_add:
             naver.insert_pension_info(
-                new_business_name, 
-                new_business_id, 
-                new_address_old, 
-                new_address_new
+                new_channel_id, 
+                new_business_id
             )
             st.success("펜션 추가 완료")
 
@@ -256,4 +221,4 @@ def show_admin_page():
         st.rerun()
 
 if __name__ == "__main__":
-    show_admin_page() 
+    show_add_pension_page() 
