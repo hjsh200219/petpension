@@ -27,7 +27,10 @@ class UI:
     def load_css(css_file):
         """CSS 파일을 로드하는 함수"""
         with open(css_file) as f:
-            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+            st.markdown(
+                f'<style>{f.read()}</style>', 
+                unsafe_allow_html=True
+            )
 
     @staticmethod
     def display_banner():
@@ -345,7 +348,9 @@ class Naver:
                 'maxBookingCount': datum['maxBookingCount'],
                 'startTime': datum['startTime'],
                 'endTime': datum['endTime'],
-                'prices': datum['prices'][0]['price'] if datum['prices'] and len(datum['prices']) > 0 else 0
+                'prices': datum['prices'][0]['price'] 
+                          if datum['prices'] and len(datum['prices']) > 0 
+                          else 0
             })
         
         result = pd.DataFrame(result)

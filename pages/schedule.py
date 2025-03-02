@@ -12,7 +12,7 @@ if os.environ.get('STREAMLIT_DEVELOPMENT', 'false').lower() == 'true':
 
 def show_schedule_page():
     # Naver 객체 생성
-    st.subheader("🐾반려동물 동반 숙박시설 조회")
+    st.subheader("🐾 반려동물 동반 숙박시설 조회")
     naver = Naver()
     
     # 세션 상태 초기화
@@ -50,7 +50,7 @@ def show_schedule_page():
     pension_info = pd.read_csv('./static/pension_info.csv')
 
     # 검색 버튼 클릭 시 데이터 로드
-    if search_button:  # 고유 키 추가
+    if search_button:  
         # 새 검색 시 이전 결과 초기화
         st.session_state.result = pd.DataFrame()
         result = pd.DataFrame()
@@ -95,7 +95,7 @@ def show_schedule_page():
             result = pd.concat(
                 [result, filtered_schedule_data], 
                 ignore_index=True
-            )  # 결과를 누적 저장
+            )  
 
         st.session_state.result = result
         
@@ -104,8 +104,12 @@ def show_schedule_page():
             if pd.isna(address):
                 return "미분류"
             
-            regions = ["서울", "부산", "대구", "인천", "광주", "대전", "울산", "세종",
-                      "경기", "강원", "충북", "충남", "전북", "전남", "경북", "경남", "제주"]
+            regions = [
+                "서울", "부산", "대구", "인천", "광주", 
+                "대전", "울산", "세종", "경기", "강원", 
+                "충북", "충남", "전북", "전남", "경북", 
+                "경남", "제주"
+            ]
             
             for region in regions:
                 if region in address:
@@ -149,7 +153,6 @@ def show_schedule_page():
             ]
             
         if st.session_state.region_filter != "전체":
-            # '지역' 열을 사용하여 필터링
             filtered_data = filtered_data[
                 filtered_data['지역'] == st.session_state.region_filter
             ]
@@ -158,7 +161,6 @@ def show_schedule_page():
 
     # 필터 변경 콜백 함수
     def on_business_filter_change():
-        # 이전에 선택한 업소와 다른 업소를 선택한 경우 상품 필터 초기화
         if st.session_state.business_name_filter != st.session_state.숙박업소_filter_widget:
             st.session_state.biz_item_name_filter = "전체"
         

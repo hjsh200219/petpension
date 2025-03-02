@@ -39,7 +39,7 @@ def show_add_pension_page():
         )
         return
 
-    st.subheader("🐾관리자 메뉴")
+    st.subheader("🐾 관리자 메뉴")
     
     # 기존 펜션 정보 파일 로드
     csv_path = './static/pension_info.csv'
@@ -54,7 +54,8 @@ def show_add_pension_page():
         
         # businessName 컬럼이 가장 먼저 오도록 컬럼 순서 재정렬
         pension_info = pension_info[
-            ['businessName', 'channelId', 'businessId', 'bizItemName', 'bizItemId', 'addressNew']
+            ['businessName', 'channelId', 'businessId', 
+             'bizItemName', 'bizItemId', 'addressNew']
         ]
         
         UI.show_dataframe_with_info(pension_info)
@@ -141,7 +142,9 @@ def show_add_pension_page():
                             
                             # 변경된 정보 저장
                             pension_info.to_csv(csv_path, index=False)
-                            st.success(f"{selected_business} - {selected_item} 정보가 수정되었습니다.")
+                            st.success(
+                                f"{selected_business} - {selected_item} 정보가 수정되었습니다."
+                            )
                             st.rerun()  # 페이지 새로고침
                 else:
                     st.error("선택한 펜션 정보가 없습니다.")
@@ -186,14 +189,18 @@ def show_add_pension_page():
                     pension_info = pension_info[
                         pension_info['businessName'] != selected_business_to_delete
                     ]
-                    st.success(f"{selected_business_to_delete}의 모든 정보가 삭제되었습니다.")
+                    st.success(
+                        f"{selected_business_to_delete}의 모든 정보가 삭제되었습니다."
+                    )
                 else:
                     # 선택한 펜션의 특정 상품만 삭제
                     pension_info = pension_info[
                         ~((pension_info['businessName'] == selected_business_to_delete) & 
                           (pension_info['bizItemName'] == selected_item_to_delete))
                     ]
-                    st.success(f"{selected_business_to_delete} - {selected_item_to_delete} 정보가 삭제되었습니다.")
+                    st.success(
+                        f"{selected_business_to_delete} - {selected_item_to_delete} 정보가 삭제되었습니다."
+                    )
                 
                 # 변경된 정보 저장
                 pension_info.to_csv(csv_path, index=False)

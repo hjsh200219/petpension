@@ -8,3 +8,6 @@ playwright==1.40.0
 python-dotenv==1.0.0
 beautifulsoup4==4.12.2
 lxml==4.9.3
+plotly==5.18.0
+importlib-metadata==6.8.0
+concurrent-futures-pool==1.1.0
