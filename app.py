@@ -2,10 +2,8 @@ import streamlit as st
 import importlib
 import sys
 from pathlib import Path
-
 from src.data import Naver
 from src.ui import UI
-# 모듈에서 함수 가져오기
 from pages.schedule import show_schedule_page
 from pages.admin import show_admin_page
 
@@ -14,7 +12,6 @@ from pages import schedule, add_pension, price_analysis, admin, review_analysis
 
 # 페이지 모듈 재로드 함수
 def reload_modules():
-    # statistics를 price_analysis로 변경
     import pages.price_analysis as price_analysis
     import pages.review_analysis as review_analysis
     import pages.add_pension as add_pension
@@ -51,8 +48,7 @@ with tab2:
     show_admin_page()
 
 # CSS 로드 및 배너, 푸터 표시
-css_path = Path(__file__).parent / "static" / "css" / "style.css"
-UI.load_css(str(css_path))
+UI.load_css()
 
 UI.display_banner()
 UI.display_footer()

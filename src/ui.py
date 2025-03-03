@@ -3,14 +3,16 @@ import pandas as pd
 from datetime import datetime, timedelta
 from typing import List, Dict, Any, Callable, Optional, Union, Tuple
 from src.settings import verify_password
+from pathlib import Path
 
 class UI:
     """UI 관련 함수를 모아둔 클래스"""
     
     @staticmethod
-    def load_css(css_file):
+    def load_css():
+        css_path = Path(__file__).parent / "static" / "css" / "style.css"
         """CSS 파일을 로드하는 함수"""
-        with open(css_file) as f:
+        with open(css_path) as f:
             st.markdown(
                 f'<style>{f.read()}</style>', 
                 unsafe_allow_html=True
