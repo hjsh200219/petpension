@@ -589,4 +589,4 @@ def show_price_analysis_page():
         display_analysis_results()
 
 if __name__ == "__main__":
-    show_statistics_page() 
+    show_price_analysis_page() 
