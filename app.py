@@ -1,8 +1,5 @@
 import streamlit as st
 import importlib
-import sys
-from pathlib import Path
-from src.data import Naver
 from src.ui import UI
 from pages.schedule import show_schedule_page
 from pages.admin import show_admin_page
