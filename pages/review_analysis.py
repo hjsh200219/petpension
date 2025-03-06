@@ -127,7 +127,7 @@ def prioritize_cafeian(rating_average, pension_col):
 
 def initialize_session_state():
     """세션 상태 초기화"""
-    st.session_state.setdefault('chart_type', "bar")
+    st.session_state.setdefault('chart_type', "radar")
     st.session_state.setdefault('has_analysis_result', False)
     st.session_state.setdefault('rating_data_dict', None)
     st.session_state.setdefault('rating_average_dict', None)
@@ -199,7 +199,8 @@ def show_review_analysis_page():
         # 리뷰 데이터 수집
         with st.spinner("리뷰 데이터 수집중..."):
             rating_data = naver.get_rating_data(pension_info_filtered)
-            st.dataframe(rating_data, use_container_width=True, hide_index=True)
+            with st.expander("리뷰 데이터 보기", expanded=False):
+                st.dataframe(rating_data, use_container_width=True, hide_index=True)
         
         # 데이터 분석
         with st.spinner("리뷰 데이터 분석중..."):
@@ -227,20 +228,20 @@ def show_review_analysis_page():
     # 차트 타입 선택
     chart_type = st.radio(
         "차트 유형 선택:",
-        options=["바 차트", "히트맵", "레이더 차트"],
-        index=0 if st.session_state.chart_type == "bar" else 
-              1 if st.session_state.chart_type == "heatmap" else 2,
+        options=["레이더 차트", "바 차트", "히트맵"],
+        index=0 if st.session_state.chart_type == "radar" else 
+              1 if st.session_state.chart_type == "bar" else 2,
         horizontal=True,
         key="chart_type_radio"
     )
     
     # 선택된 차트 타입 저장
-    if chart_type == "바 차트":
+    if chart_type == "레이더 차트":
+        st.session_state.chart_type = "radar"
+    elif chart_type == "바 차트":
         st.session_state.chart_type = "bar"
     elif chart_type == "히트맵":
         st.session_state.chart_type = "heatmap"
-    else:
-        st.session_state.chart_type = "radar"
     
     # 차트 유형에 따라 다른 차트 표시
     if st.session_state.chart_type == "bar":
