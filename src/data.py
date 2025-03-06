@@ -504,9 +504,21 @@ class Naver:
                     ul = div.find('ul')
                     lis = ul.find_all('li')
                     reviews_data = []
-                    for li in lis:
-                        review_text = li.find('span', class_='t3JSf').text.strip().replace('"', '')
-                        participant_count = ''.join(filter(str.isdigit, li.find('span', class_='CUoLy').text.strip()))
+                    review_items = [
+                        "인테리어가 멋져요", "동물을 배려한 환경이에요", "시설이 깔끔해요", "사진이 잘 나와요",
+                        "야외공간이 멋져요", "뷰가 좋아요", "친절해요", "공간이 넓어요", "가격이 합리적이에요",
+                        "매장이 청결해요", "화장실이 깨끗해요", "대화하기 좋아요", "반려동물과 가기 좋아요",
+                        "조용히 쉬기 좋아요", "침구가 좋아요", "바비큐 해먹기 좋아요", "화장실이 잘 되어있어요",
+                        "주차하기 편해요", "물놀이하기 좋아요", "냉난방이 잘돼요", "즐길 거리가 많아요",
+                        "방음이 잘돼요", "컨셉이 독특해요", "취사시설이 잘 되어있어요"
+                    ]
+                    for item in review_items:
+                        review_text = item
+                        participant_count = 0  # 기본값 0으로 설정
+                        for li in lis:
+                            if li.find('span', class_='t3JSf').text.strip().replace('"', '') == review_text:
+                                participant_count = ''.join(filter(str.isdigit, li.find('span', class_='CUoLy').text.strip()))
+                                break
                         reviews_data.append({"channelId": channel_id, "review_item": review_text, "rating": participant_count})
                     reviews_data = pd.DataFrame(reviews_data)
                             

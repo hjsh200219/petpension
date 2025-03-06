@@ -103,9 +103,15 @@ def process_rating_data(rating_data, pension_info_filtered):
 def prioritize_cafeian(rating_average, pension_col):
     """카페이안을 첫 번째로 하는 펜션 순서 생성 및 적용"""
     pension_order = list(rating_average[pension_col].unique())
-    if '카페이안' in pension_order:
-        pension_order.remove('카페이안')
-        pension_order = ['카페이안'] + sorted(pension_order)
+    
+    # 카페이안 펜션 식별 (카페이안 또는 카페 이안)
+    cafeian_pensions = [p for p in pension_order if '카페이안' in p or '카페 이안' in p]
+    
+    if cafeian_pensions:
+        # 카페이안 펜션들을 모두 제거하고 맨 앞에 추가
+        for cafeian in cafeian_pensions:
+            pension_order.remove(cafeian)
+        pension_order = cafeian_pensions + sorted(pension_order)
     else:
         pension_order = sorted(pension_order)
     
@@ -118,20 +124,6 @@ def prioritize_cafeian(rating_average, pension_col):
     
     # 정렬된 데이터로 업데이트
     return rating_average.sort_values(pension_col), pension_order
-
-def display_detailed_data(rating_average, pension_col):
-    """상세 데이터 표시 섹션"""
-    with st.expander("상세 데이터 보기"):
-        st.write("#### 원본 평점 및 표준화 점수 데이터")
-        display_cols = [pension_col, 'review_item', 'rating', 'rating_relative_pct', 'zscore']
-        st.dataframe(
-            rating_average[display_cols].sort_values(
-                [pension_col, 'zscore'],
-                ascending=[True, False]
-            ), 
-            use_container_width=True, 
-            hide_index=True
-        )
 
 def initialize_session_state():
     """세션 상태 초기화"""
@@ -250,16 +242,14 @@ def show_review_analysis_page():
     else:
         st.session_state.chart_type = "radar"
     
-    # 선택된 차트 유형에 따라 다른 차트 표시
+    # 차트 유형에 따라 다른 차트 표시
     if st.session_state.chart_type == "bar":
         fig = Chart.create_bar_chart(rating_average, pension_col)
     elif st.session_state.chart_type == "heatmap":
         fig = Chart.create_heatmap(rating_average, pension_col, pension_order)
     else:  # 레이더 차트
+        # 레이더 차트에는 카페이안과 선택된 다른 펜션만 표시 (카페이안은 항상 포함)
         Chart.create_radar_tabs(rating_average, pension_col, pension_order)
-    
-    # 상세 데이터 표시
-    display_detailed_data(rating_average, pension_col)
     
     # 바/히트맵 차트 표시
     if st.session_state.chart_type != "radar":

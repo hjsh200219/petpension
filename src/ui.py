@@ -10,7 +10,7 @@ class UI:
     
     @staticmethod
     def load_css():
-        css_path = Path(__file__).parent / "static" / "css" / "style.css"
+        css_path = Path("./static/css/style.css")
         """CSS 파일을 로드하는 함수"""
         with open(css_path) as f:
             st.markdown(
