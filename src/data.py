@@ -540,10 +540,35 @@ class Naver:
         
     def get_rating_data(self, df):
         rating_data = pd.DataFrame()
+        errors = []  # 오류 기록용
+        
         for index, row in tqdm(df.iterrows(), total=len(df)):
             result = self._get_rating(row['channelId'])
-            result['businessName'] = row['businessName']
-            result['channelId'] = row['channelId']
-            rating_data = pd.concat([rating_data, result], ignore_index=True)
-        rating_data.to_csv('./static/rating_data.csv', index=False)
-        return rating_data 
+            
+            # 결과가 DataFrame인지 확인
+            if isinstance(result, pd.DataFrame):
+                result['businessName'] = row['businessName']
+                result['channelId'] = row['channelId']
+                rating_data = pd.concat([rating_data, result], ignore_index=True)
+            else:
+                # 에러 정보 저장
+                error_info = {
+                    'businessName': row['businessName'],
+                    'channelId': row['channelId'],
+                    'error': result.get('error', '알 수 없는 오류')
+                }
+                errors.append(error_info)
+                print(f"경고: {row['businessName']}의 리뷰 데이터를 가져오는데 실패했습니다. {error_info['error']}")
+        
+        # 오류 정보 출력
+        if errors:
+            print(f"총 {len(errors)}개 펜션의 리뷰 데이터를 가져오는데 실패했습니다.")
+        
+        # 수집된 데이터가 있는 경우만 저장
+        if not rating_data.empty:
+            rating_data.to_csv('./static/rating_data.csv', index=False)
+            return rating_data
+        else:
+            # 데이터가 없는 경우 빈 데이터프레임 반환
+            print("경고: 수집된 리뷰 데이터가 없습니다!")
+            return pd.DataFrame(columns=['channelId', 'review_item', 'rating', 'businessName']) 

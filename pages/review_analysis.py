@@ -136,7 +136,7 @@ def initialize_session_state():
 
 def handle_logout():
     """로그아웃 처리"""
-    if st.button("로그아웃", key="review_logout", type="primary"):
+    if st.button("로그아웃", key="review_logout", type="secondary"):
         st.session_state.password_verified = False
         st.rerun()
 
@@ -179,12 +179,15 @@ def show_review_analysis_page():
     # 세션 상태 초기화
     initialize_session_state()
     
-    # 분석 시작 버튼
-    review_button = st.button(
-        "분석 시작", 
-        use_container_width=True, 
-        key=f"analyze_button_{st.session_state.review_selected_pensions}"
-    )
+    col1,col2, col3 = st.columns([1,1,1])
+    with col2:
+        # 분석 시작 버튼
+        review_button = st.button(
+            "분석 시작", 
+            use_container_width=True, 
+            key=f"analyze_button_{st.session_state.review_selected_pensions}",
+            type="primary"
+        )
     
     # 분석 결과 표시 조건
     if not (review_button or st.session_state.has_analysis_result):
@@ -198,9 +201,21 @@ def show_review_analysis_page():
         
         # 리뷰 데이터 수집
         with st.spinner("리뷰 데이터 수집중..."):
-            rating_data = naver.get_rating_data(pension_info_filtered)
-            with st.expander("리뷰 데이터 보기", expanded=False):
-                st.dataframe(rating_data, use_container_width=True, hide_index=True)
+            try:
+                rating_data = naver.get_rating_data(pension_info_filtered)
+                
+                # 수집된 데이터가 없거나 비어있는 경우 처리
+                if rating_data.empty:
+                    st.error("리뷰 데이터를 가져오는데 실패했습니다. 다시 시도해주세요.")
+                    st.session_state.has_analysis_result = False
+                    return
+                
+                with st.expander("리뷰 데이터 보기", expanded=False):
+                    st.dataframe(rating_data, use_container_width=True, hide_index=True)
+            except Exception as e:
+                st.error(f"리뷰 데이터 수집 중 오류 발생: {str(e)}")
+                st.session_state.has_analysis_result = False
+                return
         
         # 데이터 분석
         with st.spinner("리뷰 데이터 분석중..."):

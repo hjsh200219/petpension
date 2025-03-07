@@ -534,7 +534,7 @@ def get_all_pension_names(pension_info):
 
 def handle_logout():
     """로그아웃 처리"""
-    if st.button("로그아웃", key="statistics_logout", type="primary"):
+    if st.button("로그아웃", key="statistics_logout", type="secondary"):
         st.session_state.password_verified = False
         st.rerun()
 
@@ -577,8 +577,9 @@ def show_price_analysis_page():
         key="selected_pensions"
     )
     
-    # 분석 버튼
-    analyze_clicked = st.button("분석 시작", use_container_width=True, key="analyze_button")
+    col1,col2, col3 = st.columns([1,1,1])
+    with col2:
+        analyze_clicked = st.button("분석 시작", use_container_width=True, key="analyze_button", type="primary")
     
     # 분석 실행
     if analyze_clicked:

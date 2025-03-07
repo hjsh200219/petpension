@@ -275,7 +275,7 @@ def handle_add_new_pension():
 
 def handle_logout():
     """로그아웃 처리"""
-    if st.button("로그아웃", key="logout", type="primary"):
+    if st.button("로그아웃", key="logout", type="secondary"):
         st.session_state.password_verified = False
         st.rerun()
 
