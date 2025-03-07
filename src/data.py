@@ -16,11 +16,17 @@ import streamlit as st
 from typing import List, Dict, Any, Callable, Optional, Union, Tuple
 import time
 import random
+from fake_useragent import UserAgent
 
 
 class Common:
     def __init__(self):
-        pass
+        self.ua = UserAgent()
+        self.headers = {
+            'User-Agent': self.ua.random,
+            'Referer': 'https://m.place.naver.com/',
+            'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7'
+        }
 
 
 class Naver:
@@ -32,6 +38,15 @@ class Naver:
         self.url_booking = "https://map.naver.com/p/entry/place/"
         self.url_rating = "https://api.place.naver.com/graphql"
         self.url_rating_detail = "https://m.place.naver.com/place/"
+        self.url_review_list = "https://m.place.naver.com/restaurant/"
+
+
+        self.ua = UserAgent()
+        self.headers = {
+            'User-Agent': self.ua.random,
+            'Referer': 'https://m.place.naver.com/',
+            'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7'
+        }
 
     def get_schedule(self, businessId, bizItemId, startDateTime, endDateTime):
         payload = {
@@ -398,7 +413,7 @@ class Naver:
         response = req.post(self.url_rating, json=payload)
         return response
 
-    def _get_rating(self, channel_id):
+    def _get_rating_playwright(self, channel_id):
         # 재시도 횟수 설정
         max_retries = 3
         retry_count = 0
@@ -543,7 +558,7 @@ class Naver:
         errors = []  # 오류 기록용
         
         for index, row in tqdm(df.iterrows(), total=len(df)):
-            result = self._get_rating(row['channelId'])
+            result = self._get_rating_playwright(row['channelId']) if os.environ.get('STREAMLIT_DEVELOPMENT', 'false').lower() == 'true' else self._get_rating(row['channelId'])
             
             # 결과가 DataFrame인지 확인
             if isinstance(result, pd.DataFrame):
@@ -572,3 +587,35 @@ class Naver:
             # 데이터가 없는 경우 빈 데이터프레임 반환
             print("경고: 수집된 리뷰 데이터가 없습니다!")
             return pd.DataFrame(columns=['channelId', 'review_item', 'rating', 'businessName']) 
+        
+
+    def _get_rating(self, channel_id):
+        wait_time = random.uniform(0.1, 0.2)
+        time.sleep(wait_time)
+        url = f"{self.url_review_list}{channel_id}/review/visitor"
+        res = req.get(url, headers=self.headers)
+        res.encoding = 'utf-8'
+        soup = BS(res.text, 'html.parser', from_encoding='utf-8')
+        divs = soup.find_all('div', class_='place_section_content')
+        div = divs[0]
+        ul = div.find('ul')
+        lis = ul.find_all('li')
+        reviews_data = []
+        review_items = [
+            "인테리어가 멋져요", "동물을 배려한 환경이에요", "시설이 깔끔해요", "사진이 잘 나와요",
+            "야외공간이 멋져요", "뷰가 좋아요", "친절해요", "공간이 넓어요", "가격이 합리적이에요",
+            "매장이 청결해요", "화장실이 깨끗해요", "대화하기 좋아요", "반려동물과 가기 좋아요",
+            "조용히 쉬기 좋아요", "침구가 좋아요", "바비큐 해먹기 좋아요", "화장실이 잘 되어있어요",
+            "주차하기 편해요", "물놀이하기 좋아요", "냉난방이 잘돼요", "즐길 거리가 많아요",
+            "방음이 잘돼요", "컨셉이 독특해요", "취사시설이 잘 되어있어요"
+        ]
+        for item in review_items:
+            review_text = item
+            participant_count = 0  # 기본값 0으로 설정
+            for li in lis:
+                if li.find('span', class_='t3JSf').text.strip().replace('"', '') == review_text:
+                    participant_count = ''.join(filter(str.isdigit, li.find('span', class_='CUoLy').text.strip()))
+                    break
+            reviews_data.append({"channelId": channel_id, "review_item": review_text, "rating": participant_count})
+        reviews_data = pd.DataFrame(reviews_data)
+        return reviews_data

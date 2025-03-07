@@ -1,4 +1,4 @@
-from src.common import Naver
+from src.data import Naver
 from datetime import datetime, timedelta
 import pandas as pd
 from tqdm import tqdm
@@ -45,3 +45,6 @@ naver = Naver()
 # rating_data.to_csv('./static/rating_data.csv', index=False)
 
 rating_data = pd.read_csv('./static/rating_data.csv')
+
+rating_data = naver._get_rating('1306861767')
+print(rating_data)
