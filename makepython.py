@@ -44,7 +44,7 @@ naver = Naver()
 # print(rating_data)
 # rating_data.to_csv('./static/rating_data.csv', index=False)
 
-rating_data = pd.read_csv('./static/rating_data.csv')
+# rating_data = pd.read_csv('./static/rating_data.csv')
 
-rating_data = naver._get_rating('1306861767')
+rating_data = naver.get_photo('1306861767')
 print(rating_data)

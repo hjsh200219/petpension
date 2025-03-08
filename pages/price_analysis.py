@@ -9,6 +9,9 @@ from pathlib import Path
 from src.data import Naver
 from src.ui import UI
 from src.settings import verify_password
+import json
+from threading import Thread, Lock
+import time
 
 # 개발 모드에서만 캐싱 설정 비활성화
 if os.environ.get('STREAMLIT_DEVELOPMENT', 'false').lower() == 'true':
@@ -112,58 +115,95 @@ def create_date_region_selection(pension_info):
 
 @st.cache_data(ttl=1800)  # 30분 캐시
 def fetch_schedule_data(pension_info, start_date_str, end_date_str):
-    """일정 데이터를 실시간으로 조회하는 함수"""
+    """일정 데이터를 실시간으로 조회하는 함수 (스레드 병렬 처리)"""
     # Naver 객체 생성
     naver = Naver()
     
     # 결과 저장용 데이터프레임
-    result = pd.DataFrame()
+    all_results = []
+    results_lock = Lock()  # 결과 리스트 동시 접근 방지용 락
+    
+    # 진행 상황 관련 변수
+    total_pensions = len(pension_info)
+    completed_count = 0
+    completed_lock = Lock()  # 진행 상황 카운터용 락
     
     # 진행 상황 표시
     progress_bar = st.progress(0)
-    total_pensions = len(pension_info)
+    status_text = st.empty()
     
-    for i, row in enumerate(pension_info.itertuples(index=False)):
+    # 스레드로 실행할 함수 정의
+    def worker(row):
+        nonlocal completed_count
+        
         businessId = str(row.businessId).strip()
         biz_item_id = str(row.bizItemId).strip()
         
-        schedule_data = naver.get_schedule(
-            businessId, 
-            biz_item_id, 
-            start_date_str, 
-            end_date_str
-        )
-        
-        # schedule_data가 None인 경우 건너뜀
-        if schedule_data is None:
-            continue
+        try:
+            schedule_data = naver.get_schedule(
+                businessId, 
+                biz_item_id, 
+                start_date_str, 
+                end_date_str
+            )
             
-        schedule_data['businessName'] = row.businessName
-        schedule_data['bizItemName'] = row.bizItemName
-        schedule_data['address'] = row.addressNew
-        
-        # 결과를 필터링하고 필요한 열만 선택
-        filtered_schedule_data = schedule_data[
-            schedule_data['isSaleDay'] == True
-        ]
-        
-        filtered_schedule_data = filtered_schedule_data[
-            ['businessName', 'bizItemName', 'date', 'prices', 'address']
-        ].rename(columns={
-            'businessName': '숙박업소', 
-            'bizItemName': '숙박상품', 
-            'date': '날짜', 
-            'prices': '가격',
-            'address': '주소'
-        })
-        
-        result = pd.concat(
-            [result, filtered_schedule_data], 
-            ignore_index=True
-        )
+            # schedule_data가 None이 아닌 경우 처리
+            if schedule_data is not None:
+                schedule_data['businessName'] = row.businessName
+                schedule_data['bizItemName'] = row.bizItemName
+                schedule_data['address'] = row.addressNew
+                
+                # 결과를 필터링하고 필요한 열만 선택
+                filtered_schedule_data = schedule_data[
+                    schedule_data['isSaleDay'] == True
+                ]
+                
+                filtered_schedule_data = filtered_schedule_data[
+                    ['businessName', 'bizItemName', 'date', 'prices', 'address']
+                ].rename(columns={
+                    'businessName': '숙박업소', 
+                    'bizItemName': '숙박상품', 
+                    'date': '날짜', 
+                    'prices': '가격',
+                    'address': '주소'
+                })
+                
+                # 락을 사용하여 결과에 안전하게 추가
+                with results_lock:
+                    all_results.append(filtered_schedule_data)
+        except Exception as e:
+            print(f"오류 발생: {row.businessName} - {e}")
         
         # 진행 상황 업데이트
-        progress_bar.progress((i + 1) / total_pensions)
+        with completed_lock:
+            completed_count += 1
+            progress = completed_count / total_pensions
+            progress_bar.progress(progress)
+            status_text.text(f"처리 중... ({completed_count}/{total_pensions})")
+    
+    # 스레드 생성 및 실행
+    threads = []
+    max_workers = min(10, total_pensions)  # 최대 10개 스레드로 제한
+    
+    for row in pension_info.itertuples(index=False):
+        t = Thread(target=worker, args=(row,))
+        threads.append(t)
+        t.start()
+        
+        # 최대 동시 실행 스레드 수 제한 (선택적)
+        active_threads = sum(1 for t in threads if t.is_alive())
+        while active_threads >= max_workers:
+            time.sleep(0.1)  # 잠시 대기
+            active_threads = sum(1 for t in threads if t.is_alive())
+    
+    # 모든 스레드 완료 대기
+    for t in threads:
+        t.join()
+    
+    # 결과 병합
+    result = pd.DataFrame()
+    if all_results:
+        result = pd.concat(all_results, ignore_index=True)
     
     # 주소에서 지역 정보 추출
     if not result.empty and '주소' in result.columns:
@@ -171,6 +211,7 @@ def fetch_schedule_data(pension_info, start_date_str, end_date_str):
     
     # 진행 상황 바 완료 표시
     progress_bar.empty()
+    status_text.empty()
     
     # CSV 파일로 저장 (통계 분석용)
     if not result.empty:
@@ -244,94 +285,93 @@ def create_pension_selection(other_pensions):
     return selected_pensions
 
 def analyze_data(start_date, end_date, selected_region, selected_pensions, pension_info):
-    """데이터 분석 처리"""
-    # 조건이 변경되었는지 확인하기 위한 검사
-    current_params = {
-        'start_date': start_date.strftime("%Y-%m-%d"),
-        'end_date': end_date.strftime("%Y-%m-%d"),
-        'region': selected_region,
-        'selected_pensions': ','.join(selected_pensions) if selected_pensions else ''
-    }
+    """가격 데이터 분석 함수 (스레드 병렬 처리)"""
     
-    # 새로운 검색 시작
-    with st.spinner("일정 데이터를 조회 중입니다..."):
-        # 1. 데이터 조회 (캐시 활용)
-        schedule_data = fetch_schedule_data(
-            pension_info,
-            start_date.strftime("%Y-%m-%d"), 
-            end_date.strftime("%Y-%m-%d")
-        )
+    st.session_state.analyzing = True
+    
+    with st.spinner("데이터 분석 중..."):
+        # 모든 데이터 가져오기
+        schedule_data = fetch_schedule_data(pension_info, start_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d"))
         
+        # 데이터가 비어있는 경우 처리
         if schedule_data.empty:
-            st.warning("조회된 일정이 없습니다.")
-            return False
+            st.error("가격 정보를 가져오는데 실패했습니다. 다시 시도해주세요.")
+            st.session_state.analyzing = False
+            return
         
-        # 날짜 형식 변환
-        schedule_data['날짜'] = pd.to_datetime(schedule_data['날짜'])
+        # 데이터 필터링 및 처리
+        filtered_data = process_schedule_data(schedule_data, start_date, end_date, selected_region)
         
-        # 세션 상태에 저장
-        st.session_state.schedule_data = schedule_data
-        
-        # 2. 데이터 필터링 처리
-        filtered_data = process_schedule_data(
-            schedule_data, 
-            start_date, 
-            end_date, 
-            selected_region
-        )
-        
+        # 데이터가 비어있는 경우 처리
         if filtered_data.empty:
-            st.warning("필터 조건에 맞는 데이터가 없습니다.")
-            return False
+            st.warning(f"선택한 지역 '{selected_region}'에서 가격 정보를 찾을 수 없습니다.")
+            st.session_state.analyzing = False
+            return
+        
+        # 카페이안 데이터와 선택된 펜션 데이터 분리
+        cafe_ian_data = filtered_data[filtered_data['숙박업소'].str.contains('카페이안|카페 이안')]
+        
+        # 선택된 펜션 데이터 필터링
+        other_pension_data = filtered_data[filtered_data['숙박업소'].isin(selected_pensions)]
+        
+        # 날짜 정보 추출 (요일 계산용)
+        filtered_data['날짜_datetime'] = pd.to_datetime(filtered_data['날짜'])
+        filtered_data['요일'] = filtered_data['날짜_datetime'].dt.dayofweek
+        filtered_data['월'] = filtered_data['날짜_datetime'].dt.month
+        filtered_data['일'] = filtered_data['날짜_datetime'].dt.day
+        
+        # 주말/평일 구분
+        weekend_days = [4, 5]  # 금요일(4), 토요일(5)
+        filtered_data['주말여부'] = filtered_data['요일'].isin(weekend_days)
+        
+        # 최종 결과 데이터프레임 생성
+        final_data = []
+        
+        # 카페이안 데이터 처리 - 각 숙박상품을 카테고리로 설정
+        cafe_ian_categories = []
+        
+        for product in cafe_ian_data['숙박상품'].unique():
+            # 카페이안 숙박상품을 카테고리로 지정
+            category = f"카페이안-{product}"
+            cafe_ian_categories.append(category)
             
-        # 3. 분석 시작
-        st.session_state.analyzed = True
-        
-        # 카페이안 카테고리 목록
-        cafe_ian_categories = [cat for cat in filtered_data['카테고리'].unique() if cat.startswith('카페이안-')]
-        st.session_state.cafe_ian_categories = cafe_ian_categories
-        
-        # 선택된 펜션만 필터링 (카페이안 모든 상품 포함)
-        if not selected_pensions:
-            # 선택된 펜션이 없으면 모든 펜션 포함
-            other_pensions = get_other_pensions(filtered_data)
-            selected_pensions = other_pensions
-        
-        # 분석에 사용된 펜션 목록을 다른 키에 저장 (위젯 키와 충돌 방지)
-        st.session_state.analyzed_pensions = selected_pensions.copy()
+            # 해당 숙박상품에 대한 카페이안 데이터
+            product_data = cafe_ian_data[cafe_ian_data['숙박상품'] == product].copy()
+            product_data['카테고리'] = category
             
-        # 각 펜션을 개별 카테고리로 설정 (기타 카테고리 대신 펜션명 사용)
+            final_data.append(product_data)
+        
+        # 다른 펜션 데이터 처리 - 각 펜션을 별도 카테고리로 설정
         for pension in selected_pensions:
-            pension_mask = filtered_data['숙박업소'] == pension
-            filtered_data.loc[pension_mask, '카테고리'] = pension
+            # 해당 펜션의 모든 데이터
+            pension_data = other_pension_data[other_pension_data['숙박업소'] == pension].copy()
             
-        # 선택된 펜션만 필터링 (카페이안 모든 상품 + 선택된 펜션)
-        selected_data = filtered_data[
-            (filtered_data['카테고리'].isin(cafe_ian_categories)) | 
-            (filtered_data['카테고리'].isin(selected_pensions))
-        ]
+            if not pension_data.empty:
+                # 펜션 이름을 카테고리로 설정
+                pension_data['카테고리'] = pension
+                final_data.append(pension_data)
         
-        # 데이터 세션 저장
-        st.session_state.selected_data = selected_data
+        # 데이터 병합
+        if final_data:
+            final_df = pd.concat(final_data, ignore_index=True)
+        else:
+            final_df = pd.DataFrame(columns=['숙박업소', '숙박상품', '날짜', '가격', '주소', '카테고리'])
+        
+        # 카테고리 순서 설정 - 카페이안 카테고리 다음에 선택된 펜션들
+        category_order = cafe_ian_categories + selected_pensions
         
         # 카테고리별 평균 가격 계산
-        category_avg_price = selected_data.groupby('카테고리')['가격'].agg(['mean', 'min', 'max', 'count']).reset_index()
-        category_avg_price.columns = ['펜션/상품', '평균 가격', '최소 가격', '최대 가격', '객실 수']
+        category_avg_price = final_df.groupby(['카테고리', '숙박업소'])['가격'].mean().reset_index()
         
-        # 숫자 형식 정리
-        category_avg_price['평균 가격'] = category_avg_price['평균 가격'].astype(int)
-        category_avg_price['최소 가격'] = category_avg_price['최소 가격'].astype(int)
-        category_avg_price['최대 가격'] = category_avg_price['최대 가격'].astype(int)
-        
-        # 카테고리별 평균 가격 세션 저장
+        # 세션 상태 저장
+        st.session_state.final_data = final_df
         st.session_state.category_avg_price = category_avg_price
+        st.session_state.category_order = category_order
+        st.session_state.analyzed = True
+        st.session_state.analyzing = False
+        st.session_state.analyzed_pensions = selected_pensions
         
-        # 현재 파라미터 저장 (다음 검색 조건 비교용)
-        st.session_state.last_search_params = current_params
-        
-        # 분석 완료 메시지
-        st.success("데이터 분석이 완료되었습니다.")
-        return True
+        return
 
 def get_ordered_categories(cafe_ian_categories, selected_pensions):
     """카테고리 정렬 순서 설정"""
@@ -351,45 +391,107 @@ def get_ordered_categories(cafe_ian_categories, selected_pensions):
             category_order.append(cat)
     
     # 선택된 다른 펜션들 (정렬하여 추가)
-    category_order.extend(sorted(selected_pensions))
+    # 세션 상태에서 가져오려는 경우 analyzed_pensions 키 사용
+    pensions_to_use = st.session_state.get('analyzed_pensions', selected_pensions)
+    category_order.extend(sorted(pensions_to_use))
     
     return category_order
 
 def create_avg_price_chart(category_avg_price, category_order):
-    """평균 가격 막대 차트 생성"""
-    fig = px.bar(
-        category_avg_price,
-        x='펜션/상품',
-        y='평균 가격',
-        color='펜션/상품',
-        title='펜션/상품별 평균 가격 비교',
-        text_auto=True,
-        category_orders={'펜션/상품': category_order}
+    """카테고리별 평균 가격 차트 생성"""
+    # 데이터 검증
+    if category_avg_price is None or len(category_avg_price) == 0:
+        fig = go.Figure()
+        fig.update_layout(
+            title="데이터가 없습니다",
+            xaxis=dict(title=""),
+            yaxis=dict(title="")
+        )
+        return fig
+    
+    # 데이터프레임 형태 확인 및 컬럼명 맞춤
+    if '카테고리' in category_avg_price.columns and '가격' in category_avg_price.columns:
+        # 카테고리 순서 설정 (존재하는 항목만)
+        valid_categories = [cat for cat in category_order if cat in category_avg_price['카테고리'].unique()]
+        
+        # 그룹 바 차트 생성
+        fig = px.bar(
+            category_avg_price,
+            x='카테고리',
+            y='가격',
+            color='숙박업소',
+            title="숙박상품별 평균 가격",
+            text_auto=True,
+            category_orders={'카테고리': valid_categories}
+        )
+    elif '펜션/상품' in category_avg_price.columns and '평균 가격' in category_avg_price.columns:
+        # 이전 형식의 데이터프레임 (펜션/상품, 평균 가격)
+        fig = px.bar(
+            category_avg_price,
+            x='펜션/상품',
+            y='평균 가격',
+            color='펜션/상품',
+            title="숙박상품별 평균 가격",
+            labels={'평균 가격': '평균 가격(원)'},
+            height=600
+        )
+    else:
+        # 지원되지 않는 데이터프레임 형식
+        st.error("데이터프레임 형식이 지원되지 않습니다.")
+        # 빈 차트 반환
+        fig = go.Figure()
+        fig.update_layout(
+            title="데이터 형식 오류",
+            annotations=[dict(
+                text="데이터프레임 형식이 지원되지 않습니다.",
+                showarrow=False,
+                xref="paper",
+                yref="paper",
+                x=0.5,
+                y=0.5
+            )]
+        )
+        return fig
+    
+    # Y축 범위 설정 (최소 0부터)
+    fig.update_layout(
+        yaxis_range=[0, None],
+        xaxis_tickangle=0,
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
     )
     
-    fig.update_layout(
-        xaxis_title='펜션/상품',
-        yaxis_title='평균 가격 (원)',
-        yaxis=dict(tickformat=',d', range=[0, None])
-    )
+    # Y축 숫자 형식 변경 - 천 단위 구분자 사용 및 소수점 이하 반올림
+    fig.update_yaxes(tickformat=",d")
     
     return fig
 
 def create_price_box_chart(selected_data, category_order):
-    """가격 범위 상자 그림 생성"""
-    # 카테고리 순서를 위한 매핑 생성
-    category_order_map = {cat: i for i, cat in enumerate(category_order)}
+    """가격 범위 박스 차트 생성"""
+    # 데이터프레임 구조 검증
+    if not isinstance(selected_data, pd.DataFrame) or selected_data.empty:
+        st.error("가격 데이터가 없습니다.")
+        fig = go.Figure()
+        fig.update_layout(
+            title="데이터 없음",
+            annotations=[dict(text="데이터가 없습니다.", showarrow=False, xref="paper", yref="paper", x=0.5, y=0.5)]
+        )
+        return fig
     
-    # 정렬을 위한 임시 열 추가
-    selected_data['카테고리_순서'] = selected_data['카테고리'].map(
-        lambda x: category_order_map.get(x, len(category_order))
-    )
+    if '카테고리' not in selected_data.columns or '가격' not in selected_data.columns:
+        st.error("데이터프레임 형식이 지원되지 않습니다.")
+        fig = go.Figure()
+        fig.update_layout(
+            title="데이터 형식 오류",
+            annotations=[dict(text="데이터프레임 형식이 올바르지 않습니다", showarrow=False, xref="paper", yref="paper", x=0.5, y=0.5)]
+        )
+        return fig
     
-    # 카테고리 순서로 데이터 정렬
-    selected_data_sorted = selected_data.sort_values('카테고리_순서')
+    # 카테고리 순서 설정 (존재하는 항목만)
+    valid_categories = [cat for cat in category_order if cat in selected_data['카테고리'].unique()]
     
+    # 박스 차트 생성
     fig = px.box(
-        selected_data_sorted,
+        selected_data, 
         x='카테고리',
         y='가격',
         color='카테고리',
@@ -397,134 +499,200 @@ def create_price_box_chart(selected_data, category_order):
         category_orders={'카테고리': category_order}
     )
     
+    # 차트 레이아웃 설정
     fig.update_layout(
         xaxis_title='펜션/상품',
         yaxis_title='가격 (원)',
         yaxis=dict(tickformat=',d', range=[0, None])
     )
     
+    # Y축 숫자 형식 변경 - 천 단위 구분자 사용 및 소수점 이하 반올림
+    fig.update_yaxes(tickformat=",d")
+    
     return fig
 
 def create_daily_price_chart(selected_data, category_order):
     """날짜별 가격 추이 차트 생성"""
-    # 날짜별 평균 가격
-    date_avg_price = selected_data.groupby(['날짜', '카테고리'])['가격'].mean().reset_index()
+    # 데이터프레임 구조 검증
+    if not isinstance(selected_data, pd.DataFrame) or selected_data.empty:
+        st.error("가격 데이터가 없습니다.")
+        fig = go.Figure()
+        fig.update_layout(
+            title="데이터 없음",
+            annotations=[dict(text="데이터가 없습니다.", showarrow=False, xref="paper", yref="paper", x=0.5, y=0.5)]
+        )
+        return fig
+        
+    if '카테고리' not in selected_data.columns or '가격' not in selected_data.columns or '날짜' not in selected_data.columns:
+        st.error("데이터프레임 형식이 지원되지 않습니다.")
+        fig = go.Figure()
+        fig.update_layout(
+            title="데이터 형식 오류",
+            annotations=[dict(text="데이터프레임 형식이 올바르지 않습니다", showarrow=False, xref="paper", yref="paper", x=0.5, y=0.5)]
+        )
+        return fig
     
-    # 날짜별 가격 추이 차트
+    # 날짜 형식 변환 (문자열이면 datetime으로 변환)
+    if selected_data['날짜'].dtype == 'object':
+        selected_data['날짜'] = pd.to_datetime(selected_data['날짜'])
+    
+    # 카테고리 순서 설정 (존재하는 항목만)
+    valid_categories = [cat for cat in category_order if cat in selected_data['카테고리'].unique()]
+    
+    # 날짜별 평균 가격 계산
+    daily_avg = selected_data.groupby(['날짜', '카테고리', '숙박업소'])['가격'].mean().reset_index()
+    
+    # 라인 차트 생성
     fig = px.line(
-        date_avg_price,
-        x='날짜',
+        daily_avg, 
+        x='날짜', 
         y='가격',
         color='카테고리',
-        title='날짜별 펜션/상품 평균 가격 추이',
         markers=True,
-        category_orders={'카테고리': category_order}
+        title='날짜별 가격 추이',
+        category_orders={'카테고리': valid_categories}
     )
     
+    # 차트 레이아웃 설정
     fig.update_layout(
         xaxis_title='날짜',
-        yaxis_title='평균 가격 (원)',
-        yaxis=dict(tickformat=',d', range=[0, None]),
-        legend={'traceorder': 'normal'}
+        yaxis_title='평균 가격(원)',
+        yaxis_range=[0, None],
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
     )
+    
+    # Y축 숫자 형식 변경 - 천 단위 구분자 사용 및 소수점 이하 반올림
+    fig.update_yaxes(tickformat=",d")
     
     return fig
 
 def create_weekday_price_chart(selected_data, category_order):
     """요일별 가격 차트 생성"""
-    # 요일 추가
-    selected_data['요일'] = selected_data['날짜'].dt.day_name()
+    # 데이터프레임 구조 검증
+    if not isinstance(selected_data, pd.DataFrame) or selected_data.empty:
+        st.error("가격 데이터가 없습니다.")
+        fig = go.Figure()
+        fig.update_layout(
+            title="데이터 없음",
+            annotations=[dict(text="데이터가 없습니다.", showarrow=False, xref="paper", yref="paper", x=0.5, y=0.5)]
+        )
+        return fig
+        
+    if '카테고리' not in selected_data.columns or '가격' not in selected_data.columns:
+        st.error("데이터프레임 형식이 지원되지 않습니다.")
+        fig = go.Figure()
+        fig.update_layout(
+            title="데이터 형식 오류",
+            annotations=[dict(text="데이터프레임 형식이 올바르지 않습니다", showarrow=False, xref="paper", yref="paper", x=0.5, y=0.5)]
+        )
+        return fig
     
-    # 요일 순서 정렬
-    days_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    # 요일 정보 추출
+    if '요일' not in selected_data.columns:
+        # 날짜를 datetime으로 변환
+        selected_data['날짜_datetime'] = pd.to_datetime(selected_data['날짜'])
+        selected_data['요일'] = selected_data['날짜_datetime'].dt.dayofweek
     
-    # 한글 요일로 변환
-    day_korean = {
-        'Monday': '월요일',
-        'Tuesday': '화요일',
-        'Wednesday': '수요일',
-        'Thursday': '목요일',
-        'Friday': '금요일',
-        'Saturday': '토요일',
-        'Sunday': '일요일'
+    # 요일 이름 매핑
+    weekday_names = {
+        0: '월요일',
+        1: '화요일',
+        2: '수요일',
+        3: '목요일',
+        4: '금요일',
+        5: '토요일',
+        6: '일요일'
     }
     
-    selected_data['요일_한글'] = selected_data['요일'].map(day_korean)
+    # 요일 이름 추가
+    selected_data['요일명'] = selected_data['요일'].map(weekday_names)
+    
+    # 카테고리 순서 설정 (존재하는 항목만)
+    valid_categories = [cat for cat in category_order if cat in selected_data['카테고리'].unique()]
     
     # 요일별 평균 가격 계산
-    day_avg_price = selected_data.groupby(['요일_한글', '카테고리'])['가격'].mean().reset_index()
+    weekday_price = selected_data.groupby(['카테고리', '요일명', '요일', '숙박업소'])['가격'].mean().reset_index()
     
-    # 요일 순서 맞추기
-    day_order_korean = [day_korean[day] for day in days_order]
-    day_avg_price['요일_순서'] = day_avg_price['요일_한글'].map(lambda x: day_order_korean.index(x))
-    day_avg_price = day_avg_price.sort_values('요일_순서')
+    # 요일 순서 정렬
+    weekday_order = ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일']
+    weekday_price = weekday_price.sort_values('요일')
     
-    # 요일별 가격 차트
+    # 라인 차트 생성
     fig = px.line(
-        day_avg_price,
-        x='요일_한글',
+        weekday_price, 
+        x='요일명', 
         y='가격',
         color='카테고리',
-        title='요일별 펜션/상품 평균 가격',
         markers=True,
-        category_orders={'카테고리': category_order}
+        title='요일별 평균 가격',
+        labels={'가격': '평균 가격(원)', '요일명': '요일', '카테고리': '카테고리'},
+        category_orders={
+            '요일명': weekday_order, 
+            '카테고리': valid_categories
+        },
+        height=600
     )
     
+    # 차트 레이아웃 설정
     fig.update_layout(
-        xaxis={'categoryorder': 'array', 'categoryarray': day_order_korean},
-        yaxis_title='평균 가격 (원)',
-        yaxis=dict(tickformat=',d', range=[0, None]),
-        legend={'traceorder': 'normal'}
+        yaxis_range=[0, None],
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
     )
+    
+    # Y축 숫자 형식 변경 - 천 단위 구분자 사용 및 소수점 이하 반올림
+    fig.update_yaxes(tickformat=",d")
     
     return fig
 
 def display_analysis_results():
-    """분석 결과 시각화 표시"""
-    selected_data = st.session_state.selected_data
-    cafe_ian_categories = st.session_state.cafe_ian_categories
-    category_avg_price = st.session_state.category_avg_price
-    
-    # 데이터가 있는지 확인
-    if selected_data.empty:
-        st.warning("선택한 조건에 맞는 데이터가 없습니다.")
-        return
-    
-    # 선택된 펜션 목록 (세션에서 가져오기)
+    """분석 결과 표시"""
+    # 최근 선택한 펜션 목록
     selected_pensions = st.session_state.get('analyzed_pensions', [])
     
-    # 카테고리 순서 정렬
-    category_order = get_ordered_categories(cafe_ian_categories, selected_pensions)
+    # 카테고리 평균 가격 데이터
+    category_avg_price = st.session_state.category_avg_price
     
-    # 카테고리별 평균 가격 데이터프레임 정렬
-    if not category_avg_price.empty:
-        # 카테고리 순서에 따른 정렬을 위한 사용자 정의 순서 추가
-        category_avg_price['order'] = category_avg_price['펜션/상품'].apply(
-            lambda x: category_order.index(x) if x in category_order else len(category_order)
+    # 카테고리 순서
+    category_order = st.session_state.category_order
+    
+    # 평균 가격 차트
+    st.subheader("📊 카테고리별 평균 가격")
+    
+    # 평균 가격 차트 생성
+    avg_price_fig = create_avg_price_chart(category_avg_price, category_order)
+    st.plotly_chart(avg_price_fig, use_container_width=True)
+    
+    # 가격 분포 차트
+    st.subheader("📊 가격 분포 분석")
+    
+    # 최종 데이터
+    final_data = st.session_state.final_data
+    
+    # 가격 박스 플롯
+    box_fig = create_price_box_chart(final_data, category_order)
+    st.plotly_chart(box_fig, use_container_width=True)
+    
+    # 일별 가격 추이
+    st.subheader("📅 일별 가격 추이")
+    
+    # 일별 가격 차트
+    daily_fig = create_daily_price_chart(final_data, category_order)
+    st.plotly_chart(daily_fig, use_container_width=True)
+    
+    # 요일별 가격 분석
+    st.subheader("📆 요일별 가격 분석")
+    
+    # 요일별 가격 차트
+    weekday_fig = create_weekday_price_chart(final_data, category_order)
+    st.plotly_chart(weekday_fig, use_container_width=True)
+    
+    # 원본 데이터 표시
+    with st.expander("📋 원본 데이터 확인", expanded=False):
+        st.dataframe(
+            final_data.sort_values(['카테고리', '날짜']), 
+            use_container_width=True,
+            hide_index=True
         )
-        category_avg_price = category_avg_price.sort_values('order').drop('order', axis=1)
-    
-    # 2. 카페이안과 다른 펜션들의 가격 비교
-    st.subheader("펜션 가격 비교 분석")
-    
-    # 테이블 형태로 표시
-    st.dataframe(category_avg_price, use_container_width=True, hide_index=True)
-    
-    # 1. 평균 가격 차트
-    fig1 = create_avg_price_chart(category_avg_price, category_order)
-    st.plotly_chart(fig1, use_container_width=True)
-    
-    # 2. 가격 범위 상자 그림
-    fig2 = create_price_box_chart(selected_data, category_order)
-    st.plotly_chart(fig2, use_container_width=True)
-    
-    # 3. 날짜별 가격 추이 차트
-    fig3 = create_daily_price_chart(selected_data, category_order)
-    st.plotly_chart(fig3, use_container_width=True)
-    
-    # 4. 요일별 가격 차트
-    fig4 = create_weekday_price_chart(selected_data, category_order)
-    st.plotly_chart(fig4, use_container_width=True)
 
 def get_all_pension_names(pension_info):
     """모든 펜션 이름 목록 가져오기"""

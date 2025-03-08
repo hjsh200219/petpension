@@ -5,6 +5,9 @@ from datetime import datetime, timedelta
 from src.data import Naver
 from src.ui import UI
 from pathlib import Path
+from threading import Thread, Lock
+import time
+from tqdm import tqdm
 
 # 개발 모드에서만 캐싱 설정 비활성화
 if os.environ.get('STREAMLIT_DEVELOPMENT', 'false').lower() == 'true':
@@ -56,47 +59,104 @@ def show_schedule_page():
         st.session_state.result = pd.DataFrame()
         result = pd.DataFrame()
         
-        for row in pension_info.itertuples(index=False):
-            businessId = str(row.businessId).strip()
-            biz_item_id = str(row.bizItemId).strip()
-
-            schedule_data = naver.get_schedule(
-                businessId, 
-                biz_item_id, 
-                start_date.strftime("%Y-%m-%d"), 
-                end_date.strftime("%Y-%m-%d")
-            )
+        # 스레드 결과를 저장할 리스트와 락 객체 생성
+        all_results = []
+        results_lock = Lock()
+        
+        # 스레드 진행 상황을 추적하기 위한 변수
+        total_threads = len(pension_info)
+        completed_threads = 0
+        completed_lock = Lock()
+        
+        # 로딩 메시지 표시
+        with st.spinner('데이터를 불러오는 중입니다. 잠시만 기다려주세요...'):
+            # 진행 상황 표시를 위한 진행 바
+            progress_bar = st.progress(0)
             
-            # schedule_data가 None인 경우 건너뜀
-            if schedule_data is None:
-                st.warning(
-                    f"{row.businessName} - {row.bizItemName}의 일정을 가져오는데 실패했습니다."
-                )
-                continue
+            # 스레드로 실행할 함수 정의
+            def worker(row):
+                nonlocal completed_threads
                 
-            schedule_data['businessName'] = row.businessName
-            schedule_data['bizItemName'] = row.bizItemName
-            schedule_data['address'] = row.addressNew
+                businessId = str(row.businessId).strip()
+                biz_item_id = str(row.bizItemId).strip()
+                
+                try:
+                    schedule_data = naver.get_schedule(
+                        businessId, 
+                        biz_item_id, 
+                        start_date.strftime("%Y-%m-%d"), 
+                        end_date.strftime("%Y-%m-%d")
+                    )
+                    
+                    # 결과가 있는 경우 리스트에 추가
+                    if schedule_data is not None:
+                        schedule_data['businessName'] = row.businessName
+                        schedule_data['bizItemName'] = row.bizItemName
+                        schedule_data['address'] = row.addressNew
+                        
+                        with results_lock:
+                            all_results.append(schedule_data)
+                    else:
+                        st.warning(
+                            f"{row.businessName} - {row.bizItemName}의 일정을 가져오는데 실패했습니다.",
+                            icon="⚠️"
+                        )
+                except Exception as e:
+                    st.warning(
+                        f"{row.businessName} - {row.bizItemName}의 일정을 가져오는데 실패했습니다. 오류: {str(e)}",
+                        icon="⚠️"
+                    )
+                
+                # 진행 상황 업데이트
+                with completed_lock:
+                    completed_threads += 1
+                    progress_bar.progress(completed_threads / total_threads)
             
-            # 결과를 필터링하고 필요한 열만 선택
-            filtered_schedule_data = schedule_data[
-                schedule_data['isSaleDay'] == True
-            ]
+            # 스레드 생성 및 시작
+            threads = []
+            max_concurrent_threads = 10  # 최대 동시 스레드 수 제한
+            active_threads = 0
             
-            filtered_schedule_data = filtered_schedule_data[
-                ['businessName', 'bizItemName', 'date', 'prices', 'address']
-            ].rename(columns={
-                'businessName': '숙박업소', 
-                'bizItemName': '숙박상품', 
-                'date': '날짜', 
-                'prices': '가격',
-                'address': '주소'
-            })
+            for row in pension_info.itertuples(index=False):
+                # 최대 동시 스레드 수 제한 관리
+                while active_threads >= max_concurrent_threads:
+                    # 활성 스레드 수 확인
+                    active_threads = sum(1 for t in threads if t.is_alive())
+                    time.sleep(0.1)  # 잠시 대기
+                
+                # 새로운 스레드 생성 및 시작
+                t = Thread(target=worker, args=(row,))
+                t.start()
+                threads.append(t)
+                active_threads += 1
             
-            result = pd.concat(
-                [result, filtered_schedule_data], 
-                ignore_index=True
-            )  
+            # 모든 스레드가 완료될 때까지 대기
+            for t in threads:
+                t.join()
+            
+            # 진행 바 완료 표시
+            progress_bar.progress(1.0)
+            
+            # 결과가 있으면 데이터프레임으로 변환
+            if all_results:
+                result = pd.concat(all_results, ignore_index=True)
+                
+                # 결과를 필터링하고 필요한 열만 선택
+                filtered_result = result[
+                    result['isSaleDay'] == True
+                ]
+                
+                filtered_result = filtered_result[
+                    ['businessName', 'bizItemName', 'date', 'prices', 'address']
+                ].rename(columns={
+                    'businessName': '숙박업소', 
+                    'bizItemName': '숙박상품', 
+                    'date': '날짜', 
+                    'prices': '가격',
+                    'address': '주소'
+                })
+                
+                result = filtered_result
 
         st.session_state.result = result
         
@@ -153,10 +213,25 @@ def show_schedule_page():
 
     # 필터 변경 콜백 함수
     def on_business_filter_change():
-        if st.session_state.business_name_filter != st.session_state.숙박업소_filter_widget:
-            st.session_state.biz_item_name_filter = "전체"
-        
         st.session_state.business_name_filter = st.session_state.숙박업소_filter_widget
+        
+        # 선택한 숙박업소가 변경되면 숙박상품 필터 초기화
+        if st.session_state.business_name_filter != "전체":
+            # 선택한 숙박업소에 해당하는 숙박상품만 필터링
+            filtered_items = st.session_state.result[
+                st.session_state.result['숙박업소'] == st.session_state.business_name_filter
+            ]['숙박상품'].unique()
+            
+            # 세션 상태에 가능한 숙박상품 목록 저장
+            st.session_state.available_items = ["전체"] + list(filtered_items)
+            
+            # 숙박상품 필터 초기화
+            st.session_state.biz_item_name_filter = "전체"
+            st.session_state.숙박상품_filter_widget = "전체"
+        else:
+            # 모든 숙박업소 선택 시 모든 숙박상품 표시
+            st.session_state.available_items = ["전체"] + list(st.session_state.result['숙박상품'].unique())
+        
         apply_filters()
         
     def on_item_filter_change():
@@ -192,13 +267,57 @@ def show_schedule_page():
             '지역': '지역'
         }
         
-        # UI 컴포넌트 사용하여 필터링 UI 생성
-        UI.create_filter_ui(
-            data=st.session_state.result,
-            filter_values=filter_values,
-            on_change_callbacks=filter_callbacks,
-            column_names=column_mapping
-        )
+        # 처음 로드 시 가능한 숙박상품 목록 설정
+        if 'available_items' not in st.session_state:
+            st.session_state.available_items = ["전체"] + list(st.session_state.result['숙박상품'].unique())
+        
+        # 숙박업소와 지역 필터를 위한 UI 컴포넌트 생성
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            # 모든 숙박업소 옵션
+            all_businesses = ["전체"] + list(st.session_state.result['숙박업소'].unique())
+            selected_index = 0
+            if st.session_state.business_name_filter in all_businesses:
+                selected_index = all_businesses.index(st.session_state.business_name_filter)
+                
+            st.selectbox(
+                "숙박업소 선택",
+                options=all_businesses,
+                key="숙박업소_filter_widget",
+                index=selected_index,
+                on_change=on_business_filter_change
+            )
+        
+        with col2:
+            # 선택한 숙박업소에 따라 필터링된 숙박상품 옵션
+            available_items = st.session_state.available_items
+            selected_index = 0
+            if st.session_state.biz_item_name_filter in available_items:
+                selected_index = available_items.index(st.session_state.biz_item_name_filter)
+                
+            st.selectbox(
+                "숙박상품 선택",
+                options=available_items,
+                key="숙박상품_filter_widget",
+                index=selected_index,
+                on_change=on_item_filter_change
+            )
+        
+        with col3:
+            # 모든 지역 옵션
+            all_regions = ["전체"] + list(st.session_state.result['지역'].unique())
+            selected_index = 0
+            if st.session_state.region_filter in all_regions:
+                selected_index = all_regions.index(st.session_state.region_filter)
+                
+            st.selectbox(
+                "지역 선택",
+                options=all_regions,
+                key="지역_filter_widget",
+                index=selected_index,
+                on_change=on_region_filter_change
+            )
 
         # 처음 로드 시 필터 적용
         if search_button:

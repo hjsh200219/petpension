@@ -13,3 +13,4 @@ beautifulsoup4==4.12.2
 lxml==4.9.3
 importlib-metadata==6.8.0
 fake-useragent==2.0.3
+requests-html==0.10.0

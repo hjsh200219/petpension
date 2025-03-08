@@ -17,7 +17,14 @@ from typing import List, Dict, Any, Callable, Optional, Union, Tuple
 import time
 import random
 from fake_useragent import UserAgent
-
+from requests_html import HTMLSession
+from src.payload import (
+    payload_schedule,
+    payload_booking_list,
+    payload_visitor_reviews,
+    payload_rating,
+    payload_photos
+)
 
 class Common:
     def __init__(self):
@@ -28,7 +35,6 @@ class Common:
             'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7'
         }
 
-
 class Naver:
     def __init__(self):
         self.url_schedule = "https://m.booking.naver.com/graphql?opName=schedule"
@@ -38,8 +44,6 @@ class Naver:
         self.url_booking = "https://map.naver.com/p/entry/place/"
         self.url_rating = "https://api.place.naver.com/graphql"
         self.url_rating_detail = "https://m.place.naver.com/place/"
-        self.url_review_list = "https://m.place.naver.com/restaurant/"
-
 
         self.ua = UserAgent()
         self.headers = {
@@ -47,61 +51,10 @@ class Naver:
             'Referer': 'https://m.place.naver.com/',
             'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7'
         }
-
+        
     def get_schedule(self, businessId, bizItemId, startDateTime, endDateTime):
-        payload = {
-            "operationName": "schedule",
-            "query": """
-                query schedule($scheduleParams: ScheduleParams) {
-                    schedule(input: $scheduleParams) {
-                        bizItemSchedule {
-                            daily {
-                                date
-                                summary {
-                                    dateKey
-                                    minBookingCount
-                                    maxBookingCount
-                                    bookingCount
-                                    stock
-                                    isBusinessDay
-                                    hasBusinessDays
-                                    isSaleDay
-                                    startTime
-                                    endTime
-                                    todayDealRate
-                                    prices {
-                                        groupName
-                                        isDefault
-                                        price
-                                        priceId
-                                        name
-                                        normalPrice
-                                        desc
-                                        order
-                                        saleStartDateTime
-                                        saleEndDateTime
-                                        __typename
-                                    }
-                                    __typename
-                                }
-                                __typename
-                            }
-                            __typename
-                        }
-                        __typename
-                    }
-                }
-            """,
-            "variables": {
-                "scheduleParams": {
-                    "businessId": businessId,
-                    "bizItemId": bizItemId,
-                    "businessTypeId": 5,
-                    "startDateTime": startDateTime,
-                    "endDateTime": endDateTime
-                }
-            }
-        }
+        # payload.py에서 페이로드 가져오기
+        payload = payload_schedule(businessId, bizItemId, startDateTime, endDateTime)
 
         response = req.post(self.url_schedule, json=payload)
         data = response.json()["data"]["schedule"]["bizItemSchedule"]["daily"]['date']
@@ -128,182 +81,20 @@ class Naver:
         return result
     
     def get_booking_list(self, businessId):
-        payload = {
-            "operationName": "bizItems",
-            "query": """
-                query bizItems(
-                    $input: BizItemsParams, 
-                    $withTypeValues: Boolean = false, 
-                    $withReviewStat: Boolean = false, 
-                    $withBookedCount: Boolean = false
-                ) {
-                    bizItems(input: $input) {
-                        ...BizItemFragment
-                        __typename
-                    }
-                }
-
-                fragment BizItemFragment on BizItem {
-                    id
-                    agencyKey
-                    businessId
-                    bizItemId
-                    bizItemType
-                    name
-                    desc
-                    phone
-                    stock
-                    price
-                    addressJson
-                    startDate
-                    endDate
-                    refundDate
-                    availableStartDate
-                    bookingConfirmCode
-                    bookingTimeUnitCode
-                    isPeriodFixed
-                    isOnsitePayment
-                    isClosedBooking
-                    isClosedBookingUser
-                    isImp
-                    minBookingCount
-                    maxBookingCount
-                    minBookingTime
-                    maxBookingTime
-                    extraFeeSettingJson
-                    bookableSettingJson
-                    bookingCountSettingJson
-                    paymentSettingJson
-                    bizItemSubType
-                    priceByDates
-                    websiteUrl
-                    discountCardCode
-                    customFormJson
-                    optionCategoryMappings
-                    bizItemCategoryId
-                    additionalPropertyJson {
-                        ageRatingSetting
-                        openingHoursSetting
-                        runningTime
-                        parkingInfoSetting
-                        ticketingTypeSetting
-                        accommodationAdditionalProperty
-                        arrangementCountSetting {
-                            isUsingHeadCount
-                            minHeadCount
-                            maxHeadCount
-                            __typename
-                        }
-                        bizItemCategorySpecificSetting {
-                            instructorName
-                            gatheringPlaceAddress
-                            bizItemCategoryInfoMapping
-                            bizItemCategoryInfo {
-                                type
-                                option
-                                categoryInfoId
-                                __typename
-                            }
-                            __typename
-                        }
-                        __typename
-                    }
-                    bookingCountType
-                    isRequiringBookingOption
-                    bookingUseGuideJson {
-                        type
-                        content
-                        __typename
-                    }
-                    todayDealRate
-                    extraDescJson
-                    bookingPrecautionJson
-                    isSeatUsed
-                    isNPayUsed
-                    isDeducted
-                    isImpStock
-                    isGreenTicket
-                    orderSettingJson
-                    isRobotDeliveryAvailable
-                    bizItemAmenityJson {
-                        amenityCode
-                        amenityCategory
-                        __typename
-                    }
-                    resources {
-                        resourceUrl
-                        __typename
-                    }
-                    bizItemResources {
-                        resourceUrl
-                        bizItemResourceSeq
-                        bizItemId
-                        order
-                        resourceTypeCode
-                        regDateTime
-                        __typename
-                    }
-                    totalBookedCount @include(if: $withBookedCount)
-                    currentDateTime @include(if: $withBookedCount)
-                    reviewStatDetails @include(if: $withReviewStat) {
-                        totalCount
-                        avgRating
-                        __typename
-                    }
-                    ...BizItemTypeValues @include(if: $withTypeValues)
-                    ...MinMaxPrice
-                    __typename
-                }
-
-                fragment BizItemTypeValues on BizItem {
-                    typeValues {
-                        bizItemId
-                        code
-                        codeValue
-                        __typename
-                    }
-                    __typename
-                }
-
-                fragment MinMaxPrice on BizItem {
-                    minMaxPrice {
-                        minPrice
-                        minNormalPrice
-                        maxPrice
-                        maxNormalPrice
-                        isSinglePrice
-                        discountRate {
-                            min
-                            max
-                            __typename
-                        }
-                        __typename
-                    }
-                    __typename
-                }
-            """,
-            "variables": {
-                "withTypeValues": False,
-                "withReviewStat": False,
-                "withBookedCount": False,
-                "input": {
-                    "businessId": businessId,
-                    "lang": "ko",
-                    "projections": "RESOURCE"
-                },
-                "withClosedBizItem": False
-            }
-        }
+        # payload.py에서 페이로드 가져오기
+        payload = payload_booking_list(businessId)
 
         response = req.post(self.url_booking_list, json=payload)
-        data = response.json()["data"]["bizItems"]
+        data = response.json()["data"]["bizItems"]["bizItems"]
         result = []
-        for item in data:
+        for bizItem in data:
             result.append({
-                'bizItemId': item['bizItemId'],
-                'bizItemName': item['name'],
+                'bizItemId': bizItem['id'],
+                'bizItemName': bizItem['name'],
+                'businessId': businessId,
+                'desc': bizItem['desc']
             })
-                
+        
         result = pd.DataFrame(result)
         return result
     
@@ -340,78 +131,17 @@ class Naver:
         return name, address_old, address_new
 
     def get_rating(self, channel_id):
-        payload = [
-            {
-                "operationName": "getMyPlaceProfile",
-                "variables": {},
-                "query": "query getMyPlaceProfile {\n  user {\n    partnerHashedIdNo\n    myplace {\n      profile {\n        imageUrl\n        borderImageUrl\n        myplaceId\n        myplaceNickname\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}"
-            },
-            {
-                "operationName": "getAnnouncements",
-                "variables": {
-                    "businessId": "1306861767",
-                    "businessType": "place",
-                    "deviceType": "pc"
-                },
-                "query": "query getAnnouncements($businessId: String!, $businessType: String!, $deviceType: String!) {\n  announcements: announcementsViaCP0(\n    businessId: $businessId\n    businessType: $businessType\n    deviceType: $deviceType\n  ) {\n    ...AnnouncementFields\n    __typename\n  }\n}\n\nfragment AnnouncementFields on Feed {\n  feedId\n  category\n  categoryI18n\n  title\n  relativeCreated\n  period\n  thumbnail {\n    url\n    count\n    isVideo\n    __typename\n  }\n  __typename\n}"
-            },
-            {
-                "operationName": "getPromotions",
-                "variables": {
-                    "channelId": "1306861767",
-                    "input": {"channelId": "1306861767"},
-                    "isBooking": False
-                },
-                "query": "query getPromotions($channelId: String, $input: PromotionInput, $isBooking: Boolean!) {\n  naverTalk @skip(if: $isBooking) {\n    alarm(channelId: $channelId) {\n      friendYn\n      validation\n      __typename\n    }\n    __typename\n  }\n  promotionCoupons(input: $input) {\n    total\n    naverId\n    coupons {\n      promotionSeq\n      placeSeq\n      couponSeq\n      userCouponSeq\n      promotionTitle\n      conditionType\n      couponUseType\n      title\n      description\n      type\n      expiredDateDescription\n      status\n      image {\n        url\n        width\n        height\n        desc\n        __typename\n      }\n      downloadableCountInfo\n      expiredPeriodInfo\n      usedConditionInfos\n      couponButtonText\n      daysBeforeCouponStartDate\n      usableLandingUrl {\n        useSiteUrl\n        useBookingUrl\n        useOrderUrl\n        __typename\n      }\n      couponUsableDetail {\n        isImpPlace\n        isImpBooking\n        isImpOrder\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}"
-            },
-            {
-                "operationName": "getBookmarks",
-                "variables": {
-                    "businessIdList": ["1306861767"]
-                },
-                "query": "query getBookmarks($businessIdList: [String]!) {\n  bookmarks(businessIdList: $businessIdList) {\n    id\n    sid\n    memo\n    __typename\n  }\n}"
-            },
-            {
-                "operationName": "folder",
-                "variables": {
-                    "businessIdList": ["1306861767"]
-                },
-                "query": "query folder($businessIdList: [String]!) {\n  bookmarkFolders(businessIdList: $businessIdList) {\n    id\n    bookmarkId\n    placeId\n    folderMappings {\n      id\n      shareId\n      creationTime\n      name\n      markerColor\n      isDefaultFolder\n      __typename\n    }\n    __typename\n  }\n}"
-            },
-            {
-                "operationName": "getVisitorReviews",
-                "variables": {
-                    "input": {
-                        "businessId": "1306861767",
-                        "bookingBusinessId": "896898",
-                        "businessType": "place",
-                        "size": 3,
-                        "page": 1
-                    }
-                },
-                "query": "query getVisitorReviews($input: VisitorReviewsInput) {\n  visitorReviews(input: $input) {\n    ...VisitorReviews\n    __typename\n  }\n}\n\nfragment VisitorReviews on VisitorReviewsResult {\n  items {\n    id\n    reviewId\n    rating\n    author {\n      id\n      nickname\n      from\n      imageUrl\n      borderImageUrl\n      objectId\n      url\n      review {\n        totalCount\n        imageCount\n        avgRating\n        __typename\n      }\n      theme {\n        totalCount\n        __typename\n      }\n      apolloCacheId\n      isFollowing\n      followerCount\n      followRequested\n      __typename\n    }\n    body\n    thumbnail\n    media {\n      type\n      thumbnail\n      thumbnailRatio\n      class\n      videoId\n      videoUrl\n      trailerUrl\n      __typename\n    }\n    tags\n    status\n    visitCount\n    viewCount\n    visited\n    visitedDate\n    created\n    reply {\n      editUrl\n      body\n      editedBy\n      created\n      date\n      status\n      replyTitle\n      isReported\n      isSuspended\n      __typename\n    }\n    themes {\n      theme\n      pattern\n      category\n      offsetStart\n      offsetEnd\n      similarity\n      miningValue\n      __typename\n    }\n    originType\n    item {\n      name\n      code\n      options\n      __typename\n    }\n    language\n    translatedText\n    bookingItemName\n    bookingItemOptions\n    businessName\n    showBookingItemName\n    showBookingItemOptions\n    votedKeywords {\n      code\n      iconUrl\n      iconCode\n      name\n      __typename\n    }\n    userIdno\n    isFollowing\n    followerCount\n    followRequested\n    loginIdno\n    apolloCacheId\n    receiptInfoUrl\n    showPaymentInfo\n    reactionStat {\n      id\n      typeCount {\n        name\n        count\n        __typename\n      }\n      totalCount\n      __typename\n    }\n    hasViewerReacted {\n      id\n      reacted\n      __typename\n    }\n    nickname\n    __typename\n  }\n  starDistribution {\n    score\n    count\n    __typename\n  }\n  hideProductSelectBox\n  total\n  score\n  showRecommendationSort\n  itemReviewStats {\n    itemId\n    count\n    score\n    __typename\n  }\n  __typename\n}"
-            },
-            {
-                "operationName": "getVisitorReviewStats",
-                "variables": {
-                    "businessType": "place",
-                    "id": "1306861767",
-                    "itemId": "0"
-                },
-                "query": "query getVisitorReviewStats($id: String, $itemId: String, $businessType: String = \"place\") {\n  visitorReviewStats(\n    input: {businessId: $id, itemId: $itemId, businessType: $businessType}\n  ) {\n    id\n    name\n    apolloCacheId\n    review {\n      avgRating\n      totalCount\n      scores {\n        count\n        score\n        __typename\n      }\n      starDistribution {\n        count\n        score\n        __typename\n      }\n      imageReviewCount\n      authorCount\n      maxSingleReviewScoreCount\n      maxScoreWithMaxCount\n      __typename\n    }\n    analysis {\n      themes {\n        code\n        label\n        count\n        __typename\n      }\n      menus {\n        code\n        label\n        count\n        __typename\n      }\n      votedKeyword {\n        totalCount\n        reviewCount\n        userCount\n        details {\n          category\n          code\n          iconUrl\n          iconCode\n          displayName\n          count\n          previousRank\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    visitorReviewsTotal\n    ratingReviewsTotal\n    __typename\n  }\n}"
-            },
-            {
-                "operationName": "getVisitorReviewStats",
-                "variables": {
-                    "businessType": "place",
-                    "id": "1306861767"
-                },
-                "query": "query getVisitorReviewStats($id: String, $itemId: String, $businessType: String = \"place\") {\n  visitorReviewStats(\n    input: {businessId: $id, itemId: $itemId, businessType: $businessType}\n  ) {\n    id\n    name\n    apolloCacheId\n    review {\n      avgRating\n      totalCount\n      scores {\n        count\n        score\n        __typename\n      }\n      starDistribution {\n        count\n        score\n        __typename\n      }\n      imageReviewCount\n      authorCount\n      maxSingleReviewScoreCount\n      maxScoreWithMaxCount\n      __typename\n    }\n    analysis {\n      themes {\n        code\n        label\n        count\n        __typename\n      }\n      menus {\n        code\n        label\n        count\n        __typename\n      }\n      votedKeyword {\n        totalCount\n        reviewCount\n        userCount\n        details {\n          category\n          code\n          iconUrl\n          iconCode\n          displayName\n          count\n          previousRank\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    visitorReviewsTotal\n    ratingReviewsTotal\n    __typename\n  }\n}"
-            }
-        ]
-
-        response = req.post(self.url_rating, json=payload)
-        return response
+        wait_time = random.uniform(0.1, 0.2)
+        time.sleep(wait_time)
+        
+        # payload.py에서 페이로드 가져오기
+        payload = payload_rating(channel_id)
+        
+        response = req.post(self.url_rating, json=payload, headers=self.headers)
+        review_count = response.json()[0]['data']['getTotalReviewCount']['totalCount']
+        rating_distribution = response.json()[0]['data']['getTotalReviewCount']['scoreDistribution']
+        
+        return {"review_count": review_count, "rating_distribution": rating_distribution}
 
     def _get_rating_playwright(self, channel_id):
         # 재시도 횟수 설정
@@ -553,12 +283,23 @@ class Naver:
         
         return {"error": "최대 재시도 횟수 초과", "status": "failed"}
         
-    def get_rating_data(self, df):
+    def get_rating_data(self, df, method='default'):
+        """
+        리뷰 데이터를 수집하는 함수
+        method: 'default', 'playwright', 'requests_html' 중 하나를 선택
+        """
         rating_data = pd.DataFrame()
         errors = []  # 오류 기록용
         
         for index, row in tqdm(df.iterrows(), total=len(df)):
-            result = self._get_rating_playwright(row['channelId']) if os.environ.get('STREAMLIT_DEVELOPMENT', 'false').lower() == 'true' else self._get_rating(row['channelId'])
+            # 크롤링 메서드 선택
+            if method == 'playwright':
+                result = self._get_rating_playwright(row['channelId'])
+            elif method == 'requests_html':
+                result = self._get_rating_requests_html(row['channelId'])
+            else:  # default
+                # 개발 환경인 경우 playwright, 그렇지 않으면 일반 method 사용
+                result = self._get_rating_playwright(row['channelId']) if os.environ.get('STREAMLIT_DEVELOPMENT', 'false').lower() == 'true' else self._get_rating(row['channelId'])
             
             # 결과가 DataFrame인지 확인
             if isinstance(result, pd.DataFrame):
@@ -587,12 +328,11 @@ class Naver:
             # 데이터가 없는 경우 빈 데이터프레임 반환
             print("경고: 수집된 리뷰 데이터가 없습니다!")
             return pd.DataFrame(columns=['channelId', 'review_item', 'rating', 'businessName']) 
-        
 
     def _get_rating(self, channel_id):
         wait_time = random.uniform(0.1, 0.2)
         time.sleep(wait_time)
-        url = f"{self.url_review_list}{channel_id}/review/visitor"
+        url = f"{self.url_rating_detail}{channel_id}/review/visitor"
         res = req.get(url, headers=self.headers)
         res.encoding = 'utf-8'
         soup = BS(res.text, 'html.parser', from_encoding='utf-8')
@@ -619,3 +359,206 @@ class Naver:
             reviews_data.append({"channelId": channel_id, "review_item": review_text, "rating": participant_count})
         reviews_data = pd.DataFrame(reviews_data)
         return reviews_data
+
+    def _get_rating_requests_html(self, channel_id):
+        """
+        requests-html을 사용하여 네이버 리뷰 데이터를 크롤링하는 함수
+        """
+        # 재시도 횟수 설정
+        max_retries = 3
+        retry_count = 0
+        
+        while retry_count < max_retries:
+            try:
+                # HTMLSession 생성
+                session = HTMLSession()
+                
+                # User-Agent 무작위 설정
+                ua = UserAgent()
+                headers = {
+                    'User-Agent': ua.random,
+                    'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
+                    'Referer': 'https://www.naver.com/',
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache'
+                }
+                
+                # 쿠키 설정
+                cookies = {
+                    'NNB': ''.join(random.choices("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", k=12))
+                }
+                
+                # 무작위 지연 시간 추가
+                delay = random.uniform(0.5, 1.5) if retry_count == 0 else random.uniform(1, 3)
+                print(f"요청 전 {delay:.1f}초 대기 중...")
+                time.sleep(delay)
+                
+                # 네이버 메인 페이지 먼저 방문하여 쿠키 획득
+                session.get("https://www.naver.com", headers=headers, cookies=cookies)
+                time.sleep(random.uniform(0.5, 1))
+                
+                # 리뷰 페이지로 이동
+                print(f"리뷰 페이지로 이동 중...")
+                review_url = f"{self.url_rating_detail}{channel_id}/review/visitor"
+                
+                # 페이지 요청
+                response = session.get(
+                    review_url, 
+                    headers=headers, 
+                    cookies=cookies
+                )
+                
+                # 자바스크립트 렌더링
+                print("자바스크립트 렌더링 중...")
+                response.html.render(sleep=2, timeout=20)
+                
+                # 페이지에 "과도한 접근 요청" 문구가 있는지 확인
+                if "과도한 접근 요청으로 서비스 이용이 제한되었습니다" in response.html.html:
+                    print(f"접근 제한 감지됨. 재시도 {retry_count + 1}/{max_retries}")
+                    session.close()
+                    retry_count += 1
+                    # 더 긴 대기 시간
+                    wait_time = 30 + retry_count * 30  # 30초, 60초, 90초...
+                    print(f"{wait_time}초 후에 재시도합니다...")
+                    time.sleep(wait_time)
+                    continue
+                
+                # 페이지 내용 파싱
+                soup = BS(response.html.html, 'html.parser')
+                divs = soup.find_all('div', class_='place_section_content')
+                
+                if not divs:
+                    print("리뷰 섹션을 찾을 수 없습니다. 다른 선택자를 시도합니다.")
+                    # 다른 선택자로 시도해볼 수 있음
+                    divs = soup.find_all('div', {'data-nclicks-area-code': 'rvw'})
+                    
+                    if not divs:
+                        print("리뷰 데이터를 찾을 수 없습니다.")
+                        # 페이지 저장하여 디버깅
+                        with open(f"debug_review_page_{channel_id}.html", "w", encoding="utf-8") as f:
+                            f.write(response.html.html)
+                        print(f"디버깅용 페이지가 debug_review_page_{channel_id}.html에 저장되었습니다.")
+                        session.close()
+                        retry_count += 1
+                        continue
+                
+                div = divs[0]
+                ul = div.find('ul')
+                
+                if not ul:
+                    print("리뷰 리스트를 찾을 수 없습니다.")
+                    session.close()
+                    retry_count += 1
+                    continue
+                    
+                lis = ul.find_all('li')
+                reviews_data = []
+                
+                # 리뷰 항목 리스트
+                review_items = [
+                    "인테리어가 멋져요", "동물을 배려한 환경이에요", "시설이 깔끔해요", "사진이 잘 나와요",
+                    "야외공간이 멋져요", "뷰가 좋아요", "친절해요", "공간이 넓어요", "가격이 합리적이에요",
+                    "매장이 청결해요", "화장실이 깨끗해요", "대화하기 좋아요", "반려동물과 가기 좋아요",
+                    "조용히 쉬기 좋아요", "침구가 좋아요", "바비큐 해먹기 좋아요", "화장실이 잘 되어있어요",
+                    "주차하기 편해요", "물놀이하기 좋아요", "냉난방이 잘돼요", "즐길 거리가 많아요",
+                    "방음이 잘돼요", "컨셉이 독특해요", "취사시설이 잘 되어있어요"
+                ]
+                
+                # 리뷰 데이터 추출
+                for item in review_items:
+                    review_text = item
+                    participant_count = 0  # 기본값 0으로 설정
+                    
+                    for li in lis:
+                        # 태그 이름 선택자에 맞게 조정
+                        tag_span = li.find('span', class_='t3JSf')
+                        if tag_span and tag_span.text.strip().replace('"', '') == review_text:
+                            count_span = li.find('span', class_='CUoLy')
+                            if count_span:
+                                participant_count = ''.join(filter(str.isdigit, count_span.text.strip()))
+                            break
+                    
+                    reviews_data.append({
+                        "channelId": channel_id, 
+                        "review_item": review_text, 
+                        "rating": participant_count
+                    })
+                
+                # 데이터프레임으로 변환
+                reviews_data = pd.DataFrame(reviews_data)
+                
+                # 세션 정리
+                session.close()
+                return reviews_data
+                
+            except Exception as e:
+                print(f"오류 발생: {str(e)}")
+                retry_count += 1
+                if retry_count < max_retries:
+                    wait_time = 20 + retry_count * 20
+                    print(f"{wait_time}초 후에 재시도합니다...")
+                    time.sleep(wait_time)
+                else:
+                    return {"error": str(e), "status": "error"}
+        
+        return {"error": "최대 재시도 횟수 초과", "status": "failed"}
+    
+    def get_photo(self, channel_id):
+        """
+        네이버 플레이스에서 사진 정보를 가져오는 함수
+        429 에러(Too Many Requests) 방지를 위한 재시도 로직 포함
+        """
+        # 재시도 설정
+        max_retries = 3
+        retry_count = 0
+        
+        while retry_count < max_retries:
+            try:
+                # 요청 간 지연 시간 증가 - 초기 지연 시간은 더 길게, 재시도마다 더 길어짐
+                delay = random.uniform(1.5, 3.0) + (retry_count * 2)
+                print(f"사진 데이터 요청 전 {delay:.1f}초 대기 중...")
+                time.sleep(delay)
+                
+                # User-Agent 무작위 설정
+                self.headers['User-Agent'] = self.ua.random
+                
+                # payload.py에서 페이로드 가져오기
+                payload = payload_photos(channel_id)
+                
+                # 요청 보내기
+                res = req.post(self.url_rating, json=payload, headers=self.headers)
+                
+                # 응답 코드 확인
+                if res.status_code == 200:
+                    # 성공적으로 데이터를 받았을 때
+                    print(f"사진 데이터 수집 성공: 상태 코드 {res.status_code}")
+                    return res.json()
+                elif res.status_code == 429:
+                    # 요청 제한에 걸렸을 때
+                    retry_count += 1
+                    wait_time = 30 + (retry_count * 30)  # 30초, 60초, 90초...
+                    print(f"429 에러(Too Many Requests) 발생! {retry_count}/{max_retries} 회 재시도, {wait_time}초 후에 다시 시도합니다.")
+                    time.sleep(wait_time)
+                else:
+                    # 다른 오류 발생
+                    print(f"사진 데이터 수집 실패: 상태 코드 {res.status_code}")
+                    retry_count += 1
+                    if retry_count < max_retries:
+                        wait_time = 10 + (retry_count * 10)
+                        print(f"다른 오류 발생, {wait_time}초 후에 다시 시도합니다.")
+                        time.sleep(wait_time)
+                    else:
+                        return {"error": f"상태 코드: {res.status_code}", "status": "error"}
+            
+            except Exception as e:
+                print(f"예외 발생: {str(e)}")
+                retry_count += 1
+                if retry_count < max_retries:
+                    wait_time = 15 + (retry_count * 15)
+                    print(f"오류 발생, {wait_time}초 후에 다시 시도합니다.")
+                    time.sleep(wait_time)
+                else:
+                    return {"error": str(e), "status": "error"}
+        
+        # 최대 재시도 횟수를 초과한 경우
+        return {"error": "최대 재시도 횟수 초과", "status": "failed"}

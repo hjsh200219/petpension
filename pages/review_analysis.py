@@ -7,6 +7,8 @@ from datetime import datetime, timedelta
 from src.settings import verify_password
 from src.data import Naver
 from src.chart import Chart
+from threading import Thread, Lock
+import time
 
 naver = Naver()
 
@@ -41,6 +43,88 @@ def load_pension_data():
     pension_info = pension_info[['businessName', 'channelId', 'addressNew']].drop_duplicates()
     pension_info['channelId'] = pension_info['channelId'].astype(str)
     return pension_info
+
+def fetch_rating_data_threaded(pension_info_filtered):
+    """멀티스레드를 사용하여 리뷰 데이터를 가져오는 함수"""
+    # Naver 객체 생성
+    naver = Naver()
+    
+    # 로딩 상태 표시
+    status_text = st.empty()
+    progress_bar = st.progress(0)
+    
+    # 결과 저장용 리스트 및 락
+    all_results = []
+    results_lock = Lock()
+    
+    # 진행 상황 추적용 변수
+    total_pensions = len(pension_info_filtered)
+    completed_count = 0
+    completed_lock = Lock()
+    
+    # 스레드로 실행될 함수
+    def fetch_rating_worker(row):
+        nonlocal completed_count
+        
+        channel_id = row.channelId
+        business_name = row.businessName
+        
+        try:
+            # 리뷰 데이터 가져오기
+            result = naver._get_rating_playwright(channel_id)
+            
+            # 결과가 데이터프레임인 경우 처리
+            if isinstance(result, pd.DataFrame):
+                result['businessName'] = business_name
+                result['channelId'] = channel_id
+                
+                # 락을 사용하여 결과에 안전하게 추가
+                with results_lock:
+                    all_results.append(result)
+            else:
+                print(f"오류: {business_name}의 리뷰 데이터 형식이 올바르지 않음")
+        except Exception as e:
+            print(f"오류 발생: {business_name} - {str(e)}")
+        
+        # 진행 상황 업데이트
+        with completed_lock:
+            completed_count += 1
+            progress = completed_count / total_pensions
+            progress_bar.progress(progress)
+            status_text.text(f"리뷰 데이터 수집 중... ({completed_count}/{total_pensions})")
+    
+    # 스레드 생성 및 실행
+    threads = []
+    max_workers = min(5, total_pensions)  # 최대 5개 스레드로 제한
+    
+    for row in pension_info_filtered.itertuples(index=False):
+        t = Thread(target=fetch_rating_worker, args=(row,))
+        threads.append(t)
+        t.start()
+        
+        # 최대 동시 실행 스레드 수 제한
+        active_threads = sum(1 for t in threads if t.is_alive())
+        while active_threads >= max_workers:
+            time.sleep(0.1)  # 잠시 대기
+            active_threads = sum(1 for t in threads if t.is_alive())
+    
+    # 모든 스레드 완료 대기
+    for t in threads:
+        t.join()
+    
+    # 진행 상황 바 및 상태 텍스트 제거
+    progress_bar.empty()
+    status_text.empty()
+    
+    # 결과 병합
+    rating_data = pd.DataFrame()
+    if all_results:
+        rating_data = pd.concat(all_results, ignore_index=True)
+        
+        # CSV로 저장
+        rating_data.to_csv('./static/rating_data.csv', index=False)
+    
+    return rating_data
 
 def process_rating_data(rating_data, pension_info_filtered):
     """리뷰 데이터 처리 및 Z-score 계산"""
@@ -199,22 +283,22 @@ def show_review_analysis_page():
         pension_info_filtered = pension_info[pension_info['businessName'].isin(analysis_pensions)]
         st.dataframe(pension_info_filtered, use_container_width=True, hide_index=True)
         
-        # 리뷰 데이터 수집
+        # 리뷰 데이터 가져오기
         with st.spinner("리뷰 데이터 수집중..."):
             try:
-                rating_data = naver.get_rating_data(pension_info_filtered)
+                # 스레드를 사용하여 리뷰 데이터 가져오기
+                rating_data = fetch_rating_data_threaded(pension_info_filtered)
                 
                 # 수집된 데이터가 없거나 비어있는 경우 처리
-                if rating_data.empty:
-                    st.error("리뷰 데이터를 가져오는데 실패했습니다. 다시 시도해주세요.")
-                    st.session_state.has_analysis_result = False
+                if rating_data is None or rating_data.empty:
+                    st.error("리뷰 데이터를 가져오는데 실패했습니다.")
                     return
                 
-                with st.expander("리뷰 데이터 보기", expanded=False):
-                    st.dataframe(rating_data, use_container_width=True, hide_index=True)
+                # 세션 상태에 데이터 저장
+                st.session_state.rating_data = rating_data
+                st.session_state.pension_info_filtered = pension_info_filtered
             except Exception as e:
-                st.error(f"리뷰 데이터 수집 중 오류 발생: {str(e)}")
-                st.session_state.has_analysis_result = False
+                st.error(f"데이터 수집 중 오류가 발생했습니다: {str(e)}")
                 return
         
         # 데이터 분석
@@ -222,54 +306,23 @@ def show_review_analysis_page():
             rating_average, pension_col = process_rating_data(rating_data, pension_info_filtered)
             
             # 분석 결과 저장
-            st.session_state.rating_data_dict = rating_data.to_dict('records')
-            st.session_state.rating_average_dict = rating_average.to_dict('records')
-            st.session_state.pension_col_result = pension_col
+            st.session_state.rating_average = rating_average
+            st.session_state.pension_col = pension_col
             st.session_state.has_analysis_result = True
-            st.session_state.analyzed_pensions = analysis_pensions
-    else:
-        # 저장된 분석 결과 불러오기
-        rating_data = pd.DataFrame(st.session_state.rating_data_dict)
-        rating_average = pd.DataFrame(st.session_state.rating_average_dict)
-        pension_col = st.session_state.pension_col_result
+            
+            # 카테고리 순서 정의
+            st.session_state.category_order = rating_average['review_item'].unique().tolist()
+    
+    # 분석 결과 표시
+    if st.session_state.has_analysis_result:
+        rating_average = st.session_state.rating_average
+        pension_col = st.session_state.pension_col
         
-        # 현재 분석 중인 펜션 정보 표시
-        st.info(f"현재 분석 중인 펜션: {', '.join(st.session_state.analyzed_pensions)}")
-        st.dataframe(rating_data, use_container_width=True, hide_index=True)
-    
-    # 카페이안 우선 순위 적용
-    rating_average, pension_order = prioritize_cafeian(rating_average, pension_col)
-    
-    # 차트 타입 선택
-    chart_type = st.radio(
-        "차트 유형 선택:",
-        options=["레이더 차트", "바 차트", "히트맵"],
-        index=0 if st.session_state.chart_type == "radar" else 
-              1 if st.session_state.chart_type == "bar" else 2,
-        horizontal=True,
-        key="chart_type_radio"
-    )
-    
-    # 선택된 차트 타입 저장
-    if chart_type == "레이더 차트":
-        st.session_state.chart_type = "radar"
-    elif chart_type == "바 차트":
-        st.session_state.chart_type = "bar"
-    elif chart_type == "히트맵":
-        st.session_state.chart_type = "heatmap"
-    
-    # 차트 유형에 따라 다른 차트 표시
-    if st.session_state.chart_type == "bar":
-        fig = Chart.create_bar_chart(rating_average, pension_col)
-    elif st.session_state.chart_type == "heatmap":
-        fig = Chart.create_heatmap(rating_average, pension_col, pension_order)
-    else:  # 레이더 차트
-        # 레이더 차트에는 카페이안과 선택된 다른 펜션만 표시 (카페이안은 항상 포함)
-        Chart.create_radar_tabs(rating_average, pension_col, pension_order)
-    
-    # 바/히트맵 차트 표시
-    if st.session_state.chart_type != "radar":
-        st.plotly_chart(fig, use_container_width=True)
+        # 카페이안을 최상위로 정렬
+        rating_average, pension_order = prioritize_cafeian(rating_average, pension_col)
+        
+        # 분석 결과 시각화
+        Chart.show_rating_charts(rating_average, pension_col, st.session_state.category_order)
 
 if __name__ == "__main__":
     show_review_analysis_page() 

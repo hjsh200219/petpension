@@ -51,42 +51,88 @@ class Chart:
     
     @staticmethod
     def create_zscore_bar_chart(data, pension_col):
-        """Z-score 막대 차트 생성"""
-        fig = px.bar(
-            data,
-            x='zscore',
-            y='review_item',
-            color=pension_col,
-            title='펜션별 리뷰 항목 표준화 점수 비교 (평균=0 기준)',
-            labels={
-                'zscore': '표준화 점수 (Z-score)', 
-                'review_item': '리뷰 항목',
-                pension_col: '펜션명'
-            },
-            orientation='h',
-            barmode='group',
-            color_discrete_sequence=Chart.DEFAULT_COLOR_SEQUENCE
-        )
+        """Z-score 막대 차트 생성 - 카페이안과 1:1 비교 (탭 UI 사용)"""
+        # 카페이안 펜션 식별
+        pension_names = data[pension_col].unique().tolist()
+        cafeian_pensions = [p for p in pension_names if '카페이안' in p or '카페 이안' in p]
+        cafeian_pension = cafeian_pensions[0] if cafeian_pensions else None
         
-        fig.update_layout(
-            xaxis=dict(
-                title='표준화 점수 (Z-score)',
-                zeroline=True,
-                zerolinecolor='black', 
-                zerolinewidth=1,
-                range=[-2, 2]
-            ),
-            yaxis=dict(
-                title='리뷰 항목',
-                categoryorder='total ascending'
-            ),
-            legend_title_text='펜션명',
-            legend={'traceorder': 'normal'},
-            height=900,
-            margin=dict(l=0, r=0, t=50, b=30)
-        )
+        # 카페이안이 없으면 첫 번째 펜션을 기준으로 설정
+        if not cafeian_pension and pension_names:
+            cafeian_pension = pension_names[0]
         
-        return fig
+        # 카페이안을 제외한 펜션 목록
+        other_pensions = [p for p in pension_names if p != cafeian_pension]
+        
+        if not other_pensions:
+            st.warning("비교할 다른 펜션이 없습니다.")
+            fig = go.Figure()
+            fig.update_layout(
+                title="비교할 펜션 없음",
+                annotations=[dict(text="비교할 다른 펜션이 없습니다.", showarrow=False, xref="paper", yref="paper", x=0.5, y=0.5)]
+            )
+            return fig
+        
+        # 탭 UI로 변경 - 각 탭은 하나의 펜션을 카페이안과 비교
+        tab_titles = [f"vs {pension}" for pension in other_pensions]
+        tabs = st.tabs(tab_titles)
+        
+        charts = {}  # 각 탭의 차트 저장
+        
+        for i, selected_pension in enumerate(other_pensions):
+            with tabs[i]:
+                # 카페이안과 선택된 펜션 데이터만 필터링
+                filtered_data = data[data[pension_col].isin([cafeian_pension, selected_pension])].copy()
+                
+                # Z-score 막대 차트 생성
+                fig = px.bar(
+                    filtered_data,
+                    x='zscore',
+                    y='review_item',
+                    color=pension_col,
+                    title=f'{selected_pension} 리뷰 항목 비교 (Z-score)',
+                    labels={
+                        'zscore': '표준화 점수 (Z-score)', 
+                        'review_item': '리뷰 항목',
+                        pension_col: '펜션명'
+                    },
+                    orientation='h',
+                    barmode='group',
+                    color_discrete_sequence=Chart.DEFAULT_COLOR_SEQUENCE
+                )
+                
+                fig.update_layout(
+                    xaxis=dict(
+                        title='표준화 점수 (Z-score)',
+                        zeroline=True,
+                        zerolinecolor='black', 
+                        zerolinewidth=1,
+                        range=[-2, 2]
+                    ),
+                    yaxis=dict(
+                        title='리뷰 항목',
+                        categoryorder='total ascending'
+                    ),
+                    legend_title_text='펜션명',
+                    legend={'traceorder': 'normal'},
+                    height=700,  # 탭에서는 높이를 약간 줄임
+                    margin=dict(l=0, r=0, t=50, b=30)
+                )
+                
+                st.plotly_chart(fig, use_container_width=True)
+                charts[selected_pension] = fig
+                
+                # 데이터 테이블 표시
+                with st.expander("📋 상세 데이터 보기"):
+                    display_cols = ['review_item', pension_col, 'rating', 'rating_relative_pct', 'zscore']
+                    st.dataframe(
+                        filtered_data[display_cols].sort_values(['review_item', pension_col]),
+                        use_container_width=True,
+                        hide_index=True
+                    )
+        
+        # 첫 번째 펜션의 차트 반환 (호환성 유지)
+        return charts.get(other_pensions[0]) if other_pensions else fig
     
     @staticmethod
     def create_heatmap(data, index_col, pension_order, value_col='zscore'):
@@ -355,7 +401,7 @@ class Chart:
                 compare_pensions = pension_names[1:]
                 
                 # 비교 탭 생성
-                tab_labels = [f"{base_pension} vs {other}" for other in compare_pensions]
+                tab_labels = [f"vs {other}" for other in compare_pensions]
                 tabs = st.tabs(tab_labels)
                 
                 for i, other_pension in enumerate(compare_pensions):
@@ -455,7 +501,7 @@ class Chart:
                     linecolor='gray'
                 )
             ),
-            title=f'{pension1} vs {pension2} 리뷰 항목 비교',
+            title=f'vs {pension2} 리뷰 항목 비교',
             height=700,
             margin=dict(l=30, r=30, t=50, b=30)
         )
@@ -587,4 +633,60 @@ class Chart:
             pension_data[display_cols].sort_values('zscore', ascending=False),
             use_container_width=True,
             hide_index=True
-        ) 
+        )
+
+    @staticmethod
+    def show_rating_charts(rating_average, pension_col, category_order):
+        """리뷰 평점 차트를 보여주는 함수"""
+        st.subheader("📊 리뷰 평점 비교 분석")
+        
+        # rating_average가 튜플인 경우 첫 번째 요소(DataFrame)를 사용
+        if isinstance(rating_average, tuple) and len(rating_average) > 0:
+            # rating_average = (dataframe, pension_order)
+            df = rating_average[0]
+        else:
+            df = rating_average
+        
+        # 데이터가 비어있는지 확인
+        if df is None or df.empty:
+            st.warning("분석할 리뷰 데이터가 없습니다.")
+            return
+            
+        # 펜션 목록 추출
+        pension_names = df[pension_col].unique().tolist()
+        
+        # UI 탭 생성
+        chart_types = ["레이더 차트", "막대 차트", "히트맵"]
+        chart_tabs = st.tabs(chart_types)
+        
+        # 레이더 차트 탭
+        with chart_tabs[0]:
+            # 레이더 차트 생성 - 카페이안과 다른 펜션 비교
+            Chart.create_radar_tabs(df, pension_col, pension_names)
+        
+        # Z-Score 막대 차트 탭
+        with chart_tabs[1]:
+            # 탭 UI에서 직접 차트 생성하므로 여기서는 함수만 호출
+            Chart.create_zscore_bar_chart(df, pension_col)
+            
+            # 개별 탭에 데이터 테이블이 이미 포함되어 있으므로 제거
+        
+        # 히트맵 탭
+        with chart_tabs[2]:
+            zscore_heatmap = Chart.create_zscore_heatmap(df, pension_col, pension_names)
+            st.plotly_chart(zscore_heatmap, use_container_width=True)
+            
+            # 데이터 테이블 표시 (히트맵)
+            with st.expander("📋 항목별 표준화 점수 데이터"):
+                heatmap_data = df.pivot_table(
+                    values='zscore',
+                    index=pension_col,
+                    columns='review_item',
+                    aggfunc='mean'
+                ).reset_index().round(2)
+                
+                st.dataframe(
+                    heatmap_data,
+                    use_container_width=True,
+                    hide_index=True
+                ) 
