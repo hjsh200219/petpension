@@ -1,7 +1,9 @@
-from src.data import Naver
+from src.data import Naver, Public
 from datetime import datetime, timedelta
 import pandas as pd
 from tqdm import tqdm
+from pathlib import Path
+
 naver = Naver()
 
 # data = naver._waiting_status("1010023")
@@ -34,7 +36,7 @@ naver = Naver()
 # print(result)
 
 
-# pension_info = pd.read_csv('./static/pension_info.csv')[['businessName', 'channelId']].drop_duplicates()
+# pension_info = pd.read_csv('./static/database/pension_info.csv')[['businessName', 'channelId']].drop_duplicates()
 # rating_data = pd.DataFrame()
 # for index, row in tqdm(pension_info.iterrows(), total=len(pension_info)):
 #     result = naver._get_rating(row['channelId'])
@@ -42,9 +44,20 @@ naver = Naver()
 #     result['channelId'] = row['channelId']
 #     rating_data = pd.concat([rating_data, result], ignore_index=True)
 # print(rating_data)
-# rating_data.to_csv('./static/rating_data.csv', index=False)
+# rating_data.to_csv('./static/database/rating_data.csv', index=False)
 
-# rating_data = pd.read_csv('./static/rating_data.csv')
+# rating_data = pd.read_csv('./static/database/rating_data.csv')
 
-rating_data = naver.get_photo('1306861767')
-print(rating_data)
+# rating_data = naver.get_photo('1306861767')
+# print(rating_data)
+
+
+# Public 클래스의 인스턴스 생성
+public = Public()
+
+file_dir = Path('./static/database')
+
+# public.update_shelter_info()
+
+result = public.find_pet()
+print(result)

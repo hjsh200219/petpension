@@ -221,10 +221,10 @@ class UI:
             선택된 시작 날짜, 종료 날짜, 검색 버튼 클릭 여부
         """
         if default_start_date is None:
-            default_start_date = datetime.now().date()
+            default_start_date = (datetime.now() + timedelta(days=1)).date()
             
         if default_end_date is None:
-            default_end_date = (datetime.now() + timedelta(days=30)).date()
+            default_end_date = (datetime.now() + timedelta(days=7)).date()
         
         # 날짜 선택 레이아웃
         col1, col2, col3 = st.columns((1, 1, 3))

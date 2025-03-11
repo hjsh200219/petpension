@@ -51,7 +51,7 @@ def show_schedule_page():
     )
 
     # CSV 파일에서 데이터 읽기
-    pension_info = pd.read_csv('./static/pension_info.csv')
+    pension_info = pd.read_csv('./static/database/pension_info.csv')
 
     # 검색 버튼 클릭 시 데이터 로드
     if search_button:  

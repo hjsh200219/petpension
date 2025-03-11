@@ -65,7 +65,7 @@ def initialize_session_state():
 
 def load_pension_data():
     """펜션 정보 데이터 로드"""
-    csv_path = './static/pension_info.csv'
+    csv_path = './static/database/pension_info.csv'
     if not os.path.exists(csv_path):
         st.error("펜션 정보가 없습니다. 펜션 추가/관리 메뉴에서 펜션을 추가해주세요.")
         return None
@@ -217,7 +217,7 @@ def fetch_schedule_data(pension_info, start_date_str, end_date_str):
     if not result.empty:
         static_dir = Path('./static')
         static_dir.mkdir(exist_ok=True)
-        result.to_csv('./static/schedule_data.csv', index=False)
+        result.to_csv('./static/database/schedule_data.csv', index=False)
     
     return result
 

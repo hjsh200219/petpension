@@ -39,7 +39,7 @@ def verify_user_password():
 
 def load_pension_data():
     """펜션 기본 정보 로드"""
-    pension_info = pd.read_csv('./static/pension_info.csv')
+    pension_info = pd.read_csv('./static/database/pension_info.csv')
     pension_info = pension_info[['businessName', 'channelId', 'addressNew']].drop_duplicates()
     pension_info['channelId'] = pension_info['channelId'].astype(str)
     return pension_info
@@ -122,7 +122,7 @@ def fetch_rating_data_threaded(pension_info_filtered):
         rating_data = pd.concat(all_results, ignore_index=True)
         
         # CSV로 저장
-        rating_data.to_csv('./static/rating_data.csv', index=False)
+        rating_data.to_csv('./static/database/rating_data.csv', index=False)
     
     return rating_data
 

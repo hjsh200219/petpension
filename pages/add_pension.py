@@ -50,7 +50,7 @@ def verify_user_password():
 
 def load_pension_data():
     """펜션 정보 데이터 로드"""
-    csv_path = './static/pension_info.csv'
+    csv_path = './static/database/pension_info.csv'
     if not os.path.exists(csv_path):
         return None
     
@@ -71,7 +71,7 @@ def load_pension_data():
 
 def save_pension_data(pension_info):
     """펜션 정보 저장"""
-    csv_path = './static/pension_info.csv'
+    csv_path = './static/database/pension_info.csv'
     try:
         pension_info.to_csv(csv_path, index=False)
         return True

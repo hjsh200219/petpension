@@ -18,6 +18,8 @@ import time
 import random
 from fake_useragent import UserAgent
 from requests_html import HTMLSession
+from math import ceil
+from concurrent.futures import ThreadPoolExecutor
 from src.payload import (
     payload_schedule,
     payload_booking_list,
@@ -108,18 +110,18 @@ class Naver:
         result['businessId'] = business_id
         result['bookingUrl'] = f"{self.url_booking}{channel_id}"
 
-        if not os.path.exists('./static/pension_info.csv'):
-            result.to_csv('./static/pension_info.csv', index=False)
+        if not os.path.exists('./static/database/pension_info.csv'):
+            result.to_csv('./static/database/pension_info.csv', index=False)
         else:
-            result_old = pd.read_csv('./static/pension_info.csv')
+            result_old = pd.read_csv('./static/database/pension_info.csv')
             # 중복된 데이터가 생성되지 않도록 확인
             if not result['bizItemId'].isin(result_old['bizItemId']).any():
                 result = pd.concat([result_old, result])
-                result.to_csv('./static/pension_info.csv', index=False)
+                result.to_csv('./static/database/pension_info.csv', index=False)
 
-        result = pd.read_csv('./static/pension_info.csv')
+        result = pd.read_csv('./static/database/pension_info.csv')
         result.drop_duplicates(inplace=True)
-        result.to_csv('./static/pension_info.csv', index=False)
+        result.to_csv('./static/database/pension_info.csv', index=False)
 
     def get_pension_info(self, channel_id):
         url = f"{self.url_place_info}{channel_id}"
@@ -322,7 +324,7 @@ class Naver:
         
         # 수집된 데이터가 있는 경우만 저장
         if not rating_data.empty:
-            rating_data.to_csv('./static/rating_data.csv', index=False)
+            rating_data.to_csv('./static/database/rating_data.csv', index=False)
             return rating_data
         else:
             # 데이터가 없는 경우 빈 데이터프레임 반환
@@ -562,3 +564,330 @@ class Naver:
         
         # 최대 재시도 횟수를 초과한 경우
         return {"error": "최대 재시도 횟수 초과", "status": "failed"}
+    
+class Public:
+    def __init__(self):
+        self.public_key = "k/yxtkMUkNQCQ9C6AyTGUtC7Zd58Wbff8Ndb7WKFZX8a1PBAUr8zSzaeBNHFGkFd5CxYWaEM+iQzaejQ5M+LXQ=="
+        self.url_public_animal = "http://apis.data.go.kr/1543061/abandonmentPublicSrvc/abandonmentPublic"
+        self.url_public_sido = "http://apis.data.go.kr/1543061/abandonmentPublicSrvc/sido"
+        self.url_public_sigungu = "http://apis.data.go.kr/1543061/abandonmentPublicSrvc/sigungu"
+        self.url_public_shelter = "http://apis.data.go.kr/1543061/abandonmentPublicSrvc/shelter"
+        self.url_public_kind = "http://apis.data.go.kr/1543061/abandonmentPublicSrvc/kind"
+        
+    def totalCount(self, upkind=None):
+        params = {
+            'serviceKey': self.public_key,
+            '_type': 'json',
+            'pageNo': 1,
+            'numOfRows': 1,
+            'upkind': upkind
+        }
+        res = req.get(self.url_public_animal, params=params)
+        data = res.json()
+        totalCount = data['response']['body']['totalCount']
+        return totalCount
+    
+    def find_pet(
+            self, 
+            bgnde=None, 
+            endde=None, 
+            upkind=None, 
+            kind=None, 
+            upr_cd=None, 
+            org_cd=None, 
+            care_reg_no=None, 
+            state=None, 
+            neuter_yn=None
+        ):
+        try:
+            params = {
+                'serviceKey': self.public_key,
+                '_type': 'json',
+                'pageNo': 1,
+                'numOfRows': 1000,
+                'bgnde': bgnde,
+                'endde': endde,
+                'upkind': upkind,
+                'kind': kind,
+                'upr_cd': upr_cd,
+                'org_cd': org_cd,
+                'care_reg_no': care_reg_no,
+                'state': state,
+                'neuter_yn': neuter_yn
+            }
+            
+            # 초기 API 호출로 총 개수 가져오기
+            res = req.get(self.url_public_animal, params=params)
+            data = res.json()
+            
+            # 응답 확인
+            if ('response' not in data or 
+                'body' not in data['response'] or 
+                'totalCount' not in data['response']['body']):
+                print("API 응답 형식 오류 - 기본 정보를 가져올 수 없습니다.")
+                return pd.DataFrame()
+            
+            totalCount = data['response']['body']['totalCount']
+            
+            if totalCount == 0:
+                print("검색 조건에 맞는 동물 데이터가 없습니다.")
+                return pd.DataFrame()
+            
+            result = []
+            
+            def fetch_pet_data(page):
+                try:
+                    # 페이지별 파라미터 설정
+                    page_params = params.copy()
+                    page_params['pageNo'] = page
+                    
+                    # API 호출
+                    res = req.get(self.url_public_animal, params=page_params)
+                    data = res.json()
+                    
+                    # 응답 검증
+                    if ('response' not in data or 
+                        'body' not in data['response'] or 
+                        'items' not in data['response']['body']):
+                        print(f"페이지 {page}에서 API 응답 형식 오류")
+                        return []
+                    
+                    items = data['response']['body']['items']
+                    
+                    # items가 없거나 비어있는 경우
+                    if not items or 'item' not in items:
+                        print(f"페이지 {page}에 데이터가 없습니다.")
+                        return []
+                    
+                    petlist = items['item']
+                    
+                    # 단일 항목인 경우 리스트로 변환
+                    if isinstance(petlist, dict):
+                        petlist = [petlist]
+                    
+                    return petlist
+                    
+                except Exception as e:
+                    print(f"페이지 {page} 데이터 가져오기 실패: {str(e)}")
+                    return []
+            
+            with ThreadPoolExecutor() as executor:
+                pages = range(1, min(ceil(totalCount / 1000) + 1, 10))  # 너무 많은 페이지 방지
+                pet_lists = list(executor.map(fetch_pet_data, pages))
+            
+            for petlist in pet_lists:
+                for pet in petlist:
+                    try:
+                        pet_data = {
+                            'desertionNo': pet.get('desertionNo', ''),
+                            'filename': pet.get('filename', ''),
+                            'happenDt': pet.get('happenDt', ''),
+                            'happenPlace': pet.get('happenPlace', ''),
+                            'kindCd': pet.get('kindCd', ''),
+                            'colorCd': pet.get('colorCd', ''),
+                            'age': pet.get('age', ''),
+                            'weight': pet.get('weight', ''),
+                            'noticeNo': pet.get('noticeNo', ''),
+                            'noticeSdt': pet.get('noticeSdt', ''),
+                            'noticeEdt': pet.get('noticeEdt', ''),
+                            'popfile': pet.get('popfile', ''),
+                            'processState': pet.get('processState', ''),
+                            'sexCd': pet.get('sexCd', ''),
+                            'neuterYn': pet.get('neuterYn', ''),
+                            'specialMark': pet.get('specialMark', ''),
+                            'careNm': pet.get('careNm', ''),
+                            'careTel': pet.get('careTel', ''),
+                            'careAddr': pet.get('careAddr', ''),
+                            'orgNm': pet.get('orgNm', ''),
+                            'chargeNm': pet.get('chargeNm', ''),
+                            'officetel': pet.get('officetel', '')
+                        }
+                        result.append(pet_data)
+                    except Exception as e:
+                        print(f"동물 데이터 처리 오류: {str(e)}")
+                        continue
+            
+            # 결과를 데이터프레임으로 변환
+            df = pd.DataFrame(result)
+            
+            # 날짜 형식 변환 시도
+            date_columns = ['happenDt', 'noticeSdt', 'noticeEdt']
+            for col in date_columns:
+                if col in df.columns:
+                    try:
+                        # 날짜 형식이 8자리 숫자인 경우 (YYYYMMDD)
+                        df[col] = pd.to_datetime(df[col], format='%Y%m%d', errors='coerce')
+                    except:
+                        pass  # 변환 실패 시 원래 형식 유지
+            
+            # 데이터가 없는 경우 빈 데이터프레임 반환
+            if df.empty:
+                print("처리된 동물 데이터가 없습니다.")
+            
+            return df
+            
+        except Exception as e:
+            print(f"동물 데이터 검색 중 오류 발생: {str(e)}")
+            return pd.DataFrame()
+    
+    def find_sido(self):
+        params = {
+            'serviceKey': self.public_key,
+            '_type': 'json',
+            'pageNo': 1,
+            'numOfRows': 1000
+        }
+        res = req.get(self.url_public_sido, params=params)
+        data = res.json()
+        sido_list = data['response']['body']['items']['item']
+        result = []
+        for sido in sido_list:
+            orgCd = sido['orgCd']
+            orgdownNm = sido['orgdownNm']
+            result.append({'시도코드': orgCd, '시도명': orgdownNm})
+        return pd.DataFrame(result)
+    
+    def find_sigungu(self, upr_cd):
+        params = {
+            'serviceKey': self.public_key,
+            '_type': 'json',
+            'pageNo': 1,
+            'numOfRows': 1000,
+            'upr_cd': upr_cd
+        }
+        res = req.get(self.url_public_sigungu, params=params)
+        data = res.json()
+        sigungu_list = data['response']['body']['items']['item']
+        result = []
+        for sigungu in sigungu_list:
+            orgCd = sigungu['orgCd']
+            orgdownNm = sigungu['orgdownNm']
+            result.append({'시군구코드': orgCd, '시군구명': orgdownNm})
+        return pd.DataFrame(result)
+    
+    def find_shelter(self, upr_cd=None, org_cd=None):
+        params = {
+            'serviceKey': self.public_key,
+            '_type': 'json',
+            'pageNo': 1,
+            'numOfRows': 1000,
+            'upr_cd': upr_cd,
+            'org_cd': org_cd
+        }
+        
+        try:
+            res = req.get(self.url_public_shelter, params=params)
+            data = res.json()
+            
+            # 응답 구조 검증
+            if ('response' not in data or 
+                'body' not in data['response'] or 
+                'items' not in data['response']['body']):
+                print(f"API 응답 형식 오류 또는 데이터 없음 - 시도코드: {upr_cd}, 시군구코드: {org_cd}")
+                return pd.DataFrame(columns=['보호소코드', '보호소명'])
+            
+            shelter_items = data['response']['body']['items']
+            
+            # items가 비어있거나 item 키가 없는 경우
+            if not shelter_items or 'item' not in shelter_items:
+                return pd.DataFrame(columns=['보호소코드', '보호소명'])
+            
+            shelter_list = shelter_items['item']
+            
+            # item이 단일 딕셔너리인 경우 (항목이 1개일 때)
+            if isinstance(shelter_list, dict):
+                shelter_list = [shelter_list]
+            
+            # 유효한 보호소 목록이 아닌 경우
+            if not isinstance(shelter_list, list):
+                return pd.DataFrame(columns=['보호소코드', '보호소명'])
+            
+            result = []
+            for shelter in shelter_list:
+                try:
+                    careRegNo = shelter['careRegNo']
+                    careNm = shelter['careNm']
+                    result.append({'보호소코드': careRegNo, '보호소명': careNm})
+                except KeyError as e:
+                    print(f"보호소 정보 키 오류: {e} - 시도코드: {upr_cd}, 시군구코드: {org_cd}")
+                    # 특정 항목 오류는 건너뛰고 계속 진행
+                    continue
+            
+            return pd.DataFrame(result)
+            
+        except Exception as e:
+            print(f"보호소 조회 중 오류 발생: {str(e)} - 시도코드: {upr_cd}, 시군구코드: {org_cd}")
+            return pd.DataFrame(columns=['보호소코드', '보호소명'])
+
+    def find_kind(self, up_kind_cd = '417000'):
+        """
+         - 개 : 417000
+         - 고양이 : 422400
+         - 기타 : 429900
+        """
+
+        params = {
+            'serviceKey': self.public_key,
+            'up_kind_cd': up_kind_cd,
+            '_type': 'json'
+        }
+        res = req.get(self.url_public_kind, params=params)
+        data = res.json()
+        kind_list = data['response']['body']['items']['item']
+        result = []
+        for kind in kind_list:
+            kindCd = kind['kindCd']
+            KNm = kind['knm']
+            result.append({'품종코드': kindCd, '품종명': KNm})
+        return pd.DataFrame(result)
+
+    def update_shelter_info(self):
+        result_sido = self.find_sido()
+        result_sido.to_csv('./static/database/시도코드.csv', index=False)
+        result_sigungu = pd.DataFrame()
+
+        def process_sigungu(row):
+            upr_cd = row['시도코드']
+            upr_nm = row['시도명']
+            result = self.find_sigungu(upr_cd)
+            result['시도코드'] = upr_cd
+            result['시도명'] = upr_nm
+            return result
+
+        with ThreadPoolExecutor() as executor:
+            results = list(
+                tqdm(
+                    executor.map(process_sigungu, 
+                                  [row for _, row in result_sido.iterrows()]), 
+                    total=len(result_sido)
+                )
+            )
+
+        result_sigungu = pd.concat(results, ignore_index=True)
+        result_sigungu.to_csv('./static/database/시군구코드.csv', index=False)
+        result_shelter = pd.DataFrame()
+
+        def process_shelter(row):
+            upr_cd = row['시도코드']
+            upr_nm = row['시도명']
+            org_cd = row['시군구코드']
+            org_nm = row['시군구명']
+            result = self.find_shelter(upr_cd, org_cd)
+            result['시도코드'] = upr_cd
+            result['시도명'] = upr_nm
+            result['시군구코드'] = org_cd
+            result['시군구명'] = org_nm
+            return result
+
+        with ThreadPoolExecutor() as executor:
+            shelter_results = list(
+                tqdm(
+                    executor.map(process_shelter, 
+                                  [row for _, row in result_sigungu.iterrows()]), 
+                    total=len(result_sigungu)
+                )
+            )
+
+        result_shelter = pd.concat(shelter_results, ignore_index=True)
+        result_shelter.to_csv('./static/database/보호소코드.csv', index=False)
+
