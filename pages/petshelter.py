@@ -55,17 +55,18 @@ def apply_filters(data, upkind):
         # 필터 적용을 위한 데이터 준비
         all_kinds = sorted(data['kindCd'].unique().tolist())
         
-        # 출생년도 처리 - 괄호 앞의 4자리 숫자 추출
+        # 출생년도 처리 - 안전하게 추출
         birth_years = []
-        for year in data['출생년도'].dropna().unique():
-            if year and str(year).isdigit() and len(str(year)) == 4:
-                birth_years.append(year)
-        all_birth_years = sorted([f"{int(y)}년생" for y in birth_years], reverse=True)
+        if '출생년도' in data.columns:
+            for year in data['출생년도'].dropna().unique():
+                if pd.notna(year) and str(year).isdigit() and len(str(int(year))) == 4:
+                    birth_years.append(int(year))
+        
+        all_birth_years = sorted([f"{y}년생" for y in birth_years], reverse=True) if birth_years else []
         
         all_sexes = sorted([s for s in data['sexCd'].unique().tolist() if s and s != ' '])
         all_sidos = sorted([s for s in data['시도'].unique().tolist() if s != '정보 없음'])
         
-        # 날짜 필터 UI
         col1, col2, col3, col4 = st.columns(4)
         with col1:
             min_date = data['happenDt'].min().date()
@@ -84,6 +85,7 @@ def apply_filters(data, upkind):
                                    max_value=max_date,
                                    key=f"date_to_{upkind}")
         
+
         with col3:
             selected_sido = st.selectbox("시도", 
                                        ["모든 지역"] + all_sidos,
@@ -138,10 +140,15 @@ def apply_filters(data, upkind):
         filtered_data = filtered_data[filtered_data['kindCd'] == selected_kind]
     
     # 년생 필터 적용
-    if selected_birth_year != "모든 년도":
-        # "년생" 텍스트 제거하고 숫자만 추출
-        year_only = selected_birth_year.split('(')[0]
-        filtered_data = filtered_data[filtered_data['출생년도'] == int(year_only)]
+    if selected_birth_year != "모든 년도" and '출생년도' in filtered_data.columns:
+        try:
+            # "년생" 텍스트 제거하고 숫자만 추출
+            year_only = selected_birth_year.replace('년생', '').strip()
+            if year_only.isdigit():
+                year_value = int(year_only)
+                filtered_data = filtered_data[filtered_data['출생년도'] == year_value]
+        except Exception as e:
+            st.error(f"출생년도 필터링 중 오류 발생: {str(e)}")
     
     # 성별 필터 적용
     if selected_sex != "모두":
@@ -160,88 +167,114 @@ def apply_filters(data, upkind):
 def show_pet_list(upkind): 
     shelter_data_path = './static/database/보호소코드.csv'
     if os.path.exists(shelter_data_path):
-        shelter_data = pd.read_csv(shelter_data_path, header=None, 
-                                  names=['보호소코드', '보호소명', '시도코드', '시도명', '시군구코드', '시군구명'])
-        shelter_data = shelter_data.drop_duplicates(subset=['보호소명'])
-        shelter_to_sido = dict(zip(shelter_data['보호소명'], shelter_data['시도명']))
-        shelter_to_sigungu = dict(zip(shelter_data['보호소명'], shelter_data['시군구명']))
+        try:
+            shelter_data = pd.read_csv(shelter_data_path, header=None, 
+                                      names=['보호소코드', '보호소명', '시도코드', '시도명', '시군구코드', '시군구명'])
+            shelter_data = shelter_data.drop_duplicates(subset=['보호소명'])
+            shelter_to_sido = dict(zip(shelter_data['보호소명'], shelter_data['시도명']))
+            shelter_to_sigungu = dict(zip(shelter_data['보호소명'], shelter_data['시군구명']))
+        except Exception as e:
+            st.warning(f"보호소 코드 데이터 로딩 중 오류: {str(e)}")
+            shelter_to_sido = {}
+            shelter_to_sigungu = {}
     else:
         st.warning("보호소 코드 데이터를 찾을 수 없습니다.")
         shelter_to_sido = {}
         shelter_to_sigungu = {}
         
-    with st.spinner("임시보호소 정보를 가져오고 있습니다..."):    
-        petinshelter = public.find_pet(upkind=upkind)
-        petinshelter = petinshelter[
-            petinshelter['processState'].isin(["보호중", "공고중"])
-        ]
-        petinshelter = petinshelter[['happenDt', 'kindCd', 'age', 'sexCd', 'careNm']]
-        
-        petinshelter['happenDt'] = pd.to_datetime(
-            petinshelter['happenDt']
-        )
-        petinshelter['happenDt_display'] = petinshelter['happenDt'].dt.strftime(
-            '%Y-%m-%d'
-        )
-        petinshelter['kindCd'] = petinshelter['kindCd'].str.replace(
-            '[개]', ''
-        ).str.replace(
-            '[고양이]', ''
-        ).str.replace(
-            '[기타축종] ', ''
-        ).str.strip()
-        
-        petinshelter['시도'] = petinshelter['careNm'].map(shelter_to_sido).fillna('정보 없음')
-        petinshelter['시군구'] = petinshelter['careNm'].map(shelter_to_sigungu).fillna('정보 없음')
-        
-        # 출생년도 추출 개선: 괄호 앞의 4자리 숫자 추출
-        def extract_birth_year(age_string):
-            if pd.isna(age_string) or not isinstance(age_string, str):
-                return None
+    with st.spinner("임시보호소 정보를 가져오고 있습니다..."):
+        try:
+            petinshelter = public.find_pet(upkind=upkind)
+            if petinshelter is not None and not petinshelter.empty:
+                petinshelter = petinshelter[
+                    petinshelter['processState'].isin(["보호중", "공고중"])
+                ]
+                petinshelter = petinshelter[['happenDt', 'kindCd', 'age', 'sexCd', 'careNm']]
                 
-            # 연도 형식 추출을 위한 정규식 (연도가 문자열 시작에 위치)
-            match = re.search(r'^(\d{4})', age_string.strip())
-            if match:
-                year = int(match.group(1))
-                # 유효한 연도 범위 확인 (1990년부터 현재 연도까지)
-                current_year = datetime.now().year
-                if 1990 <= year <= current_year:
-                    return year
-            return None
-        
-        # 출생년도 추출 및 년생 표시 생성
-        petinshelter['출생년도'] = petinshelter['age'].apply(extract_birth_year)
-        petinshelter['년생'] = petinshelter['출생년도'].apply(lambda x: f"{int(x)}년생" if pd.notna(x) else "")
-        
-        filtered_data = apply_filters(petinshelter, upkind)
-        
-        filter_state_key = f"filter_state_{upkind}"
-        if st.session_state.get(filter_state_key, False):
-            st.subheader(f"🐾 검색 결과 ({len(filtered_data)}마리)")
-        else:
-            st.subheader(f"🐾 전체 목록 ({len(filtered_data):,}마리)")
-        
-        if filtered_data.empty:
-            st.info("검색 조건에 맞는 동물이 없습니다.")
-        else:
-            display_data = filtered_data[['happenDt_display', 'kindCd', 'age', 'sexCd', 'careNm', '시도', '시군구']].copy()
-            display_data.rename(columns={'happenDt_display': 'happenDt'}, inplace=True)
-            
-            st.dataframe(
-                display_data, 
-                hide_index=True, 
-                use_container_width=True,
-                column_config={
-                    "happenDt": "발견일",
-                    "kindCd": "품종",
-                    "age": "출생년도",
-                    "sexCd": "성별",
-                    "careNm": "보호소",
-                    "시도": "시도",
-                    "시군구": "시군구",
-                },
-                column_order=['happenDt', 'kindCd', 'age', 'sexCd', 'careNm', '시도', '시군구']
-            )
+                # 날짜 변환
+                petinshelter['happenDt'] = pd.to_datetime(
+                    petinshelter['happenDt'], errors='coerce'
+                )
+                # 날짜 변환 오류 처리
+                petinshelter = petinshelter.dropna(subset=['happenDt'])
+                
+                petinshelter['happenDt_display'] = petinshelter['happenDt'].dt.strftime(
+                    '%Y-%m-%d'
+                )
+                
+                # 품종 정보 정리
+                petinshelter['kindCd'] = petinshelter['kindCd'].str.replace(
+                    '[개]', ''
+                ).str.replace(
+                    '[고양이]', ''
+                ).str.replace(
+                    '[기타축종] ', ''
+                ).str.strip()
+                
+                # 보호소 이름으로 시도, 시군구 정보 추가
+                petinshelter['시도'] = petinshelter['careNm'].map(shelter_to_sido).fillna('정보 없음')
+                petinshelter['시군구'] = petinshelter['careNm'].map(shelter_to_sigungu).fillna('정보 없음')
+                
+                # 출생년도 추출 개선: 괄호 앞의 4자리 숫자 추출
+                def extract_birth_year(age_string):
+                    try:
+                        if pd.isna(age_string) or not isinstance(age_string, str):
+                            return None
+                            
+                        # 괄호 앞의 숫자 추출 (예: "2017(년생)" -> "2017")
+                        match = re.search(r'^(\d{4})(?:\s*\(|$)', age_string.strip())
+                        if match:
+                            year = int(match.group(1))
+                            # 유효한 연도 범위 확인 (1990년부터 현재 연도까지)
+                            current_year = datetime.now().year
+                            if 1990 <= year <= current_year + 1:  # +1은 내년 출생 표기도 허용
+                                return year
+                        return None
+                    except Exception:
+                        return None
+                
+                # 출생년도 추출 및 년생 표시 생성
+                petinshelter['출생년도'] = petinshelter['age'].apply(extract_birth_year)
+                petinshelter['년생'] = petinshelter.apply(
+                    lambda row: f"{int(row['출생년도'])}년생" if pd.notna(row['출생년도']) else "", 
+                    axis=1
+                )
+                
+                # 필터 적용
+                filtered_data = apply_filters(petinshelter, upkind)
+                
+                # 필터링 결과 표시
+                filter_state_key = f"filter_state_{upkind}"
+                if st.session_state.get(filter_state_key, False):
+                    st.subheader(f"🐾 검색 결과 ({len(filtered_data):,}마리)")
+                else:
+                    st.subheader(f"🐾 전체 목록 ({len(filtered_data):,}마리)")
+                
+                if filtered_data.empty:
+                    st.info("검색 조건에 맞는 동물이 없습니다.")
+                else:
+                    display_data = filtered_data[['happenDt_display', 'kindCd', 'age', 'sexCd', 'careNm', '시도', '시군구']].copy()
+                    display_data.rename(columns={'happenDt_display': 'happenDt'}, inplace=True)
+                    
+                    st.dataframe(
+                        display_data, 
+                        hide_index=True, 
+                        use_container_width=True,
+                        column_config={
+                            "happenDt": "발견일",
+                            "kindCd": "품종",
+                            "age": "나이",
+                            "sexCd": "성별",
+                            "careNm": "보호소",
+                            "시도": "시도",
+                            "시군구": "시군구",
+                        },
+                        column_order=['happenDt', 'kindCd', 'age', 'sexCd', 'careNm', '시도', '시군구']
+                    )
+            else:
+                st.error("데이터를 가져오는 데 실패했습니다.")
+        except Exception as e:
+            st.error(f"데이터 처리 중 오류가 발생했습니다: {str(e)}")
 
 def show_petshelter_page():
     tab1, tab2, tab3 = st.tabs(["강아지","고양이","기타"])
