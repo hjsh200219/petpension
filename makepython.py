@@ -53,11 +53,16 @@ naver = Naver()
 
 
 # Public 클래스의 인스턴스 생성
-public = Public()
+# public = Public()
 
-file_dir = Path('./static/database')
+# file_dir = Path('./static/database')
 
 # public.update_shelter_info()
 
-result = public.find_pet()
-print(result)
+# result = public.find_pet()
+# print(result)
+
+desertion_no = int('448536202500200')
+petinshelter = pd.read_csv('./static/database/petinshelter.csv')
+selected_pet = petinshelter[petinshelter['desertionNo'] == desertion_no]
+print(selected_pet)
