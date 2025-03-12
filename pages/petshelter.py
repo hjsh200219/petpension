@@ -193,15 +193,16 @@ def show_pet_list(upkind):
         refresh_button = st.button("🔄 새로고침", key=refresh_key, use_container_width=True)
     
     # 데이터 가져오기 (새로고침 버튼을 누르거나 세션 상태에 데이터가 없는 경우에만)
-    if refresh_button or data_key not in st.session_state:
+    if refresh_button:
         with st.spinner("임시보호소 정보를 가져오고 있습니다..."):
             try:
                 petinshelter = public.find_pet(upkind=upkind)
+                petinshelter.to_csv('./static/database/petinshelter.csv', index=False)
                 if petinshelter is not None and not petinshelter.empty:
                     petinshelter = petinshelter[
                         petinshelter['processState'].isin(["보호중", "공고중"])
                     ]
-                    petinshelter = petinshelter[['happenDt', 'kindCd', 'age', 'sexCd', 'careNm']]
+                    petinshelter = petinshelter[['desertionNo', 'happenDt', 'kindCd', 'age', 'sexCd', 'careNm']]
                     
                     # 날짜 변환
                     petinshelter['happenDt'] = pd.to_datetime(
@@ -259,7 +260,7 @@ def show_pet_list(upkind):
                     if refresh_button:
                         filter_state_key = f"filter_state_{upkind}"
                         st.session_state[filter_state_key] = False
-                        st.experimental_rerun()  # 페이지 새로고침
+                        st.rerun()  # 페이지 새로고침
                 else:
                     st.error("데이터를 가져오는 데 실패했습니다.")
                     # 이전 데이터가 없으면 빈 데이터프레임 생성
@@ -275,7 +276,7 @@ def show_pet_list(upkind):
     if data_key in st.session_state and not st.session_state[data_key].empty:
         # 저장된 데이터 가져오기
         petinshelter = st.session_state[data_key]
-        
+    
         # 필터 적용
         filtered_data = apply_filters(petinshelter, upkind)
         
@@ -289,14 +290,14 @@ def show_pet_list(upkind):
         if filtered_data.empty:
             st.info("검색 조건에 맞는 동물이 없습니다.")
         else:
-            display_data = filtered_data[['happenDt_display', 'kindCd', 'age', 'sexCd', 'careNm', '시도', '시군구']].copy()
-            display_data.rename(columns={'happenDt_display': 'happenDt'}, inplace=True)
+            display_data = filtered_data[['desertionNo', 'happenDt', 'kindCd', 'age', 'sexCd', 'careNm', '시도', '시군구']].copy()
             
             st.dataframe(
                 display_data, 
                 hide_index=True, 
                 use_container_width=True,
                 column_config={
+                    "desertionNo": "유기번호",
                     "happenDt": "발견일",
                     "kindCd": "품종",
                     "age": "나이",
@@ -305,10 +306,8 @@ def show_pet_list(upkind):
                     "시도": "시도",
                     "시군구": "시군구",
                 },
-                column_order=['happenDt', 'kindCd', 'age', 'sexCd', 'careNm', '시도', '시군구']
+                column_order=['desertionNo', 'happenDt', 'kindCd', 'age', 'sexCd', 'careNm', '시도', '시군구']
             )
-    else:
-        st.error("데이터가 없습니다. 새로고침을 눌러 데이터를 가져오세요.")
 
 def show_petshelter_page():
     tab1, tab2, tab3 = st.tabs(["강아지","고양이","기타"])
