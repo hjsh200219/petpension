@@ -591,6 +591,11 @@ class UI:
         return filtered_data
     
     @staticmethod
+    def display_text_input(label, value, col):
+        with col:
+            st.text_input(label, disabled=True, value=value)
+    
+    @staticmethod
     def show_pet_detail(grid_response):
         selected = grid_response.get('selected_rows', [])
         if selected is None or len(selected) == 0:
@@ -601,63 +606,43 @@ class UI:
         selected_pet = petinshelter[petinshelter['desertionNo'] == desertion_no]
     
         with st.expander("공고정보", expanded=False):
-            col1, col2, col3 = st.columns((1,1,2))
-            with col1:
-                st.text_input('유기번호', disabled=True, value=str(selected_pet['desertionNo'].iloc[0]))
-            with col2:
-                st.text_input('접수일', disabled=True, value=selected_pet['happenDt'].iloc[0])
-            with col3:
-                st.text_input('발견장소', disabled=True, value=selected_pet['happenPlace'].iloc[0])
-            col1, col2, col3, col4 = st.columns((1,1,1,1))
-            with col1:
-                st.text_input('공고번호', disabled=True, value=selected_pet['noticeNo'].iloc[0])
-            with col2:
-                st.text_input('공고시작일', disabled=True, value=selected_pet['noticeSdt'].iloc[0])
-            with col3:
-                st.text_input('공고종료일', disabled=True, value=selected_pet['noticeEdt'].iloc[0])
-            with col4:
-                st.text_input('상태', disabled=True, value=selected_pet['processState'].iloc[0])
-        
+            col1, col2, col3 = st.columns((1, 1, 2))
+            UI.display_text_input('유기번호', str(selected_pet['desertionNo'].iloc[0]), col1)
+            UI.display_text_input('접수일', selected_pet['happenDt'].iloc[0], col2)
+            UI.display_text_input('발견장소', selected_pet['happenPlace'].iloc[0], col3)
+            
+            col1, col2, col3, col4 = st.columns((1, 1, 1, 1))
+            UI.display_text_input('공고번호', selected_pet['noticeNo'].iloc[0], col1)
+            UI.display_text_input('공고시작일', selected_pet['noticeSdt'].iloc[0], col2)
+            UI.display_text_input('공고종료일', selected_pet['noticeEdt'].iloc[0], col3)
+            UI.display_text_input('상태', selected_pet['processState'].iloc[0], col4)
+
         with st.expander("동물정보 상세", expanded=True):
-            col1, col2, col3 = st.columns([2,1,1])
+            col1, col2, col3 = st.columns([2, 1, 1])
             with col1:
                 st.image(selected_pet['popfile'].iloc[0], use_container_width=True)
                 st.markdown('<style>img { max-height: 500px; }</style>', unsafe_allow_html=True)
                 st.markdown('<style>img { object-fit: contain; }</style>', unsafe_allow_html=True)
-            with col2:
-                st.text_input('나이', disabled=True, value=selected_pet['age'].iloc[0])
-            with col2:
-                st.text_input('체중', disabled=True, value=selected_pet['weight'].iloc[0])
-            with col2:
-                st.text_input('성별', disabled=True, value=selected_pet['sexCd'].iloc[0])
-            with col3:
-                st.text_input('색상', disabled=True, value=selected_pet['colorCd'].iloc[0])
-            with col3:
-                st.text_input('중성화 여부', disabled=True, value=selected_pet['neuterYn'].iloc[0])
-            with col3:
-                st.text_input('특징', disabled=True, value=selected_pet['specialMark'].iloc[0])
+            UI.display_text_input('나이', selected_pet['age'].iloc[0], col2)
+            UI.display_text_input('체중', selected_pet['weight'].iloc[0], col2)
+            UI.display_text_input('성별', selected_pet['sexCd'].iloc[0], col2)
+            UI.display_text_input('색상', selected_pet['colorCd'].iloc[0], col3)
+            UI.display_text_input('중성화 여부', selected_pet['neuterYn'].iloc[0], col3)
+            UI.display_text_input('특징', selected_pet['specialMark'].iloc[0], col3)
 
         with st.expander("품종정보 상세", expanded=True):
-            col1, col2, col3, col4 = st.columns([1,1,1,1])
-            with col1:
-                kindCd = selected_pet['kindCd'].iloc[0]
-                kindCd = kindCd.replace('[개]', '').replace('[고양이]', '').replace('[기타품종]', '').strip()
-                st.text_input('품종', disabled=True, value=kindCd)
+            col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
+            kindCd = selected_pet['kindCd'].iloc[0]
+            kindCd = kindCd.replace('[개]', '').replace('[고양이]', '').replace('[기타품종]', '').strip()
+            UI.display_text_input('품종', kindCd, col1)
 
         with st.expander("보호소 정보", expanded=False):
-            col1, col2, col3 = st.columns((1,1,2))
-            with col1:
-                st.text_input('보호소', disabled=True, value=selected_pet['careNm'].iloc[0], key='careNm')
-            with col2:
-                st.text_input('보호소 전화번호', disabled=True, value=selected_pet['careTel'].iloc[0], key='careTel')
-            with col3:
-                st.text_input('보호소 주소', disabled=True, value=selected_pet['careAddr'].iloc[0], key='careAddr')
-            
-            col1, col2, col3, col4 = st.columns((1,1,1,1))
-            with col1:
-                st.text_input('관할기관', disabled=True, value=selected_pet['orgNm'].iloc[0], key='orgNm1')
-            with col2:
-                st.text_input('담당자', disabled=True, value=selected_pet['chargeNm'].iloc[0], key='chargeNm1')
-            with col3:
-                st.text_input('담당자연락처', disabled=True, value=selected_pet['officetel'].iloc[0], key='officetel1')
-                
+            col1, col2, col3 = st.columns((1, 1, 2))
+            UI.display_text_input('보호소', selected_pet['careNm'].iloc[0], col1)
+            UI.display_text_input('보호소 전화번호', selected_pet['careTel'].iloc[0], col2)
+            UI.display_text_input('보호소 주소', selected_pet['careAddr'].iloc[0], col3)
+
+            col1, col2, col3, col4 = st.columns((1, 1, 1, 1))
+            UI.display_text_input('관할기관', selected_pet['orgNm'].iloc[0], col1)
+            UI.display_text_input('담당자', selected_pet['chargeNm'].iloc[0], col2)
+            UI.display_text_input('담당자연락처', selected_pet['officetel'].iloc[0], col3)
