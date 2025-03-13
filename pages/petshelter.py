@@ -4,7 +4,7 @@ import os
 import sys
 from datetime import datetime, timedelta
 from src.data import Public
-from src.ui import UI
+from src.ui import UI, BreedInfo
 from pathlib import Path
 from threading import Thread, Lock
 import time
@@ -76,7 +76,7 @@ def show_pet_list(upkind):
                    
                     
                     # 출생년도 추출 및 년생 표시 생성
-                    petinshelter['출생년도'] = petinshelter['age'].apply(UI.extract_birth_year)
+                    petinshelter['출생년도'] = petinshelter['age'].apply(UI().extract_birth_year)
                     petinshelter['년생'] = petinshelter.apply(
                         lambda row: f"{int(row['출생년도'])}년생" if pd.notna(row['출생년도']) else "", 
                         axis=1
@@ -107,7 +107,7 @@ def show_pet_list(upkind):
         petinshelter = st.session_state[data_key]
     
         # 필터 적용
-        filtered_data = UI.apply_filters(petinshelter, upkind)
+        filtered_data = UI().apply_filters(petinshelter, upkind)
         
         # 필터링 결과 표시
         filter_state_key = f"filter_state_{upkind}"
@@ -119,38 +119,35 @@ def show_pet_list(upkind):
         if filtered_data.empty:
             st.info("검색 조건에 맞는 동물이 없습니다.")
         else:
-            display_columns = ['desertionNo', 'happenDt', 'kindCd', 'age', 'sexCd', 'careNm', '시도', '시군구']
+            display_columns = ['시군구', 'desertionNo', 'happenDt', 'kindCd', 'age', 'sexCd', 'careNm', '시도']
             display_data = filtered_data[display_columns].copy()
             
             gb = GridOptionsBuilder.from_dataframe(display_data)
             gb.configure_selection(selection_mode="single", use_checkbox=True)
-            
-            column_headers = {
-                "desertionNo": "유기번호",
-                "happenDt": "발견일",
-                "kindCd": "품종",
-                "age": "나이",
-                "sexCd": "성별",
-                "careNm": "보호소",
-                "시도": "시도",
-                "시군구": "시군구"
-            }
-            
-            for column, header in column_headers.items():
-                gb.configure_column(column, headerName=header, flex=1)
-            
+
+            # 컬럼 헤더 및 그룹화 설정
+            gb.configure_column("시도", headerName="시도", rowGroup=True, hide=True, use_checkbox=False)
+            gb.configure_column("시군구", headerName="시군구", use_checkbox=True)
+            gb.configure_column("desertionNo", headerName="유기번호", use_checkbox=True)
+            gb.configure_column("happenDt", headerName="발견일", use_checkbox=True)
+            gb.configure_column("kindCd", headerName="품종", use_checkbox=True)
+            gb.configure_column("age", headerName="나이", use_checkbox=True)
+            gb.configure_column("sexCd", headerName="성별", use_checkbox=True)
+            gb.configure_column("careNm", headerName="보호소", use_checkbox=True)
+
             grid_options = gb.build()
+
+            # AgGrid 표시
             grid_response = AgGrid(
                 display_data,
                 gridOptions=grid_options,
                 enable_enterprise_modules=True,
-                height=300,
+                height=400,
                 width='100%',
                 fit_columns_on_grid_load=True
             )
             
-            
-            UI.show_pet_detail(grid_response)
+            BreedInfo().show_pet_detail(grid_response)
 
 def show_petshelter_page():
     tab1, tab2, tab3 = st.tabs(["강아지","고양이","기타"])

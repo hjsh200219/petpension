@@ -1,0 +1,293 @@
+breed_name,height,weight,life_expectancy,Affectionate With Family,Good With Young Children,Good With Other Dogs,Shedding Level,Coat Grooming Frequency,Drooling Level,Openness To Strangers,Playfulness Level,Watchdog/Protective Nature,Adaptability Level,Trainability Level,Energy Level,Barking Level,Mental Stimulation Needs,Coat Type,Coat Length,breed_name_kor,height_k,weight_k,life_expectancy_k
+affenpinscher,['9-11.5 inches'],['7-10 pounds'],['12-15 years'],3,3,3,3,3,1,5,3,3,4,3,3,3,3,['Wiry'],"['Short', 'Medium']",아펜핀셔,23-29cm,3-5kg,12-15년
+afghan-hound,['25-27 inches'],['50-60 pounds'],['12-18 years'],3,3,3,1,4,1,3,3,3,3,1,4,3,3,['Silky'],['Long'],아프간 하운드,64-69cm,23-27kg,12-18년
+airedale-terrier,['23 inches'],['50-70 pounds'],['11-14 years'],3,3,3,1,3,1,3,3,5,3,3,3,3,3,['Wiry'],"['Short', 'Medium']",에어데일 테리어,58cm,23-32kg,11-14년
+akita,"['26-28 inches (male)', '24-26 inches (female)']","['100-130 pounds (male)', '70-100 pounds (female)']",['10-14 years'],3,3,1,3,3,1,2,3,5,3,3,4,2,3,['Double'],['Medium'],아키타,"수컷: 66-71cm, 암컷: 61-66cm","수컷: 45-59kg, 암컷: 32-45kg",10-14년
+alaskan-klee-kai,['12 - 17 inches'],['6 - 25 lbs'],['13-16 years'],3,3,5,3,3,1,1,3,3,3,3,3,3,3,['Double'],['Medium'],알래스칸 클리 카이,30cm,3kg,13-16년
+alaskan-malamute,"['25 inches (male)', '23 inches (female)']","['85 pounds (male)', '75 pounds (female)']",['10-14 years'],3,3,3,3,3,1,3,3,4,3,5,4,3,3,['Double'],['Medium'],알래스칸 말라뮤트,"수컷: 64cm, 암컷: 58cm","수컷: 39kg, 암컷: 34kg",10-14년
+american-bulldog,['22-25 inches (males); 20-23 inches (females)'],['75-100 pounds (males); 60-80 pounds (females)'],['10-12 years'],0,3,3,2,0,0,0,0,0,0,4,0,1,0,['Smooth'],['Short'],아메리칸 불독,"수컷: 56-64cm, 암컷: 51-58cm","수컷: 34-45kg, 암컷: 27-36kg",10-12년
+american-english-coonhound,"['24-26 inches (male)', '23-25 inches (female)']",['45-65 pounds'],['11-12 years'],3,3,5,2,1,1,3,3,3,3,3,4,4,3,['Smooth'],['Short'],아메리칸 잉글리시 쿤하운드,"수컷: 61-66cm, 암컷: 58-64cm",20-29kg,11-12년
+american-eskimo-dog,"['9-12 inches (toy)', '12-15 inches (miniature)', '15-19 inches (Standard)']","['6-10 pounds (toy)', '10-20 pounds (miniature)', '25-35 pounds (standard)']",['13-15 years'],5,5,3,3,3,1,5,3,3,4,4,4,3,3,['Double'],['Medium'],아메리칸 에스키모 도그,"토이: 23cm, 미니어처: 30cm, 스탠다드: 38cm","토이: 3-5kg, 미니어처: 5-9kg, 스탠다드: 11-16kg",13-15년
+american-foxhound,"['22-25 inches (male)', '21-24 inches (female)']","['65-70 pounds (male)', '60-65 pounds (female)']",['11-13 years'],3,5,5,3,1,1,3,3,3,3,3,4,5,3,['Smooth'],['Short'],아메리칸 폭스하운드,"수컷: 56-64cm, 암컷: 53-61cm","수컷: 29-32kg, 암컷: 27-29kg",11-13년
+american-hairless-terrier,['12-16 inches'],['12-28 pounds'],['14-16 years'],5,5,3,1,1,1,3,3,3,5,5,3,3,3,['Hairless'],['Short'],아메리칸 헤어리스 테리어,30-41cm,5-13kg,14-16년
+american-leopard-hound,"['22 - 27 males', '21 - 25 females']","['45 - 75 lbs males', '35 - 65 lbs females']",['12-15 years'],3,5,5,3,1,1,1,3,5,5,3,4,5,5,['Smooth'],['Short'],아메리칸 레오파드 하운드,"56cm, 53cm","20kg, 16kg",12-15년
+american-staffordshire-terrier,"['18-19 inches (male)', '17-18 inches (female)']","['55-70 pounds (male)', '40-55 pounds (female)']",['12-16 years'],5,3,3,2,1,1,4,3,5,3,3,3,3,3,['Smooth'],['Short'],아메리칸 스태퍼드셔 테리어,"수컷: 46-48cm, 암컷: 43-46cm","수컷: 25-32kg, 암컷: 18-25kg",12-16년
+american-water-spaniel,['15-18 inches'],"['30-45 pounds (male)', '25-40 pounds (female)']",['10-14 years'],3,3,3,1,3,1,3,3,3,3,5,3,3,3,"['Double', 'Curly']",['Medium'],아메리칸 워터 스파니엘,38-46cm,"수컷: 14-20kg, 암컷: 11-18kg",10-14년
+anatolian-shepherd-dog,"['29 inches (male)', '27 inches (female)']","['110-150 pounds (male)', '80-120 pounds (female)']",['11-13 years'],1,3,3,3,2,1,1,3,5,3,2,3,3,3,['Smooth'],['Short'],아나톨리안 셰퍼드 도그,"수컷: 74cm, 암컷: 69cm","수컷: 50-68kg, 암컷: 36-54kg",11-13년
+appenzeller-sennenhund,['20 -22 inches'],['48-70 pounds'],['13-15 years'],5,3,5,3,3,3,1,3,5,5,5,5,5,5,[],['Short'],아펜첼러 센넨훈트,51cm,22-32kg,13-15년
+australian-cattle-dog,"['18-20 inches (male)', '17-19 inches (female)']",['35-50 pounds'],['12-16 years'],3,3,3,3,1,1,3,3,4,3,4,5,1,4,"['Smooth', 'Double']",['Short'],오스트레일리안 캐틀 도그,"수컷: 46-51cm, 암컷: 43-48cm",16-23kg,12-16년
+australian-kelpie,['17-20 inches'],['35-50 lbs'],['10-13 years'],3,3,3,3,1,1,3,3,4,3,4,5,1,4,"['Smooth', 'Double']",['Short'],오스트레일리안 켈피,43-51cm,16-23kg,10-13년
+australian-shepherd,"['20-23 inches (male)', '18-21 inches (female)']","['50-65 pounds (male)', '40-55 pounds (female)']",['12-15 years'],3,5,3,3,2,1,3,4,3,3,5,5,3,5,['Double'],['Medium'],오스트레일리안 셰퍼드,"수컷: 51-58cm, 암컷: 46-53cm","수컷: 23-29kg, 암컷: 18-25kg",12-15년
+australian-stumpy-tail-cattle-dog,"['18-20 inches (males)', '17-19 inches (females)']","['38-45 lbs (males)', '32-35 lbs (females)']",['12-15 years'],1,3,1,3,3,1,1,3,3,3,3,5,1,5,['Double'],['Short'],오스트레일리안 스텀피 테일 캐틀 도그,"수컷: 46-51cm, 암컷: 43-48cm","수컷: 17-20kg, 암컷: 15-16kg",12-15년
+australian-terrier,['10-11 inches'],['15-20 pounds'],['11-15 years'],4,5,3,1,2,1,3,3,4,4,4,3,3,3,"['Rough', 'Double']",['Medium'],오스트레일리안 테리어,25-28cm,7-9kg,11-15년
+azawakh,"['25-29 inches (male)', '23.5-27.5 inches (female)']","['44-55 pounds (male)', '33-44 pounds (female)']",['12-15 years'],3,3,3,2,2,1,1,3,3,3,2,3,1,3,['Smooth'],['Short'],아자와크,"수컷: 64-74cm, 암컷: 60-70cm","수컷: 20-25kg, 암컷: 15-20kg",12-15년
+barbado-da-terceira,"['20 1/2 - 22 inches (males)', '19 - 21 inches (females)']","['55-60 lbs (males)', '46-57 lbs (females)']",['12-14 years'],5,3,3,1,3,1,1,5,5,5,5,5,1,5,[],['Medium'],바르바도 다 테르세이라,"수컷: 51cm, 암컷: 48cm","수컷: 25-27kg, 암컷: 21-26kg",12-14년
+barbet,['19-24.5 inches'],['35-65 pounds'],['12-14 years'],4,3,3,1,5,1,3,3,3,3,4,3,3,3,"['Curly', 'Wavy']","['Medium', 'Long']",바비트,48-62cm,16-29kg,12-14년
+basenji,"['17 inches (male)', '16 inches (female)']","['24 pounds (male)', '22 pounds (female)']",['13-14 years'],3,3,3,2,1,1,3,3,3,3,2,4,1,4,['Smooth'],['Short'],바센지,"수컷: 43cm, 암컷: 41cm","수컷: 11kg, 암컷: 10kg",13-14년
+basset-fauve-de-bretagne,['12.5-15.5 inches'],['23-39 pounds'],['13-16 years'],3,5,5,3,1,1,5,3,1,5,1,4,3,5,"['Wiry', 'Double']",['Medium'],바셋 포브 드 브레타뉴,32-39cm,10-18kg,13-16년
+basset-hound,['up to 15 inches'],['40-65 pounds'],['12-13 years'],3,5,5,2,3,4,3,3,3,3,3,2,4,3,['Smooth'],['Short'],바셋 하운드,38cm,18-29kg,12-13년
+bavarian-mountain-scent-hound,['17-20.5 inches'],['37-66 pounds'],['12-15 years'],3,3,3,3,2,2,3,3,3,3,4,4,2,4,['Smooth'],['Short'],바바리안 마운틴 센트 하운드,43-52cm,17-30kg,12-15년
+beagle,"['13 inches & under', '13-15 inches']","['under 20 pounds (13 inches & under)', '20-30 pounds (13-15 inches)']",['10-15 years'],3,5,5,3,2,1,3,4,2,4,3,4,4,4,['Smooth'],['Short'],비글,"33cm, 33-38cm","9kg, 9-14kg",10-15년
+bearded-collie,"['21-22 inches (male)', '20-21 inches (female)']",['45-55 pounds'],['12-14 years'],4,5,5,3,4,1,4,4,3,4,3,4,5,3,['Silky'],['Long'],비어디드 콜리,"수컷: 53-56cm, 암컷: 51-53cm",20-25kg,12-14년
+beauceron,"['25.5-27.5 inches (male)', '24-26.5 inches (female)']",['70-110 pounds'],['10-12 years'],3,3,3,4,3,1,2,3,4,3,3,5,3,3,"['Smooth', 'Double']",['Short'],보세론,"수컷: 65-70cm, 암컷: 61-67cm",32-50kg,10-12년
+bedlington-terrier,['15-17.5 inches'],['17-23 pounds'],['11-16 years'],3,3,3,1,3,1,3,3,4,3,3,4,3,3,['Curly'],['Medium'],베들링턴 테리어,38-44cm,8-10kg,11-16년
+belgian-laekenois,"['24-26 inches (male)', '22-24 inches (female)']",['55-65 pounds'],['10-12 years'],3,3,3,3,2,1,3,3,4,3,5,4,3,4,"['Wiry', 'Rough']",['Medium'],벨지안 레커노이즈,"수컷: 61-66cm, 암컷: 56-61cm",25-29kg,10-12년
+belgian-malinois,"['24-26 inches (male)', '22-24 inches (female)']","['60-80 pounds (male)', '40-60 pounds (female)']",['14-16 years'],3,3,3,3,2,1,3,3,4,3,5,4,3,4,['Smooth'],['Short'],벨지안 말리노이즈,"수컷: 61-66cm, 암컷: 56-61cm","수컷: 27-36kg, 암컷: 18-27kg",14-16년
+belgian-sheepdog,"['24-26 inches (male)', '22-24 inches (female)']","['55-75 pounds (male)', '45-60 pounds (female)']",['12-14 years'],3,3,3,3,2,1,3,3,4,3,5,4,3,4,['Double'],['Medium'],벨지안 쉽독,"수컷: 61-66cm, 암컷: 56-61cm","수컷: 25-34kg, 암컷: 20-27kg",12-14년
+belgian-tervuren,"['24-26 inches (male)', '22-24 inches (female)']","['55-75 pounds (male)', '45-60 pounds (female)']",['12-14 years'],3,3,3,3,2,1,3,3,4,3,5,4,3,4,['Double'],['Medium'],벨지안 터뷰런,"수컷: 61-66cm, 암컷: 56-61cm","수컷: 25-34kg, 암컷: 20-27kg",12-14년
+bergamasco-sheepdog,"['23.5 inches (male)', '22 inches (female)']","['70-84 pounds (male)', '57-71 pounds (female)']",['13-15 years'],3,3,3,1,1,2,3,3,4,3,3,3,1,3,['Corded'],['Long'],베르가마스코 쉽독,"수컷: 60cm, 암컷: 56cm","수컷: 32-38kg, 암컷: 26-32kg",13-15년
+berger-picard,"['23.5-25.5 inches (male)', '21.5-23.5 inches (female)']",['50-70 pounds'],['12-13 years'],3,3,3,3,1,1,3,3,4,3,4,4,2,4,['Wiry'],['Medium'],베르제 피카르,"수컷: 60-65cm, 암컷: 55-60cm",23-32kg,12-13년
+bernese-mountain-dog,"['25-27.5 inches (male)', '23-26 inches (female)']","['80-115 pounds (male)', '70-95 pounds (female)']",['7-10 years'],5,5,5,5,3,3,4,4,3,4,4,4,3,3,['Double'],['Medium'],버니즈 마운틴 독,"수컷: 64-70cm, 암컷: 58-66cm","수컷: 36-52kg, 암컷: 32-43kg",7-10년
+bichon-frise,['9.5-11.5 inches'],['12-18 pounds'],['14-15 years'],5,5,5,1,5,1,5,4,2,4,4,4,3,3,"['Double', 'Curly']",['Long'],비숑 프리제,24-29cm,5-8kg,14-15년
+biewer-terrier,['7-11 inches'],['4-8 pounds'],['16 years'],5,3,5,1,3,1,3,4,2,3,3,3,3,3,['Silky'],['Long'],비웨어 테리어,18-28cm,2-4kg,16년
+black-and-tan-coonhound,"['25-27 inches (male)', '23-25 inches (female)']",['65-110 pounds'],['10-12 years'],4,5,5,3,2,3,3,3,2,4,3,3,4,3,['Smooth'],['Short'],블랙 앤 탄 쿤하운드,"수컷: 64-69cm, 암컷: 58-64cm",29-50kg,10-12년
+black-russian-terrier,"['27-30 inches (male)', '26-29 inches (female)']",['80-130 pounds'],['10-12 years'],3,3,3,3,4,3,2,3,5,4,4,4,3,4,"['Double', 'Curly']","['Medium', 'Long']",블랙 러시안 테리어,"수컷: 69-76cm, 암컷: 66-74cm",36-59kg,10-12년
+bloodhound,"['25-27 inches (male)', '23-25 inches (female)']","['90-110 pounds (male)', '80-100 pounds (female)']",['10-12 years'],4,3,3,3,2,5,3,3,2,3,4,3,5,3,['Smooth'],['Short'],블러드하운드,"수컷: 64-69cm, 암컷: 58-64cm","수컷: 41-50kg, 암컷: 36-45kg",10-12년
+blue-picardy-spaniel,"['22 - 24 inches male', '21 - 23 inches female']","['50-55 lbs males', '45-50 lbs females']",['11-12 years'],3,5,5,3,1,1,1,3,3,5,5,3,3,1,[],[],블루 피카디 스파니엘,"56cm, 53cm","23-25kg, 20-23kg",11-12년
+bluetick-coonhound,"['22-27 inches (male)', '21-25 inches (female)']","['55-80 pounds (male)', '45-65 pounds (female)']",['11-12 years'],3,3,5,3,2,2,3,3,2,3,4,4,4,3,['Smooth'],['Short'],블루틱 쿤하운드,"수컷: 56-69cm, 암컷: 53-64cm","수컷: 25-36kg, 암컷: 20-29kg",11-12년
+boerboel,"['24-27 inches (male)', '22-25 inches (female)']",['150-200 pounds'],['9-11 years'],5,4,2,3,2,3,3,3,5,3,4,3,3,4,['Smooth'],['Short'],보어볼,"수컷: 61-69cm, 암컷: 56-64cm",68-91kg,9-11년
+bohemian-shepherd,"['20.5-21.7 inches (males)', '19.3-20.5 inches (females)']","['41-60 pounds (males)', '37-53 pounds (females)']",['12-15 years'],4,4,4,3,2,1,3,4,4,4,4,4,4,4,"['Double', 'Wavy']",['Medium'],보헤미안 셰퍼드,"수컷: 52-55cm, 암컷: 49-52cm","수컷: 19-27kg, 암컷: 17-24kg",12-15년
+bolognese,['10-12 inches'],['6-10 pounds'],['12-14 years'],3,3,3,1,3,1,5,1,1,5,5,1,1,1,['Wavy'],['Long'],볼로네즈,25-30cm,3-5kg,12-14년
+border-collie,"['19-22 inches (male)', '18-21 inches (female)']",['30-55 pounds'],['12-15 years'],5,3,3,3,3,1,4,5,3,5,5,5,4,5,"['Double', 'Wavy']",['Medium'],보더 콜리,"수컷: 48-56cm, 암컷: 46-53cm",14-25kg,12-15년
+border-terrier,['12-15 inches'],"['13-15.5 pounds (male)', '11.5-14 pounds (female)']",['12-15 years'],4,5,3,2,2,1,4,4,3,4,4,3,3,3,['Wiry'],['Short'],보더 테리어,30-38cm,"수컷: 6-7kg, 암컷: 5-6kg",12-15년
+borzoi,"['28 inches & up (male)', '26 inches & up (female)']","['75-105 pounds (male)', '60-85 pounds (female)']",['9-14 years'],3,3,3,3,2,1,3,3,3,3,2,4,2,4,"['Curly', 'Silky']",['Medium'],보르조이,"수컷: 71cm, 암컷: 66cm","수컷: 34-48kg, 암컷: 27-39kg",9-14년
+boston-terrier,['10-12 inches'],['12-25 pounds'],['11-13 years'],5,5,4,2,2,1,5,5,3,3,4,4,2,3,['Smooth'],['Short'],보스턴 테리어,25-30cm,5-11kg,11-13년
+bouvier-de-ardennes,['Male 22 - 24.5 inches Female 20.5 - 22 inches'],['Male 61.5 - 77.5 lbs Female 48.5 - 62 lbs'],['12-16 years'],5,3,3,3,1,1,3,3,5,5,5,5,5,5,[],[],부비에 데 아르덴,56cm,28kg,12-16년
+bouvier-des-flandres,"['24.5-27.5 inches (male)', '23.5-26.5 inches (female)']",['70-110 pounds'],['10-12 years'],3,3,3,3,4,2,3,3,4,3,4,4,3,3,"['Rough', 'Double']",['Medium'],부비에 데 플랑드르,"수컷: 62-70cm, 암컷: 60-67cm",32-50kg,10-12년
+boxer,"['23-25 inches (male)', '21.5-23.5 inches (female)']","['65-80 pounds (male)', 'females are about 15 pounds less than male']",['10-12 years'],4,5,3,2,2,3,4,4,4,3,4,4,3,4,['Smooth'],['Short'],복서,"수컷: 58-64cm, 암컷: 55-60cm",7kg,10-12년
+boykin-spaniel,"['15.5-18 inches (male)', '14-16.5 inches (female)']","['30-40 pounds (male)', '25-35 pounds (female)']",['10-15 years'],3,5,5,3,3,1,3,4,3,4,4,4,3,3,"['Double', 'Wavy']",['Medium'],보이킨 스파니엘,"수컷: 39-46cm, 암컷: 36-42cm","수컷: 14-18kg, 암컷: 11-16kg",10-15년
+bracco-italiano,['21-27 inches'],['55-90 pounds'],['10-14 years'],3,4,4,2,1,2,3,3,3,3,5,4,2,3,['Smooth'],['Short'],브라코 이탈리아노,53-69cm,25-41kg,10-14년
+braque-du-bourbonnais,['19-22.5 inches'],['35-53 pounds'],['10-12 years'],3,3,4,2,1,2,3,3,3,3,5,4,2,3,['Smooth'],['Short'],브라크 뒤 부르보네,48-57cm,16-24kg,10-12년
+braque-francais-pyrenean,['18.5-23 inches'],['40-55 pounds'],['12-15 years'],3,5,5,3,1,2,3,3,3,3,3,5,3,3,['Smooth'],['Short'],브라크 프랑세 피레니안,47-58cm,18-25kg,12-15년
+braque-saint-germain,"['22-24 inches males', '21-23 females']",['40 - 58 lbs'],['12-15 years'],3,5,5,3,3,1,4,3,2,3,4,3,2,3,[],[],브라크 생 제르맹,"56-61cm, 53-58cm",18kg,12-15년
+brazilian-terrier,"['Males 13.7 - 15.7 inches', 'Females 12.9 - 14.9 inches']",['22 lbs'],['12-14 years'],5,5,3,3,1,1,1,3,5,5,5,5,3,5,[],[],브라질리안 테리어,"35cm, 33cm",10kg,12-14년
+briard,"['23-27 inches (male)', '22-25.5 inches (female)']",['55-100 pounds'],['12 years'],3,3,3,1,4,2,3,3,4,3,3,3,1,3,"['Double', 'Wavy']",['Long'],브리아드,"수컷: 58-69cm, 암컷: 56-65cm",25-45kg,12년
+brittany,['17.5-20.5 inches'],['30-40 pounds'],['12-14 years'],3,4,4,3,3,1,3,4,3,3,5,5,3,4,"['Double', 'Wavy']",['Short'],브리타니,44-52cm,14-18kg,12-14년
+broholmer,['27.5-29.5 inches'],['90-150 pounds'],['8-10 years'],3,3,3,3,1,3,3,3,4,3,3,2,1,3,['Smooth'],['Short'],브로홀머,70-75cm,41-68kg,8-10년
+brussels-griffon,['7-10 inches'],['8-10 pounds'],['12-15 years'],4,3,3,3,3,1,4,4,3,4,4,3,4,3,"['Wiry', 'Smooth', 'Double']","['Short', 'Medium']",브뤼셀 그리폰,18-25cm,4-5kg,12-15년
+bull-terrier,['21-22 inches'],['50-70 pounds'],['12-13 years'],4,3,1,3,2,1,4,4,3,3,3,4,3,4,['Smooth'],['Short'],불 테리어,53-56cm,23-32kg,12-13년
+bulldog,['14-15 inches'],"['50 pounds (male)', '40 pounds (female)']",['8-10 years'],4,3,3,3,3,3,4,4,3,3,4,3,2,3,['Smooth'],['Short'],불독,36-38cm,"수컷: 23kg, 암컷: 18kg",8-10년
+bullmastiff,"['25-27 inches (male)', '24-26 inches (female)']","['110-130 pounds (male)', '100-120 pounds (female)']",['7-9 years'],4,3,3,3,1,3,3,3,5,3,4,4,1,4,['Smooth'],['Short'],불마스티프,"수컷: 64-69cm, 암컷: 61-66cm","수컷: 50-59kg, 암컷: 45-54kg",7-9년
+cairn-terrier,"['10 inches (male)', '9.5 inches (female)']","['14 pounds (male)', '13 pounds (female)']",['13-15 years'],4,3,3,2,2,1,3,4,4,3,3,3,4,3,"['Wiry', 'Double']",['Medium'],케언 테리어,"수컷: 25cm, 암컷: 24cm","수컷: 6kg, 암컷: 6kg",13-15년
+calupoh,['males 24-29 inches; females 22-27 inches'],['70 - 100 lbs'],['11-12 years'],5,5,5,3,1,1,1,3,3,3,3,3,3,1,[],[],칼루포,,32kg,11-12년
+canaan-dog,"['20-24 inches (male)', '19-23 inches (female)']","['45-55 pounds (male)', '35-45 pounds (female)']",['12-15 years'],3,3,3,4,2,1,3,3,4,3,4,3,5,3,"['Smooth', 'Double']",['Short'],카나안 도그,"수컷: 51-61cm, 암컷: 48-58cm","수컷: 20-25kg, 암컷: 16-20kg",12-15년
+canadian-eskimo-dog,['24 - 35 inches'],['65 - 100 males; 60 - 95 females'],['10-15 years'],3,0,0,0,3,0,0,0,0,0,0,0,0,0,[],[],캐나디안 에스키모 도그,61cm,,10-15년
+cane-corso,"['25-27.5 inches (male)', '23.5-26 inches (female)']",['Proportionate to height'],['9-12 years'],4,3,3,2,1,3,3,3,5,3,4,4,3,3,['Smooth'],['Short'],케인 코르소,"수컷: 64-70cm, 암컷: 60-66cm",,9-12년
+cardigan-welsh-corgi,['10.5-12.5 inches'],"['30-38 pounds (male)', '25-34 pounds (female)']",['12-15 years'],4,4,3,3,2,1,4,4,3,3,4,4,5,4,['Double'],['Medium'],웰시 코기 카디건,27-32cm,"수컷: 14-17kg, 암컷: 11-15kg",12-15년
+carolina-dog,['17.75-19.5 inches'],['30-55 pounds'],['12-15 years'],3,3,3,3,1,2,3,3,3,3,3,3,3,3,['Smooth'],['Short'],캐롤라이나 도그,45-50cm,14-25kg,12-15년
+catahoula-leopard-dog,['22-24 inches'],['50-95 pounds'],['10-14 years'],4,3,3,3,2,2,3,3,4,3,4,5,1,4,['Smooth'],['Short'],카타울라 레오파드 도그,56-61cm,23-43kg,10-14년
+caucasian-shepherd-dog,['23-30 inches'],['99-170 pounds'],['10-12 years'],3,3,2,4,3,4,2,2,5,3,3,3,2,3,['Double'],['Medium'],코카시안 셰퍼드 도그,58-76cm,45-77kg,10-12년
+cavalier-king-charles-spaniel,['12-13 inches'],['13-18 pounds'],['12-15 years'],5,5,5,2,2,2,4,3,3,3,4,3,3,3,"['Wavy', 'Silky']",['Medium'],캐벌리에 킹 찰스 스파니엘,30-33cm,6-8kg,12-15년
+central-asian-shepherd-dog,['Minimum: 25.5-27.5 inches'],['Minimum: 88-110 pounds'],[' years'],3,3,3,3,1,3,1,3,5,4,4,3,3,3,['Double'],['Medium'],센트럴 아시안 셰퍼드 도그,65-70cm,40-50kg,
+cesky-terrier,['10-13 inches'],['14-24 pounds'],['12-15 years'],4,5,3,2,2,1,4,3,3,4,3,3,3,3,"['Wavy', 'Silky']",['Medium'],체스키 테리어,25-33cm,6-11kg,12-15년
+chesapeake-bay-retriever,"['23-26 inches (male)', '21-24 inches (female)']","['65-80 pounds (male)', '55-70 pounds (female)']",['10-13 years'],4,3,3,3,3,2,3,3,4,4,5,4,3,4,"['Wiry', 'Wavy']",['Medium'],체서피크 베이 리트리버,"수컷: 58-66cm, 암컷: 53-61cm","수컷: 29-36kg, 암컷: 25-32kg",10-13년
+chihuahua,['5-8 inches'],['not exceeding 6 pounds'],['14-16 years'],4,1,3,2,1,1,2,4,4,4,3,4,5,3,['Smooth'],"['Short', 'Medium']",치와와,13-20cm,3kg,14-16년
+chinese-crested,['11-13 inches'],['8-12 pounds'],['13-18 years'],4,3,3,1,2,1,4,3,3,4,4,3,3,3,"['Hairless', 'Silky']","['Short', 'Medium']",차이니즈 크레스티드,28-33cm,4-5kg,13-18년
+chinese-shar-pei,['18-20 inches'],['45-60 pounds'],['8-12 years'],4,3,3,3,1,3,3,3,4,4,3,3,3,3,['Smooth'],['Short'],차이니즈 샤페이,46-51cm,20-27kg,8-12년
+chinook,"['24-26 inches (male)', '22-24 inches (female)']","['55-90 pounds (male)', '50-65 pounds (female)']",['12-15 years'],4,5,5,3,3,1,3,3,4,4,4,3,5,3,['Smooth'],['Medium'],치눅,"수컷: 61-66cm, 암컷: 56-61cm","수컷: 25-41kg, 암컷: 23-29kg",12-15년
+chow-chow,['17-20 inches'],['45-70 pounds'],['8-12 years'],4,3,2,3,3,3,2,3,5,3,3,3,1,3,"['Smooth', 'Rough', 'Double']",['Medium'],차우차우,43-51cm,20-32kg,8-12년
+cirneco-delletna,"['18-20 inches (male)', '17-19 inches (female)']","['20-28 pounds (male)', '19-25 pounds (female)']",['15-16 years'],4,4,4,1,1,0,4,4,3,4,4,3,2,4,['Smooth'],['Short'],치르네코 델레트나,"수컷: 46-51cm, 암컷: 43-48cm","수컷: 9-13kg, 암컷: 9-11kg",15-16년
+clumber-spaniel,"['18-20 inches (male)', '17-19 inches (female)']","['70-85 pounds (male)', '55-70 pounds (female)']",['10-12 years'],4,3,3,3,2,4,4,3,3,4,4,3,1,3,"['Wavy', 'Silky']",['Medium'],클럼버 스파니엘,"수컷: 46-51cm, 암컷: 43-48cm","수컷: 32-39kg, 암컷: 25-32kg",10-12년
+cocker-spaniel,"['14.5-15.5 inches (male)', '13.5-14.5 inches (female)']","['25-30 pounds (male)', '20-25 pounds (female)']",['10-14 years'],4,5,5,3,4,2,4,3,3,4,4,4,3,3,"['Double', 'Silky']",['Long'],코카 스파니엘,"수컷: 37-39cm, 암컷: 34-37cm","수컷: 11-14kg, 암컷: 9-11kg",10-14년
+collie,"['24-26 inches (male)', '22-24 inches (female)']","['60-75 pounds (male)', '50-65 pounds (female)']",['12-14 years'],4,5,3,3,3,2,3,4,3,4,4,3,5,3,"['Smooth', 'Rough']","['Short', 'Long']",콜리,"수컷: 61-66cm, 암컷: 56-61cm","수컷: 27-34kg, 암컷: 23-29kg",12-14년
+coton-de-tulear,"['10-11 inches (male)', '9-10 inches (female)']","['9-15 pounds (male)', '8-13 pounds (female)']",['15-19 years'],5,5,5,2,4,1,5,4,3,4,4,3,1,3,"['Double', 'Wavy']",['Long'],코튼 드 튈레아,"수컷: 25-28cm, 암컷: 23-25cm","수컷: 4-7kg, 암컷: 4-6kg",15-19년
+croatian-sheepdog,['16-20 inches'],['29-44 pounds'],['13-14 years'],3,3,3,2,1,3,2,3,5,2,3,3,3,3,"['Double', 'Wavy']",['Medium'],크로아티안 쉽독,41-51cm,13-20kg,13-14년
+curly-coated-retriever,"['25-27 inches (male)', '23-25 inches (female)']",['60-95 pounds'],['10-12 years'],5,5,3,2,1,1,3,4,4,4,4,4,3,3,"['Double', 'Curly']",['Short'],컬리 코티드 리트리버,"수컷: 64-69cm, 암컷: 58-64cm",27-43kg,10-12년
+czechoslovakian-vlciak,['Minimum: 25.5 males; 23.5 females'],['Minimum: 57 males; 44 females'],['12-16 years'],5,3,3,3,1,1,1,1,5,1,1,5,1,5,[],['Medium'],체코슬로바키안 블치아크,,,12-16년
+dachshund,"['8-9 inches (standard)', '5-6 inches (miniature)']","['16-32 pounds (standard)', '11 pounds & under (miniature)']",['12-16 years'],5,3,4,2,2,2,4,4,4,4,4,3,5,3,['Smooth'],"['Short', 'Medium']",스탠다드 닥스훈트,"스탠다드: 20cm, 미니어처: 13cm","스탠다드: 7-15kg, 미니어처: 5kg",12-16년
+dalmatian,['19-24 inches'],['45-70 pounds'],['11-13 years'],5,3,3,4,2,2,4,4,4,4,4,4,3,4,['Smooth'],['Short'],달마시안,48-61cm,20-32kg,11-13년
+dandie-dinmont-terrier,['8-11 inches'],['18-24 pounds'],['12-15 years'],4,3,3,2,3,1,4,3,4,3,4,3,3,3,['Double'],['Medium'],댄디 딘몬트 테리어,20-28cm,8-11kg,12-15년
+danish-swedish-farmdog,['12.5-14.5 inches'],['15-20 pounds'],['11-13 years'],5,5,5,2,1,1,5,4,4,4,4,4,3,4,['Smooth'],['Short'],대니시 스웨디시 팜독,32-37cm,7-9kg,11-13년
+deutscher-wachtelhund,['18-21 inches'],['40-55 pounds'],['12-14 years'],4,5,3,2,2,2,3,3,3,3,4,3,3,3,"['Double', 'Wavy']",['Medium'],도이처 바흐텔훈트,46-53cm,18-25kg,12-14년
+doberman-pinscher,"['26-28 inches (male)', '24-26 inches (female)']","['75-100 pounds (male)', '60-90 pounds (female)']",['10-12 years'],5,5,3,4,1,2,4,4,5,4,5,5,3,4,['Smooth'],['Short'],도베르만 핀셔,"수컷: 66-71cm, 암컷: 61-66cm","수컷: 34-45kg, 암컷: 27-41kg",10-12년
+dogo-argentino,"['24-26.5 inches (male)', '24-25.5 inches (female)']",['80-100 pounds'],['9-15 years'],5,3,3,4,1,3,4,4,5,4,5,5,3,4,['Smooth'],['Short'],도고 아르헨티노,"수컷: 61-67cm, 암컷: 61-65cm",36-45kg,9-15년
+dogue-de-bordeaux,"['23.27 inches (male)', '23-26 inches (female)']","['110 pounds & up (male)', '99 pounds & up (female)']",['5-8 years'],5,3,3,4,1,5,3,3,5,4,4,3,3,4,['Smooth'],['Short'],도그 드 보르도,"수컷: 59cm, 암컷: 58-66cm","수컷: 50kg, 암컷: 45kg",5-8년
+drentsche-patrijshond,"['23-25 (males)', '21.5 - 23.5 (females)']","['70-73 (males)', '55-60 (females)']",['11-14 years'],3,5,5,3,3,1,3,3,1,3,5,3,1,5,[],['Medium'],드렌체 파트리즈혼트,"수컷: 58-64cm, 암컷: 55cm","수컷: 32-33kg, 암컷: 25-27kg",11-14년
+drever,['12-15 inches'],['35-40 pounds'],['15 years'],5,5,5,3,1,2,4,4,3,5,5,4,4,4,['Double'],['Short'],드레버,30-38cm,16-18kg,15년
+dutch-shepherd,['21.5-24.5 inches'],['42-75 pounds'],['11-14 years'],5,3,3,3,2,2,3,4,5,4,5,5,2,5,['Double'],['Short'],더치 셰퍼드,55-62cm,19-34kg,11-14년
+english-cocker-spaniel,"['16-17 inches (male)', '15-16 inches (female)']","['28-34 pounds (male)', '26-32 pounds (female)']",['12-14 years'],5,5,5,3,3,2,4,3,3,4,4,3,3,4,['Double'],"['Medium', 'Long']",잉글리시 코커 스파니엘,"수컷: 41-43cm, 암컷: 38-41cm","수컷: 13-15kg, 암컷: 12-15kg",12-14년
+english-foxhound,['24 inches'],['60-75 pounds'],['10-13 years'],5,5,5,3,1,2,4,4,3,4,4,4,5,4,['Double'],['Short'],잉글리시 폭스하운드,61cm,27-34kg,10-13년
+english-setter,"['25-27 inches (male)', '23-25 inches (female)']","['65-80 pounds (male)', '45-55 pounds (female)']",['12 years'],5,4,4,3,3,3,4,4,3,4,4,3,3,4,"['Double', 'Silky']",['Medium'],잉글리시 세터,"수컷: 64-69cm, 암컷: 58-64cm","수컷: 29-36kg, 암컷: 20-25kg",12년
+english-springer-spaniel,"['20 inches (male)', '19 inches (female)']","['50 pounds (male)', '40 pounds (female)']",['12-14 years'],5,3,4,3,2,3,4,4,3,4,5,4,3,4,['Double'],['Medium'],잉글리시 스프링어 스파니엘,"수컷: 51cm, 암컷: 48cm","수컷: 23kg, 암컷: 18kg",12-14년
+english-toy-spaniel,['9-10 inches'],['8-14 pounds'],['10-12 years'],5,5,5,3,3,2,3,4,3,4,3,3,2,3,"['Double', 'Silky']",['Medium'],잉글리시 토이 스파니엘,23-25cm,4-6kg,10-12년
+entlebucher-mountain-dog,"['17.5-20.5 inches (male)', '16.5-19.5 inches (female)']","['50-65 pounds (male)', '40-55 pounds (female)']",['11-13 years'],5,3,5,3,1,2,3,3,5,4,3,5,3,4,['Smooth'],['Short'],엔틀부처 마운틴 도그,"수컷: 44-52cm, 암컷: 42-50cm","수컷: 23-29kg, 암컷: 18-25kg",11-13년
+estrela-mountain-dog,['24.5-29 inches'],['77-132 pounds'],['10-14 years'],5,5,3,3,2,4,2,3,5,3,4,3,3,3,"['Double', 'Wavy']",['Long'],에스트렐라 마운틴 도그,62-74cm,35-60kg,10-14년
+eurasier,['19-24 inches'],['40-70 pounds'],['12-16 years'],4,4,3,3,3,2,2,3,3,3,4,3,3,4,['Double'],['Medium'],유라지어,48-61cm,18-32kg,12-16년
+field-spaniel,"['18 inches (male)', '17 inches (female)']",['35-50 pounds'],['12-13 years'],5,5,4,3,2,2,4,3,3,4,5,3,3,3,"['Smooth', 'Wavy']",['Medium'],필드 스파니엘,"수컷: 46cm, 암컷: 43cm",16-23kg,12-13년
+finnish-lapphund,"['18-21 inches (male)', '16-19 inches (female)']",['33-53 pounds'],['12-15 years'],5,4,3,4,2,2,4,3,3,4,4,3,5,3,['Double'],['Medium'],피니시 랩훈드,"수컷: 46-53cm, 암컷: 41-48cm",15-24kg,12-15년
+finnish-spitz,"['17.5-20 inches (male)', '15.5-18 inches (female)']","['25-33 pounds (male)', '20-28 pounds (female)']",['13-15 years'],5,5,4,3,2,2,3,3,3,4,3,5,5,4,['Double'],['Medium'],피니시 스피츠,"수컷: 44-51cm, 암컷: 39-46cm","수컷: 11-15kg, 암컷: 9-13kg",13-15년
+flat-coated-retriever,"['23-24.5 inches (male)', '22-23.5 inches (female)']",['60-70 pounds'],['8-10 years'],5,5,5,3,2,2,5,5,3,5,5,5,3,4,['Smooth'],['Medium'],플랫 코티드 리트리버,"수컷: 58-62cm, 암컷: 56-60cm",27-32kg,8-10년
+french-bulldog,['11-13 inches'],['under 28 pounds'],['10-12 years'],5,5,4,3,1,3,5,5,3,5,4,3,1,3,['Smooth'],['Short'],프렌치 불독,28-33cm,13kg,10-12년
+french-spaniel,['21.5-24 inches'],['50-60 pounds'],['10-12 years'],5,5,5,3,1,2,5,4,3,5,5,4,3,5,['Smooth'],['Medium'],프렌치 스파니엘,55-61cm,23-27kg,10-12년
+german-longhaired-pointer,['22-28 inches'],['55-80 pounds'],['12-14 years'],5,5,4,3,1,2,4,4,3,4,5,4,3,4,['Double'],['Medium'],저먼 롱헤어드 포인터,56-71cm,25-36kg,12-14년
+german-pinscher,['17-20 inches'],['25-45 pounds'],['12-14 years'],5,3,3,3,1,1,3,4,4,3,5,5,3,4,['Smooth'],['Short'],저먼 핀셔,43-51cm,11-20kg,12-14년
+german-shepherd-dog,"['24-26 inches (male)', '22-24 inches (female)']","['65-90 pounds (male)', '50-70 pounds (female)']",['12-14 years'],5,5,3,4,2,2,3,4,5,5,5,5,3,5,['Double'],['Medium'],저먼 셰퍼드,"수컷: 61-66cm, 암컷: 56-61cm","수컷: 29-41kg, 암컷: 23-32kg",12-14년
+german-shorthaired-pointer,"['23-25 inches (male)', '21-23 inches (female)']","['55-70 pounds (male)', '45-60 pounds (female)']",['10-12 years'],5,5,4,3,2,2,4,4,4,4,5,5,3,5,['Smooth'],['Short'],저먼 쇼트헤어드 포인터,"수컷: 58-64cm, 암컷: 53-58cm","수컷: 25-32kg, 암컷: 20-27kg",10-12년
+german-spitz,"['Toy 8 - 12', 'Med 12-16', 'Large 16 -20']","['Toy 10-11 lbs', 'Med 15 - 25 lbs', 'Large 30- 50 lbs']",['13-15 years'],1,3,3,3,3,1,1,4,3,3,5,3,5,5,[],[],저먼 스피츠,"20cm, 30-41cm, 41cm","5-5kg, 7kg, 14kg",13-15년
+german-wirehaired-pointer,"['24-26 inches (male)', 'minimum 22 inches (female)']",['50-70 pounds'],['14-16 years'],5,3,3,2,2,2,4,4,3,4,5,5,3,4,"['Wiry', 'Double']",['Medium'],저먼 와이어헤어드 포인터,"수컷: 61-66cm, 암컷: 56cm",23-32kg,14-16년
+giant-schnauzer,"['25.5-27.5 inches (male)', '23.5-25.5 inches (female)']","['75-95 pounds (male)', '55-80 pounds (female)']",['10-13 years'],4,3,3,2,4,2,2,5,5,4,3,5,3,5,"['Wiry', 'Double']",['Medium'],자이언트 슈나우저,"수컷: 65-70cm, 암컷: 60-65cm","수컷: 34-43kg, 암컷: 25-36kg",10-13년
+glen-of-imaal-terrier,['12.5-14 inches'],['32-40 pounds'],['10-15 years'],5,3,3,2,3,2,3,3,3,4,3,3,2,3,['Wiry'],['Medium'],글렌 오브 이말 테리어,32-36cm,15-18kg,10-15년
+golden-retriever,"['23-24 inches (male)', '21.5-22.5 inches (female)']","['65-75 pounds (male)', '55-65 pounds (female)']",['10-12 years'],5,5,5,4,2,2,5,4,3,5,5,3,1,4,['Double'],['Medium'],골든 리트리버,"수컷: 58-61cm, 암컷: 55-57cm","수컷: 29-34kg, 암컷: 25-29kg",10-12년
+gordon-setter,"['24-27 inches (male)', '23-26 inches (female)']","['55-80 pounds (male)', '45-70 pounds (female)']",['12-13 years'],5,3,3,3,2,4,3,3,4,4,5,5,3,4,['Double'],['Medium'],고든 세터,"수컷: 61-69cm, 암컷: 58-66cm","수컷: 25-36kg, 암컷: 20-32kg",12-13년
+grand-basset-griffon-vendeen,['15.5-18 inches'],['40-45 pounds'],['13-15 years'],5,3,4,3,2,2,5,4,3,4,3,5,4,4,"['Wiry', 'Double']",['Medium'],그랑 바셋 그리폰 방데앵,39-46cm,18-20kg,13-15년
+great-dane,"['30-32 inches (male)', '28-30 inches (female)']","['140-175 pounds (male)', '110-140 pounds (female)']",['7-10 years'],5,3,3,3,1,4,3,4,5,4,3,4,3,4,['Smooth'],['Short'],그레이트 데인,"수컷: 76-81cm, 암컷: 71-76cm","수컷: 64-79kg, 암컷: 50-64kg",7-10년
+great-pyrenees,"['27-32 inches (male)', '25-29 inches (female)']","['100 pounds & up (male)', '85 pounds & up (female)']",['10-12 years'],5,3,3,3,2,3,3,3,5,3,3,3,3,3,['Double'],['Medium'],그레이트 피레니즈,"수컷: 69-81cm, 암컷: 64-74cm","수컷: 45kg, 암컷: 39kg",10-12년
+greater-swiss-mountain-dog,"['25.5-28.5 inches (male)', '23.7-27 inches (female)']","['115-140 pounds (male)', '85-110 pounds (female)']",['8-11 years'],5,5,3,3,2,3,5,4,4,3,4,4,3,4,['Smooth'],['Short'],그레이터 스위스 마운틴 도그,"수컷: 65-72cm, 암컷: 60-69cm","수컷: 52-64kg, 암컷: 39-50kg",8-11년
+greyhound,"['28-30 inches (male)', '27-28 inches (female)']","['65-70 pounds (male)', '60-65 pounds (female)']",['10-13 years'],4,3,4,2,1,1,3,3,3,4,3,4,3,3,['Smooth'],['Short'],그레이하운드,"수컷: 71-76cm, 암컷: 69-71cm","수컷: 29-32kg, 암컷: 27-29kg",10-13년
+hamiltonstovare,['19-24 inches'],['40-75 pounds'],['14-17 years'],5,5,3,3,2,2,5,4,4,3,4,4,3,4,['Smooth'],['Short'],해밀턴스토바레,48-61cm,18-34kg,14-17년
+hanoverian-scenthound,['19-21 inches'],['79-99 pounds'],['10-14 years'],3,3,5,3,2,2,3,3,2,3,4,4,4,3,['Smooth'],['Short'],하노베리안 센트하운드,48-53cm,36-45kg,10-14년
+harrier,['19-21 inches'],['45-60 pounds'],['12-15 years'],5,5,5,3,1,2,4,4,3,4,4,4,5,4,['Double'],['Short'],해리어,48-53cm,20-27kg,12-15년
+havanese,['8.5-11.5 inches'],['7-13 pounds'],['14-16 years'],5,5,5,2,3,1,5,5,3,5,4,3,4,3,"['Double', 'Silky']",['Long'],하바니즈,22-29cm,3-6kg,14-16년
+hokkaido,['18-20 inches'],['44-66 pounds'],['12-15 years'],5,3,3,3,2,2,3,3,5,3,4,4,3,4,['Double'],['Medium'],홋카이도,46-51cm,20-30kg,12-15년
+hovawart,['23-28 inches'],['65-90 pounds'],['10-14 years'],5,4,4,3,2,2,4,4,5,4,4,3,1,4,['Double'],['Medium'],호바워트,58-71cm,29-41kg,10-14년
+ibizan-hound,"['23.5-27.5 inches (male)', '22.5-26 inches (female)']","['50 pounds (male)', '45 pounds (female)']",['11-14 years'],5,3,5,2,1,1,3,4,3,4,3,5,3,5,"['Wiry', 'Smooth']",['Short'],이비잔 하운드,"수컷: 60-70cm, 암컷: 57-66cm","수컷: 23kg, 암컷: 20kg",11-14년
+icelandic-sheepdog,"['18 inches (male)', '16.5 inches (female)']","['30 pounds (male)', '25 pounds (female)']",['12-14 years'],5,5,4,3,2,2,3,3,4,4,5,4,4,5,['Double'],['Medium'],아이슬란딕 쉽독,"수컷: 46cm, 암컷: 42cm","수컷: 14kg, 암컷: 11kg",12-14년
+irish-red-and-white-setter,"['24.5-26 inches (male)', '22.5-24 inches (female)']","['42-60 pounds (male)', '35-50 pounds (female)']",['11-15 years'],5,5,5,2,2,2,5,3,3,5,5,5,3,3,"['Double', 'Silky']",['Medium'],아이리시 레드 앤 화이트 세터,"수컷: 62-66cm, 암컷: 57-61cm","수컷: 19-27kg, 암컷: 16-23kg",11-15년
+irish-setter,"['27 inches (male)', '25 inches (female)']","['70 pounds (male)', '60 pounds (female)']",['12-15 years'],5,5,5,3,3,2,5,5,3,4,4,5,3,4,['Silky'],['Medium'],아이리시 세터,"수컷: 69cm, 암컷: 64cm","수컷: 32kg, 암컷: 27kg",12-15년
+irish-terrier,['18 inches'],"['27 pounds (male)', '25 pounds (female)']",['13-15 years'],5,5,1,2,1,1,3,3,5,4,3,3,3,4,"['Wiry', 'Double']",['Medium'],아이리시 테리어,46cm,"수컷: 12kg, 암컷: 11kg",13-15년
+irish-water-spaniel,"['22-24 inches (male)', '21-23 inches (female)']","['55-68 pounds (male)', '45-58 pounds (female)']",['12-13 years'],5,3,3,1,3,2,3,5,3,4,5,3,1,4,['Curly'],['Medium'],아이리시 워터 스파니엘,"수컷: 56-61cm, 암컷: 53-58cm","수컷: 25-31kg, 암컷: 20-26kg",12-13년
+irish-wolfhound,"['32 inches minimum (male)', '30 inches minimum (female)']","['120 pounds (male)', '105 pounds (female)']",['6-8 years'],5,3,4,3,2,2,3,3,5,3,3,3,1,3,['Wiry'],['Medium'],아이리시 울프하운드,"수컷: 81cm, 암컷: 76cm","수컷: 54kg, 암컷: 48kg",6-8년
+italian-greyhound,['13-15 inches'],['7-14 pounds'],['14-15 years'],5,3,5,3,1,1,5,4,3,4,4,3,3,3,['Smooth'],['Short'],이탈리안 그레이하운드,33-38cm,3-6kg,14-15년
+jagdterrier,['13-16 inches'],['17-22 pounds'],['10-12 years'],5,3,3,2,1,1,3,4,4,3,3,3,1,4,"['Wiry', 'Smooth', 'Rough']",['Short'],야크트테리어,33-41cm,8-10kg,10-12년
+japanese-akitainu,"['25-27.5 inches (male)', '22.5-25 inches (female)']","['65-75 pounds (male)', '55-65 pounds (female)']",['10-12 years'],1,3,1,5,3,1,1,3,5,3,1,3,3,3,['Double'],['Medium'],재패니즈 아키타이누,"수컷: 64-70cm, 암컷: 57-64cm","수컷: 29-34kg, 암컷: 25-29kg",10-12년
+japanese-chin,['8-11 inches'],['7-11 pounds'],['10-12 years'],5,3,5,3,2,1,3,3,3,4,3,3,2,3,['Silky'],['Medium'],재패니즈 친,20-28cm,3-5kg,10-12년
+japanese-spitz,['12-15 inches'],['10-25 pounds'],['10-14 years'],3,5,5,3,3,1,5,3,3,5,5,3,3,3,['Double'],['Medium'],재패니즈 스피츠,30-38cm,5-11kg,10-14년
+japanese-terrier,['10-13 inches'],['10-12 lbs'],['13-15 years'],3,3,3,3,2,1,3,3,5,5,1,3,1,3,[],[],재패니즈 테리어,25-33cm,5-5kg,13-15년
+kai-ken,"['18.5 - 19.5 (males)', '15.5 - 17 (females)']","['30-40 (males)', '25-35 (females)']",['12-15 years'],5,3,3,3,1,1,1,3,5,3,3,3,3,3,['Double'],['Medium'],카이 켄,"수컷: 47cm, 암컷: 39cm","수컷: 14-18kg, 암컷: 11-16kg",12-15년
+karelian-bear-dog,['19-23.5 inches'],['44-49 pounds'],['11-13 years'],3,1,3,3,3,2,3,3,5,3,4,3,3,3,['Double'],['Medium'],카렐리안 베어 도그,48-60cm,20-22kg,11-13년
+keeshond,"['18 inches (male)', '17 inches (female)']",['35-45 pounds'],['12-15 years'],5,5,5,3,3,2,5,5,5,5,5,4,4,4,['Double'],['Long'],키스혼드,"수컷: 46cm, 암컷: 43cm",16-20kg,12-15년
+kerry-blue-terrier,"['18-19.5 inches (male)', '17.5-19 inches (female)']","['33-40 pounds (male)', 'females weigh proportionately less than males']",['12-15 years'],5,4,2,1,3,2,3,3,5,3,3,4,4,4,['Wavy'],['Medium'],케리 블루 테리어,"수컷: 46-50cm, 암컷: 44-48cm",,12-15년
+kishu-ken,['19-22 inches'],['30-60 pounds'],['12-15 years'],5,3,3,3,1,1,5,3,3,3,3,3,1,5,['Double'],['Short'],키슈 켄,48-56cm,14-27kg,12-15년
+komondor,"['27.5 minimum inches (male)', '25.5 minimum inches (female)']","['100 pounds or more (male)', '80 pounds or more (female)']",['10-12 years'],5,3,2,1,4,2,3,3,5,3,4,3,3,3,['Corded'],['Long'],코몬도르,"수컷: 70cm, 암컷: 65cm","수컷: 45kg, 암컷: 36kg",10-12년
+korean-jindo-dog,"['19-22 (males)', '17-20 (females)']","['40 -50 (males)', '30-40 (females)']",['14-15 years'],3,3,1,3,3,1,1,3,3,1,3,3,3,3,['Double'],['Medium'],진도견,"수컷: 48-56cm, 암컷: 43-51cm","수컷: 18kg, 암컷: 14-18kg",14-15년
+kromfohrlander,['15-18 inches'],['20-35 pounds'],['13-15 years'],5,4,3,2,1,1,4,4,3,4,4,4,3,3,"['Wiry', 'Smooth']",['Short'],크롬포랜더,38-46cm,9-16kg,13-15년
+kuvasz,"['28-30 inches (male)', '26-28 inches (female)']","['100-115 pounds (male)', '70-90 pounds (female)']",['10-12 years'],5,3,3,3,2,2,3,3,5,4,5,3,3,3,['Double'],['Medium'],쿠바츠,"수컷: 71-76cm, 암컷: 66-71cm","수컷: 45-52kg, 암컷: 32-41kg",10-12년
+labrador-retriever,"['22.5-24.5 inches (male)', '21.5-23.5 inches (female)']","['65-80 pounds (male)', '55-70 pounds (female)']",['11-13 years'],5,5,5,4,2,2,5,5,3,5,5,5,3,4,['Double'],['Short'],라브라도 리트리버,"수컷: 57-62cm, 암컷: 55-60cm","수컷: 29-36kg, 암컷: 25-32kg",11-13년
+lagotto-romagnolo,"['17-19 inches (male)', '16-18 inches (female)']","['28.5-35 pounds (male)', '24-31 pounds (female)']",['15-17 years'],5,3,5,1,2,2,4,4,3,4,4,4,2,4,"['Double', 'Curly']",['Medium'],라고토 로마뇰로,"수컷: 43-48cm, 암컷: 41-46cm","수컷: 13-16kg, 암컷: 11-14kg",15-17년
+lakeland-terrier,"['14.5-15 inches (male)', 'slightly smaller (female)']","['17 pounds (male)', 'slightly smaller (female)']",['12-15 years'],5,3,3,2,2,1,3,4,3,4,3,3,3,4,"['Wiry', 'Double']",['Short'],레이크랜드 테리어,,,12-15년
+lancashire-heeler,['10-12 inches'],['9-17 pounds'],['12-15 years'],5,5,5,3,1,1,4,4,3,4,4,4,4,4,['Double'],['Short'],랭커셔 힐러,25-30cm,4-8kg,12-15년
+lapponian-herder,['18-20 inches'],['70 pounds'],['10-14 years'],5,3,3,3,2,2,3,3,4,4,4,4,4,4,['Double'],['Short'],라포니안 허더,46-51cm,32kg,10-14년
+large-munsterlander,['23 - 26.5 inches'],['50 - 70 lbs'],['12-14 years'],4,4,3,3,1,2,4,3,3,3,5,4,2,4,[],[],라지 뮌스터랜더,58cm,23kg,12-14년
+leonberger,"['28-31.5 inches (male)', '25.5-29.5 inches (female)']","['110-170 pounds (male)', '90-140 pounds (female)']",['7 years'],5,5,3,4,4,3,5,3,4,4,5,3,3,4,['Double'],['Long'],레온베르거,"수컷: 71-80cm, 암컷: 65-75cm","수컷: 50-77kg, 암컷: 41-64kg",7년
+lhasa-apso,"['10-11 inches (male)', 'slightly smaller (female)']",['12-18 pounds'],['12-15 years'],5,3,3,1,3,1,3,3,5,5,3,3,3,3,['Silky'],['Long'],라사 압소,,5-8kg,12-15년
+lowchen,['12-14 inches'],['15 pounds'],['13-15 years'],5,5,3,2,2,1,3,4,4,4,4,3,3,3,['Wavy'],['Long'],뢰첸,30-36cm,7kg,13-15년
+maltese,['7-9 inches'],['under 7 pounds'],['12-15 years'],5,3,3,1,4,1,3,3,4,4,3,3,3,3,['Silky'],['Long'],말티즈,18-23cm,3kg,12-15년
+manchester-terrier-standard,['15-16 inches'],['12-22 pounds'],['15-17 years'],5,4,3,2,2,1,3,4,4,4,4,4,4,3,['Smooth'],['Short'],맨체스터 테리어 스탠다드,38-41cm,5-10kg,15-17년
+manchester-terrier-toy,['10-12 inches'],['under 12 pounds'],['15-17 years'],5,4,3,2,2,1,3,4,4,4,4,4,4,3,['Smooth'],['Short'],맨체스터 테리어 토이,25-30cm,5kg,15-17년
+mastiff,"['30 inches & up (male)', '27.5 inches & up (female)']","['160-230 pounds (male)', '120-170 pounds (female)']",['6-10 years'],5,5,3,3,1,4,3,3,5,4,3,3,1,3,['Double'],['Short'],마스티프,"수컷: 76cm, 암컷: 70cm","수컷: 73-104kg, 암컷: 54-77kg",6-10년
+miniature-american-shepherd,"['14-18 inches (male)', '13-17 inches (female)']",['20-40 pounds'],['12-13 years'],5,5,5,3,3,2,3,4,3,4,5,5,3,5,['Double'],['Medium'],미니어처 아메리칸 셰퍼드,"수컷: 36-46cm, 암컷: 33-43cm",9-18kg,12-13년
+miniature-bull-terrier,['10-14 inches'],['18-28 pounds'],['11-13 years'],5,3,3,2,1,2,3,4,4,4,3,4,5,4,['Smooth'],['Short'],미니어처 불 테리어,25-36cm,8-13kg,11-13년
+miniature-pinscher,['10-12.5 inches'],['8-10 pounds'],['12-16 years'],5,3,4,3,1,1,3,4,5,4,3,5,5,5,['Smooth'],['Short'],미니어처 핀셔,25-32cm,4-5kg,12-16년
+miniature-schnauzer,['12-14 inches'],['11-20 pounds'],['12-15 years'],5,5,3,3,4,2,3,4,4,5,5,3,5,4,"['Wiry', 'Double']",['Medium'],미니어처 슈나우저,30-36cm,5-9kg,12-15년
+mountain-cur,"['18 - 26 (males)', '16 - 24 (females_']",['30-60 pounds'],['10-13 years'],3,3,3,3,3,1,1,5,5,3,5,5,5,5,['Smooth'],['Short'],마운틴 커,41cm,14-27kg,10-13년
+mudi,['15-18.5 inches'],['18-29 pounds'],['12-14 years'],5,3,3,2,1,2,3,5,4,4,5,5,4,4,['Curly'],['Medium'],무디,38-47cm,8-13kg,12-14년
+neapolitan-mastiff,"['26-31 inches (male)', '24-29 inches (female)']","['150 pounds (male)', '110 pounds (female)']",['7-9 years'],3,3,3,3,2,5,3,2,5,3,3,2,1,3,['Smooth'],['Short'],네아폴리탄 마스티프,"수컷: 66-79cm, 암컷: 61-74cm","수컷: 68kg, 암컷: 50kg",7-9년
+nederlandse-kooikerhondje,"['Dogs 16""', 'Females 15""']",['20 - 30 lbs'],['12-15 years'],5,3,3,3,2,2,4,3,3,4,5,4,3,4,"['Double', 'Wavy']",['Medium'],네덜란드세 코이커혼제,"41cm, 38cm",9kg,12-15년
+newfoundland,"['28 inches (average male)', '26 inches (average female)']","['130-150 pounds (male)', '100-120 pounds (female)']",['9-10 years'],5,5,5,3,2,5,5,3,5,4,3,3,1,3,['Double'],['Medium'],뉴펀들랜드,"71cm, 66cm","수컷: 59-68kg, 암컷: 45-54kg",9-10년
+norfolk-terrier,['9-10 inches'],['11-12 pounds'],['12-16 years'],5,5,3,3,2,1,5,4,4,4,3,4,4,4,"['Wiry', 'Double']",['Short'],노퍽 테리어,23-25cm,5-5kg,12-16년
+norrbottenspets,['16.5-18 inches'],['20-30 pounds'],['14-17 years'],5,3,3,3,2,1,3,3,3,4,4,4,3,3,['Double'],['Short'],노르보텐스펫츠,42-46cm,9-14kg,14-17년
+norwegian-buhund,"['17-18.5 inches (male)', '16-17.5 inches (female)']","['31-40 pounds (male)', '26-35 pounds (female)']",['12-15 years'],5,3,3,3,2,1,3,3,4,4,3,4,4,4,['Double'],['Medium'],노르웨이안 부훈드,"수컷: 43-47cm, 암컷: 41-44cm","수컷: 14-18kg, 암컷: 12-16kg",12-15년
+norwegian-elkhound,"['20.5 inches (male)', '19.5 inches (female)']","['55 pounds (male)', '48 pounds (female)']",['12-15 years'],5,3,3,3,2,2,4,4,5,4,4,4,4,4,['Double'],['Medium'],노르웨이안 엘크하운드,"수컷: 52cm, 암컷: 50cm","수컷: 25kg, 암컷: 22kg",12-15년
+norwegian-lundehund,"['13-15 inches (male)', '12-14 inches (female)']","['15-18 lbs (male)', '12-15 lbs (female)']",['12-15 years'],5,3,3,3,2,1,3,3,3,3,3,3,4,3,['Double'],['Short'],노르웨이안 룬데훈드,"수컷: 33-38cm, 암컷: 30-36cm","수컷: 7-8kg, 암컷: 5-7kg",12-15년
+norwich-terrier,['10 inches'],['12 pounds'],['12-15 years'],5,5,3,3,2,1,5,4,4,4,3,4,4,4,"['Wiry', 'Double']",['Short'],노리치 테리어,25cm,5kg,12-15년
+nova-scotia-duck-tolling-retriever,"['18-21 inches (male)', '17-20 inches (female)']",['35-50 pounds'],['12-14 years'],5,5,4,3,2,2,3,5,3,4,5,5,2,4,['Double'],['Medium'],노바 스코샤 덕 톨링 리트리버,"수컷: 46-53cm, 암컷: 43-51cm",16-23kg,12-14년
+old-english-sheepdog,"['22 inches & up (male)', '21 inches & up (female)']",['60-100 pounds'],['10-12 years'],5,5,3,3,4,3,3,4,4,4,4,3,3,4,['Double'],['Long'],올드 잉글리시 쉽독,"수컷: 56cm, 암컷: 53cm",27-45kg,10-12년
+otterhound,"['27 inches (male)', '24 inches (female)']","['115 pounds (male)', '80 pounds (female)']",['10-13 years'],5,3,3,2,2,3,4,3,3,4,4,3,5,3,"['Rough', 'Double']",['Medium'],오터하운드,"수컷: 69cm, 암컷: 61cm","수컷: 52kg, 암컷: 36kg",10-13년
+papillon,['8-11 inches'],['5-10 pounds'],['14-16 years'],5,5,3,3,2,1,5,5,4,5,5,4,5,5,['Silky'],['Medium'],파피용,20-28cm,2-5kg,14-16년
+parson-russell-terrier,"['14 inches (male)', '13 inches (female)']",['13-17 pounds'],['13-15 years'],5,3,5,2,2,1,3,4,3,4,4,5,3,4,"['Smooth', 'Double']",['Short'],파슨 러셀 테리어,"수컷: 36cm, 암컷: 33cm",6-8kg,13-15년
+pekingese,['6-9 inches'],['up to 14 pounds'],['12-14 years'],5,3,3,3,3,1,3,4,4,4,3,3,1,3,['Double'],['Long'],페키니즈,15-23cm,6kg,12-14년
+pembroke-welsh-corgi,['10-12 inches'],"['up to 30 pounds (male)', 'up to 28 pounds (female)']",['12-13 years'],5,3,4,4,2,1,4,4,5,4,4,4,4,4,['Double'],['Short'],웰시 코기 펨브로크,25-30cm,"수컷: 14kg, 암컷: 13kg",12-13년
+peruvian-inca-orchid,['9.75-15.75 inches (small) 15.75-19.75 inches (medium) 19.75-25.75 inches (large)'],['8.5-17.5 pounds (small) 17.5-26.5 pounds (medium) 26.5-55 pounds (large)'],['12-14 years'],5,3,3,1,1,1,3,3,3,3,3,4,3,4,"['Hairless', 'Smooth']",['Short'],페루비안 잉카 오키드,25-40cm,4-8kg,12-14년
+petit-basset-griffon-vendeen,['13-15 inches'],['25-40 pounds'],['14-16 years'],4,5,5,2,2,2,4,4,4,4,3,4,5,4,"['Rough', 'Double']",['Long'],쁘띠 바셋 그리폰 방데앵,33-38cm,11-18kg,14-16년
+pharaoh-hound,"['23-25 inches (male)', '21-24 inches (female)']",['45-55 pounds'],['12-14 years'],5,3,5,3,2,1,3,3,3,3,4,4,3,4,['Smooth'],['Short'],파라오 하운드,"수컷: 58-64cm, 암컷: 53-61cm",20-25kg,12-14년
+plott-hound,"['20-25 inches (male)', '20-23 inches (female)']","['50-60 pounds (male)', '40-55 pounds (female)']",['12-14 years'],5,3,5,2,1,2,4,3,4,4,4,4,4,3,['Smooth'],['Short'],플롯 하운드,"수컷: 51-64cm, 암컷: 51-58cm","수컷: 23-27kg, 암컷: 18-25kg",12-14년
+pointer,"['25-28 inches (male)', '23-26 inches (female)']","['55-75 pounds (male)', '45-65 pounds (female)']",['12-17 years'],5,3,5,3,2,2,4,4,3,4,5,4,3,4,['Smooth'],['Short'],포인터,"수컷: 64-71cm, 암컷: 58-66cm","수컷: 25-34kg, 암컷: 20-29kg",12-17년
+polish-lowland-sheepdog,"['18-20 inches (male)', '17-19 inches (female)']",['30-50 pounds'],['12-14 years'],5,3,3,2,4,2,3,4,5,5,4,3,4,4,['Double'],['Long'],폴리시 로랜드 쉽독,"수컷: 46-51cm, 암컷: 43-48cm",14-23kg,12-14년
+pomeranian,['6-7 inches'],['3-7 pounds'],['12-16 years'],5,3,3,2,3,1,3,3,4,4,3,3,4,3,['Double'],['Long'],포메라니안,15-18cm,1-3kg,12-16년
+pont-audemer-spaniel,['20 - 23 Inches'],"['38 - 48 males lbs', '33 - 40 females lbs']",['12-14 years'],5,4,5,3,3,1,3,4,1,5,4,3,1,3,[],['Medium'],퐁타우데메르 스파니엘,51cm,"17kg, 15kg",12-14년
+poodle-miniature,['10-15 inches'],['10-15 pounds'],['10-18 years'],5,5,3,1,4,1,5,5,3,4,5,4,4,5,['Curly'],['Long'],미니어처 푸들,25-38cm,5-7kg,10-18년
+poodle-standard,['over 15 inches (standard)'],"['60-70 pounds (male standard)', '40-50 pounds (female standard)']",['10-18 years'],5,5,3,1,4,1,5,5,5,4,5,4,4,5,['Curly'],['Long'],푸들,스탠다드: 38cm,"27-32kg, 18-23kg",10-18년
+poodle-toy,['No more than 10 inches'],['4-6 pounds'],['10-18 years'],5,5,3,1,4,1,5,5,3,4,5,4,4,5,['Curly'],['Long'],토이 푸들,25cm,2-3kg,10-18년
+porcelaine,['22-23 inches'],['55-62 pounds'],['12-13 years'],5,5,5,3,1,3,5,5,3,4,5,4,2,4,['Smooth'],['Short'],포슬레인,56-58cm,25-28kg,12-13년
+portuguese-podengo,['22-28 inches (large) 16-22 inches (medium)'],['44-66 pounds (large) 35-44 pounds (medium)'],['10-15 years'],5,5,5,3,2,1,3,4,3,4,3,4,3,4,"['Wiry', 'Smooth']",['Medium'],포르투기즈 포덴고,56-71cm,20-30kg,10-15년
+portuguese-podengo-pequeno,['8-12 inches'],['9-13 pounds'],['12-15 years'],5,5,5,3,2,1,3,4,3,4,3,4,3,4,"['Wiry', 'Smooth']",['Short'],포르투기즈 포덴고 페퀘노,20-30cm,4-6kg,12-15년
+portuguese-pointer,['20.5-22 inches'],['35-59 pounds'],['14 years'],5,5,3,3,1,2,4,4,3,4,5,5,3,5,['Smooth'],['Short'],포르투기즈 포인터,52-56cm,16-27kg,14년
+portuguese-sheepdog,['16.5-21.5 inches'],['37.5-59 pounds'],['12-13 years'],5,3,3,2,2,2,3,3,5,4,5,4,3,4,['Wavy'],['Long'],포르투기즈 쉽독,42-55cm,17-27kg,12-13년
+portuguese-water-dog,"['20-23 inches (male)', '17-21 inches (female)']","['42-60 pounds (male)', '35-50 pounds (female)']",['11-13 years'],5,5,4,2,4,2,4,5,4,5,5,5,3,5,"['Curly', 'Wavy']",['Long'],포르투기즈 워터 도그,"수컷: 51-58cm, 암컷: 43-53cm","수컷: 19-27kg, 암컷: 16-23kg",11-13년
+presa-canario,['22-26 inches'],['84-110 pounds'],['9-11 years'],2,1,1,3,1,4,1,1,5,2,3,2,3,3,['Smooth'],['Short'],프레사 카나리오,56-66cm,38-50kg,9-11년
+pudelpointer,['22-26 inches'],['45-70 pounds'],['14 years'],5,3,3,3,1,3,3,3,3,5,5,4,3,4,"['Wiry', 'Smooth', 'Rough']",['Short'],푸델포인터,56-66cm,20-32kg,14년
+pug,['10-13 inches'],['14-18 pounds'],['13-15 years'],5,5,4,4,2,1,5,5,3,5,4,3,1,3,['Smooth'],['Short'],퍼그,25-33cm,6-8kg,13-15년
+puli,"['17 inches (male)', '16 inches (female)']",['25-35 pounds'],['10-15 years'],5,3,3,1,5,2,3,3,5,4,5,3,3,5,"['Corded', 'Double']",['Long'],풀리,"수컷: 43cm, 암컷: 41cm",11-16kg,10-15년
+pumi,"['16-18.5 inches (male)', '15-17.5 inches (female)']","['27-29 pounds (male)', '22-24 pounds (female)']",['12-13 years'],5,3,3,1,2,2,3,4,4,4,5,5,3,5,"['Curly', 'Wavy']",['Medium'],푸미,"수컷: 41-47cm, 암컷: 38-44cm","수컷: 12-13kg, 암컷: 10-11kg",12-13년
+pyrenean-mastiff,"['Males 30-31 inches', 'Females 28-30 inches']",['120-190 pounds'],['10-12 years'],4,4,4,4,3,5,3,3,5,3,2,2,4,2,['Double'],['Medium'],피레니안 마스티프,"76-79cm, 71-76cm",54-86kg,10-12년
+pyrenean-shepherd,"['15.5-18.5 inches (male rough-faced)', '15-18 inches (female rough-faced)', '15.5-21 inches (male smooth-faced)', '15.5-20.5 inches (female smooth-faced)']",['15-30 pounds'],['17-19 years'],5,3,3,3,2,2,3,5,5,4,5,5,4,5,"['Smooth', 'Rough']",['Medium'],피레니안 셰퍼드,"39-47cm, 38-46cm, 39-53cm, 39-52cm",7-14kg,17-19년
+rafeiro-do-alentejo,['25-29 inches'],['77-132 pounds'],['12-14 years'],5,3,3,3,2,3,3,3,5,5,5,3,2,3,['Double'],['Short'],라페이로 도 알렌테조,64-74cm,35-60kg,12-14년
+rat-terrier,"['10-13 inches (miniature)', '13-18 inches (standard)']",['10-25 pounds'],['12-18 years'],5,5,3,3,2,1,5,5,4,4,5,4,3,5,['Smooth'],['Short'],랫 테리어,"미니어처: 25cm, 스탠다드: 33cm",5-11kg,12-18년
+redbone-coonhound,"['22-27 inches (male)', '21-26 inches (female)']",['45-70 pounds'],['12-15 years'],5,5,5,3,2,3,3,3,3,4,3,3,4,4,['Smooth'],['Short'],레드본 쿤하운드,"수컷: 56-69cm, 암컷: 53-66cm",20-32kg,12-15년
+rhodesian-ridgeback,"['25-27 inches (male)', '24-26 inches (female)']","['85 pounds (male)', '70 pounds (female)']",['10-12 years'],5,5,3,3,2,2,3,3,5,4,4,3,2,4,['Smooth'],['Short'],로디지안 리지백,"수컷: 64-69cm, 암컷: 61-66cm","수컷: 39kg, 암컷: 32kg",10-12년
+romanian-carpathian-shepherd,"['26-29 Males', '23 - 26 Females']",['70 - 100 lbs'],['12-14 years'],3,4,3,3,2,1,3,3,5,3,1,2,3,5,[],[],로마니안 카르파티안 셰퍼드,"66-74cm, 58cm",32kg,12-14년
+romanian-mioritic-shepherd-dog,"['27-29 inches (males)', '22.5-28 inches (females)']",['100-130 lbs'],['12-14 years'],5,5,3,2,2,3,1,3,5,3,3,3,1,3,['Double'],['Medium'],로마니안 미오리틱 셰퍼드 도그,"수컷: 69-74cm, 암컷: 57-71cm",45-59kg,12-14년
+rottweiler,"['24-27 inches (male)', '22-25 inches (female)']","['95-135 pounds (male)', '80-100 pounds (female)']",['9-10 years'],5,3,3,3,1,3,3,4,5,4,5,3,1,5,['Smooth'],['Short'],로트와일러,"수컷: 61-69cm, 암컷: 56-64cm","수컷: 43-61kg, 암컷: 36-45kg",9-10년
+russell-terrier,['10-12 inches'],['9-15 pounds'],['12-14 years'],5,3,5,3,2,1,5,5,4,4,3,5,4,5,"['Wiry', 'Smooth']",['Short'],러셀 테리어,25-30cm,4-7kg,12-14년
+russian-toy,['8-11 inches'],['Up to 6.5 pounds'],['12-14 years'],5,3,3,3,2,1,3,4,4,4,4,3,4,3,['Double'],['Short'],러시안 토이,20-28cm,3kg,12-14년
+russian-tsvetnaya-bolonka,['11 inches'],['6 - 9 pounds'],['14-20 years'],5,5,5,3,3,1,3,3,1,5,5,3,1,1,['Wavy'],['Medium'],러시안 츠베트나야 볼롱카,28cm,3kg,14-20년
+st-bernard,"['28-30 inches (males)', '26-28 inches (female)']","['140-180 pounds (male)', '120-140 pounds (female)']",['8-10 years'],5,5,3,3,2,5,3,3,5,4,3,3,1,3,"['Smooth', 'Rough', 'Double']",['Short'],세인트 버나드,"수컷: 71-76cm, 암컷: 66-71cm","수컷: 64-82kg, 암컷: 54-64kg",8-10년
+saluki,"['23-28 inches (male)', 'considerably smaller (female)']",['40-65 pounds'],['10-17 years'],5,3,3,2,1,1,3,3,1,3,3,4,3,5,['Smooth'],['Short'],살루키,,18-29kg,10-17년
+samoyed,"['21-23.5 inches (male)', '19-21 inches (female)']","['45-65 pounds (male)', '35-50 pounds (female)']",['12-14 years'],5,5,3,3,3,1,5,5,4,4,4,4,5,4,['Double'],['Long'],사모예드,"수컷: 53-60cm, 암컷: 48-53cm","수컷: 20-29kg, 암컷: 16-23kg",12-14년
+schapendoes,['16-20 inches'],['26-55 pounds'],['12-15 years'],5,3,5,2,3,2,3,4,5,4,5,4,3,4,['Double'],['Long'],스하펜데스,41-51cm,12-25kg,12-15년
+schipperke,"['11-13 inches (male)', '10-12 inches (female)']",['10-16 pounds'],['12-16 years'],5,3,3,3,2,1,3,4,5,4,4,3,4,3,['Double'],['Short'],스키퍼키,"수컷: 28-33cm, 암컷: 25-30cm",5-7kg,12-16년
+scottish-deerhound,"['30-32 inches (male)', '28 inches & up (female)']","['85-110 pounds (male)', '75-95 pounds (female)']",['8-11 years'],5,3,5,3,1,1,3,3,3,3,3,3,1,3,"['Wiry', 'Double']",['Medium'],스코티시 디어하운드,"수컷: 76-81cm, 암컷: 71cm","수컷: 39-50kg, 암컷: 34-43kg",8-11년
+scottish-terrier,['10 inches'],"['19-22 pounds (male)', '18-21 pounds (female)']",['12 years'],5,3,2,2,3,2,3,4,5,4,3,3,4,4,"['Wiry', 'Double']",['Medium'],스코티시 테리어,25cm,"수컷: 9-10kg, 암컷: 8-10kg",12년
+sealyham-terrier,['10.5 inches'],"['23-24 pounds (male)', 'slightly less (females)']",['12-14 years'],5,3,3,3,3,1,4,3,5,4,4,3,4,4,"['Wiry', 'Double']",['Medium'],실리험 테리어,27cm,,12-14년
+segugio-italiano,"['19.5 - 24.5 inches males', '19 - 24 inches females']",['39 - 62 lbs'],['11-13 years'],3,5,5,3,1,1,1,1,5,3,5,3,3,1,[],[],세구지오 이탈리아노,"50cm, 48cm",18kg,11-13년
+shetland-sheepdog,['13-16 inches'],['15-25 pounds'],['12-14 years'],5,5,5,3,3,1,2,5,5,5,5,4,5,4,['Double'],['Long'],셰틀랜드 쉽독,33-41cm,7-11kg,12-14년
+shiba-inu,"['14.5-16.5 inches (male)', '13.5-15.5 inches (female)']","['23 pounds (male)', '17 pounds (female)']",['13-16 years'],5,3,3,3,2,1,3,3,5,3,2,3,3,4,['Double'],['Short'],시바 이누,"수컷: 37-42cm, 암컷: 34-39cm","수컷: 10kg, 암컷: 8kg",13-16년
+shih-tzu,['9-10.5 inches'],['9-16 pounds'],['10-18 years'],5,5,5,1,4,1,3,3,3,5,4,3,3,3,['Double'],['Long'],시츄,23-27cm,4-7kg,10-18년
+shikoku,['17-22 inches'],['35-55 pounds'],['10-12 years'],3,3,3,3,3,1,3,3,3,3,3,3,3,3,['Double'],['Short'],시코쿠,43-56cm,16-25kg,10-12년
+siberian-husky,"['21-23.5 inches (male)', '20-22 inches (female)']","['45-60 pounds (male)', '35-50 pounds (female)']",['12-14 years'],5,5,5,4,2,1,5,5,1,4,3,5,5,4,['Double'],['Medium'],시베리안 허스키,"수컷: 53-60cm, 암컷: 51-56cm","수컷: 20-27kg, 암컷: 16-23kg",12-14년
+silky-terrier,['9-10 inches'],['around 10 pounds'],['13-15 years'],5,3,3,2,3,1,4,4,5,4,4,3,4,3,['Silky'],['Long'],실키 테리어,23-25cm,5kg,13-15년
+skye-terrier,"['10 inches (male)', '9.5 inches (female)']","['35-45 pounds (male)', 'slightly lighter (female)']",['12-14 years'],5,3,3,3,3,1,3,3,3,3,3,3,3,3,['Double'],['Long'],스카이 테리어,"수컷: 25cm, 암컷: 24cm",,12-14년
+sloughi,"['26-29 inches (male)', '24-27 inches (female)']",['40 -65  pounds'],['10-15 years'],4,3,3,3,1,1,2,3,2,3,3,4,2,3,['Smooth'],['Short'],슬루기,"수컷: 66-74cm, 암컷: 61-69cm",18kg,10-15년
+slovakian-wirehaired-pointer,"['24.5-26.5 in (male)', '22.5-26 in (female)']",['50-65 lbs'],['12-15 years'],5,3,4,2,1,2,3,3,3,3,5,4,3,3,['Wiry'],['Short'],슬로바키안 와이어헤어드 포인터,"수컷: 62-67cm, 암컷: 57-66cm",23-29kg,12-15년
+slovensky-cuvac,['23-27.5 inches'],['68-97 pounds'],['11-13 years'],5,3,3,4,2,3,2,3,5,3,3,3,1,3,['Double'],['Medium'],슬로벤스키 쿠바츠,58-70cm,31-44kg,11-13년
+slovensky-kopov,['16-20 inches'],['33-44 pounds'],['12-13 years'],5,3,4,3,1,2,3,3,3,3,4,3,3,3,['Rough'],['Short'],슬로벤스키 코포프,41-51cm,15-20kg,12-13년
+small-munsterlander,['20.5-21 inches'],['40-60 pounds'],['12-14 years'],5,4,3,3,1,2,3,3,3,3,5,4,1,4,['Double'],['Medium'],스몰 뮌스터랜더,52-53cm,18-27kg,12-14년
+smooth-fox-terrier,['15½ inches'],"['18 pounds (male)', '15-17 (female)']",['12-15 years'],5,3,3,3,2,1,3,4,5,4,3,4,5,3,['Smooth'],['Short'],스무스 폭스 테리어,38cm,"수컷: 8kg, 암컷: 7-8kg",12-15년
+soft-coated-wheaten-terrier,"['18-19 inches (male)', '17-18 inches (female)']","['35-40 pounds (male)', '30-35 pounds (female)']",['12-14 years'],5,5,3,1,4,2,3,3,3,3,3,4,3,3,"['Wavy', 'Silky']",['Medium'],소프트 코티드 휘튼 테리어,"수컷: 46-48cm, 암컷: 43-46cm","수컷: 16-18kg, 암컷: 14-16kg",12-14년
+spanish-mastiff,['Minimum 28-35 inches'],['140-200 pounds'],['10-12 years'],5,3,3,3,1,5,3,2,5,3,3,3,1,3,"['Smooth', 'Double']",['Short'],스패니시 마스티프,71-89cm,64-91kg,10-12년
+spanish-water-dog,"['17.5-19.75 inches (male)', '15.75-18 inches (female)']","['40-49 pounds (male)', '31-40 pounds (female)']",['12-14 years'],5,4,3,1,4,2,3,4,3,3,4,4,3,5,"['Corded', 'Curly']",['Medium'],스패니시 워터 도그,"수컷: 44-50cm, 암컷: 40-46cm","수컷: 18-22kg, 암컷: 14-18kg",12-14년
+spinone-italiano,"['23-27 inches (male)', '22-25 inches (female)']",['In direct proportion to size and structure of a dog'],['10-12 years'],5,3,4,3,2,3,3,3,3,3,4,3,2,3,['Wiry'],['Medium'],스피노네 이탈리아노,"수컷: 58-69cm, 암컷: 56-64cm",,10-12년
+stabyhoun,['19-21 inches'],['40-60 pounds'],['13-15 years'],5,5,4,3,1,2,3,3,3,3,5,4,3,4,"['Smooth', 'Double']",['Short'],스타비훈,48-53cm,18-27kg,13-15년
+staffordshire-bull-terrier,['14-16 inches'],"['28-38 pounds (male)', '24-34 pounds (female)']",['12-14 years'],5,5,3,2,2,3,4,4,5,5,5,4,3,4,['Smooth'],['Short'],스태퍼드셔 불 테리어,36-41cm,"수컷: 13-17kg, 암컷: 11-15kg",12-14년
+standard-schnauzer,"['18.5-19.5 inches (male)', '17.5-18.5 inches (female)']","['35-50 pounds (male)', '30-45 pounds (female)']",['13-16 years'],5,5,3,1,3,3,3,4,5,4,5,3,3,5,"['Wiry', 'Double']",['Medium'],스탠다드 슈나우저,"수컷: 47-50cm, 암컷: 44-47cm","수컷: 16-23kg, 암컷: 14-20kg",13-16년
+sussex-spaniel,['13-15 inches'],['35-45 pounds'],['13-15 years'],5,3,3,3,3,3,3,4,3,2,3,3,4,3,['Double'],['Medium'],서식스 스파니엘,33-38cm,16-20kg,13-15년
+swedish-lapphund,['16-20 inches'],['30-45 pounds'],['12-14 years'],5,3,3,3,2,2,4,4,4,4,5,4,4,4,['Double'],['Long'],스웨디시 랩훈드,41-51cm,14-20kg,12-14년
+swedish-vallhund,"['12.5-13.75 inches (male)', '11.5-12.75 inches (female)']",['20-35 pounds'],['12-15 years'],5,5,3,4,2,2,3,4,3,4,4,4,3,4,['Double'],['Short'],스웨디시 발훈드,"수컷: 32-35cm, 암컷: 29-32cm",9-16kg,12-15년
+taiwan-dog,['17-20 inches'],['26-40 pounds'],['9-13 years'],5,3,3,3,2,2,3,3,5,4,4,5,3,4,['Smooth'],['Short'],타이완 도그,43-51cm,12-18kg,9-13년
+teddy-roosevelt-terrier,['8-14 inches'],['8-25 pounds'],['14-16 years'],5,5,5,3,1,1,1,3,3,5,3,3,3,3,['Smooth'],['Short'],테디 루즈벨트 테리어,20-36cm,4-11kg,14-16년
+thai-bangkaew,"['18-21 inches males', '16-19 inches females']","['40-43 males', '35-40 females']",['14-17 years'],5,3,3,3,3,1,1,3,5,1,3,3,1,3,[],[],타이 방개우,"46-53cm, 41-48cm","18-20kg, 16-18kg",14-17년
+thai-ridgeback,['20-24 inches'],['35-75 pounds'],['14-15 years'],5,3,3,3,3,1,1,3,5,1,3,3,1,4,[],[],타이 리지백,51-61cm,16-34kg,14-15년
+tibetan-mastiff,"['minimum 26 inches (male)', 'minimum 24 inches (female)']","['90-150 pounds (male)', '70-120 pounds (female)']",['10-12 years'],4,3,3,4,3,3,1,3,5,3,3,3,3,4,['Double'],['Medium'],티베탄 마스티프,"수컷: 66cm, 암컷: 61cm","수컷: 41-68kg, 암컷: 32-54kg",10-12년
+tibetan-spaniel,['10 inches'],['9-15 pounds'],['12-15 years'],5,5,3,3,2,2,4,4,4,4,3,3,3,3,['Double'],['Medium'],티베탄 스파니엘,25cm,4-7kg,12-15년
+tibetan-terrier,['14-17 inches'],"['18-30 pounds (male)', 'slightly smaller (female)']",['15-16 years'],5,3,3,3,3,2,3,3,4,4,3,4,3,4,['Double'],['Long'],티베탄 테리어,36-43cm,,15-16년
+tornjak,['23-28 inches'],['62-110 pounds'],['12-14 years'],5,3,1,4,2,3,3,3,5,3,3,3,3,3,['Double'],['Medium'],토르냑,58-71cm,28-50kg,12-14년
+tosa,['Minimum 21.5-23.5 inches'],['100-200 pounds'],['10-12 years'],5,3,1,2,1,3,1,3,5,3,3,3,3,4,"['Smooth', 'Double']",['Short'],토사,55-60cm,45-91kg,10-12년
+toy-fox-terrier,['8.5-11.5 inches'],['4 - 9 lbs'],['13-15 years'],5,3,3,3,2,1,5,4,5,4,5,4,4,4,['Smooth'],['Short'],토이 폭스 테리어,22-29cm,2kg,13-15년
+transylvanian-hound,['22-26 inches'],['Minimum 55 pounds'],['10-14 years'],5,5,5,3,2,3,4,5,5,4,4,5,4,5,['Smooth'],['Short'],트란실바니안 하운드,56-66cm,25kg,10-14년
+treeing-tennessee-brindle,['16-24 inches'],['30-50 pounds'],['10-12 years'],5,3,5,2,2,3,3,3,3,3,3,3,5,4,['Smooth'],['Short'],트리잉 테네시 브린들,41-61cm,14-23kg,10-12년
+treeing-walker-coonhound,"['22-27 inches (male)', '20-25 inches (female)']",['50-70 pounds'],['12-13 years'],5,5,5,3,1,3,3,4,3,4,5,5,4,5,['Smooth'],['Short'],트리잉 워커 쿤하운드,"수컷: 56-69cm, 암컷: 51-64cm",23-32kg,12-13년
+vizsla,"['22-24 inches (male)', '21-23 inches (female)']","['55-60 pounds (male)', '44-55 pounds (female)']",['12-14 years'],5,5,4,3,2,2,4,5,3,5,5,5,3,5,['Smooth'],['Short'],비즐라,"수컷: 56-61cm, 암컷: 53-58cm","수컷: 25-27kg, 암컷: 20-25kg",12-14년
+volpino-italiano,['10.5-12 inches'],"['10-16 pounds (males)', '8-12 pounds (females)']",['12-15 years'],5,3,3,2,1,1,1,3,3,1,3,3,1,5,[],['Long'],볼피노 이탈리아노,27-30cm,"수컷: 5-7kg, 암컷: 4-5kg",12-15년
+weimaraner,"['25-27 inches (male)', '23-25 inches (female)']","['70-90 pounds (male)', '55-75 pounds (female)']",['10-13 years'],5,5,3,3,2,2,3,5,5,4,5,5,3,5,['Smooth'],['Short'],바이마라너,"수컷: 64-69cm, 암컷: 58-64cm","수컷: 32-41kg, 암컷: 25-34kg",10-13년
+welsh-springer-spaniel,"['18-19 inches (male)', '17-18 inches (female)']","['40-55 pounds (male)', '35-50 pounds (female)']",['12-15 years'],5,5,4,3,2,2,1,3,3,4,5,4,3,4,['Double'],['Medium'],웰시 스프링어 스파니엘,"수컷: 46-48cm, 암컷: 43-46cm","수컷: 18-25kg, 암컷: 16-23kg",12-15년
+welsh-terrier,"['15 inches (male)', 'porportionally smaller (female)']","['20 pounds (male)', 'proportionally smaller (female)']",['12-15 years'],5,5,3,2,3,2,5,4,4,4,4,4,4,4,"['Wiry', 'Double']",['Medium'],웰시 테리어,,,12-15년
+west-highland-white-terrier,"['11 inches (male)', '10 inches (female)']",['15-20 pounds'],['13-15 years'],5,5,3,3,3,1,4,5,5,4,3,4,5,4,['Double'],['Medium'],웨스트 하이랜드 화이트 테리어,"수컷: 28cm, 암컷: 25cm",7-9kg,13-15년
+wetterhoun,"['23 inches (male)', '21.5 inches (female)']",['50-75 pounds'],['13 years'],0,0,0,0,0,0,0,0,0,0,0,0,0,0,['Curly'],['Medium'],베터훈,"수컷: 58cm, 암컷: 55cm",23-34kg,13년
+whippet,"['19-22 inches (male)', '18-21 inches (female)']",['25-40 pounds'],['12-15 years'],5,5,5,2,1,1,3,4,3,3,3,4,1,4,['Smooth'],['Short'],휘핏,"수컷: 48-56cm, 암컷: 46-53cm",11-18kg,12-15년
+wire-fox-terrier,['15½ inches'],"['18 pounds (male)', '15-17 (female)']",['12-15 years'],5,5,3,2,3,2,5,4,4,4,4,4,4,4,"['Wiry', 'Double']",['Medium'],와이어 폭스 테리어,38cm,"수컷: 8kg, 암컷: 7-8kg",12-15년
+wirehaired-pointing-griffon,"['22-24 inches (male)', '20-22 inches (female)']","['50-70 pounds (male)', '35-50 pounds (female)']",['12-15 years'],5,5,3,3,2,3,5,4,3,4,5,5,3,5,"['Wiry', 'Double']",['Medium'],와이어헤어드 포인팅 그리폰,"수컷: 56-61cm, 암컷: 51-56cm","수컷: 23-32kg, 암컷: 16-23kg",12-15년
+wirehaired-vizsla,"['23-25 inches (male)', '21.5-23 inches (female)']","['55-65 pounds (male)', '45-55 pounds (female)']",['12-14 years'],5,5,3,3,1,2,5,5,3,4,5,5,3,5,['Wiry'],['Short'],와이어헤어드 비즐라,"수컷: 58-64cm, 암컷: 55-58cm","수컷: 25-29kg, 암컷: 20-25kg",12-14년
+working-kelpie,['19-25 inches'],['28-60 pounds'],['12-15 years'],5,5,3,3,1,2,5,5,4,4,5,5,3,5,['Smooth'],['Short'],워킹 켈피,48-64cm,13-27kg,12-15년
+xoloitzcuintli,"['10-14 inches (toy)', '14-18 inches (miniature)', '18-23 inches (standard)']","['10-15 pounds (toy)', '15-30 pounds (miniature)', '30-55 pounds (standard)']",['13-18 years'],5,3,3,1,1,1,3,4,3,4,4,4,3,4,"['Hairless', 'Smooth']",['Short'],쇼로이츠퀸틀리,"토이: 25cm, 미니어처: 36cm, 스탠다드: 46cm","토이: 5-7kg, 미니어처: 7-14kg, 스탠다드: 14-25kg",13-18년
+yakutian-laika,['21-23 inches'],['40-55 pounds'],['10-12 years'],5,5,4,4,2,3,1,4,5,4,3,5,4,5,['Double'],['Medium'],Yakutian Laika,53-58cm,18-25kg,10-12년
+yorkshire-terrier,['7-8 inches'],['7 pounds'],['11-15 years'],5,5,3,1,5,1,5,4,5,5,4,4,4,4,['Silky'],['Long'],요크셔 테리어,18-20cm,3kg,11-15년

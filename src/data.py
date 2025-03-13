@@ -76,7 +76,7 @@ class Naver:
                 'maxBookingCount': datum['maxBookingCount'],
                 'startTime': datum['startTime'],
                 'endTime': datum['endTime'],
-                'prices': datum['prices'][0]['price'] if datum['prices'] and len(datum['prices']) > 0 else 0
+                'prices': f"{datum['prices'][0]['price']:,}" if datum['prices'] and len(datum['prices']) > 0 else "0"
             })
         
         result = pd.DataFrame(result)
@@ -891,3 +891,125 @@ class Public:
         result_shelter = pd.concat(shelter_results, ignore_index=True)
         result_shelter.to_csv('./static/database/보호소코드.csv', index=False)
 
+class AKC:
+    def __init__(self):
+        self.url = 'https://www.akc.org/dog-breeds/'
+
+    def get_traits_info(self, breedurl):
+        traits = []
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=False)
+            page = browser.new_page()
+            page.goto(self.url + breedurl)
+        
+            html = page.content()
+            soup = BS(html, 'html.parser')
+            overview_div = soup.find('div', class_='breed-page__hero__overview__icon-block-wrap')
+            if overview_div is None:
+                raise ValueError("Overview div not found")
+            overview_ps = overview_div.find_all('p')
+    
+            
+            traits_div = soup.find('div', id='breed-page__traits__all')
+            traits_divcolumns = traits_div.find_all('div', class_='breed-trait-group__trait breed-trait-group__padded breed-trait-group__row-wrap')
+            for traits_divcolumn in traits_divcolumns:
+                trait_name = traits_divcolumn.find('h4').text
+                trait_desc = traits_divcolumn.find('p').text
+                
+                if trait_name not in ['Coat Type', 'Coat Length']:
+                    score_label_div = traits_divcolumn.find('div', class_='breed-trait-score__score-label')
+                    score_label_spans = score_label_div.find_all('span')
+                    score_low_label = score_label_spans[0].text
+                    score_high_label = score_label_spans[1].text
+                else:
+                    score_low_label = ''
+                    score_high_label = ''
+            
+                traits.append({'breed_name': breedurl, 'trait': trait_name, 'trait_desc': trait_desc, 'score_': score_low_label, 'score_high': score_high_label})
+
+        return pd.DataFrame(traits)
+
+    def get_breed_info(self, breedurl):
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page()
+            page.goto(self.url + breedurl)
+
+            html = page.content()
+            soup = BS(html, 'html.parser')
+            overview_div = soup.find('div', class_='breed-page__hero__overview__icon-block-wrap')
+            if overview_div is None:
+                raise ValueError("Overview div not found")
+                
+            overview_columns = overview_div.find_all('div', class_='flex breed-page__hero__overview__icon-block')
+            
+            def extract_texts(column):
+                return [p.text for p in column.find_all('p')]
+            
+            height = extract_texts(overview_columns[0])
+            weight = extract_texts(overview_columns[1])
+            life_expectancy = extract_texts(overview_columns[2])
+            
+
+            traits_div = soup.find('div', id='breed-page__traits__all')
+            traits_divcolumns = traits_div.find_all('div', class_='breed-trait-group__trait breed-trait-group__padded breed-trait-group__row-wrap')
+
+            def get_trait_score(index):
+                return len(traits_divcolumns[index].find_all('div', class_='breed-trait-score__score-unit--filled'))
+
+            trait_scores = {
+                'Affectionate With Family': get_trait_score(0),
+                'Good With Young Children': get_trait_score(1),
+                'Good With Other Dogs': get_trait_score(2),
+                'Shedding Level': get_trait_score(3),
+                'Coat Grooming Frequency': get_trait_score(4),
+                'Drooling Level': get_trait_score(5),
+                'Openness To Strangers': get_trait_score(8),
+                'Playfulness Level': get_trait_score(9),
+                'Watchdog/Protective Nature': get_trait_score(10),
+                'Adaptability Level': get_trait_score(11),
+                'Trainability Level': get_trait_score(12),
+                'Energy Level': get_trait_score(13),
+                'Barking Level': get_trait_score(14),
+                'Mental Stimulation Needs': get_trait_score(15),
+            }
+
+            coat_type = [div.find('span').text for div in traits_divcolumns[6].find_all('div', class_='breed-trait-score__choice--selected')]
+            coat_length = [div.find('span').text for div in traits_divcolumns[7].find_all('div', class_='breed-trait-score__choice--selected')]
+
+            traits_score = {
+                'breed_name': breedurl,
+                'height': height if height is not None else [],
+                'weight': weight if weight is not None else [],
+                'life_expectancy': life_expectancy if life_expectancy is not None else [],
+                **trait_scores,
+                'Coat Type': coat_type,
+                'Coat Length': coat_length,
+            }
+
+        return pd.DataFrame([traits_score])
+    
+    def get_breed_info_all(self):
+        akcURL = pd.read_csv('./static/database/akcUrl.csv')
+        result = pd.DataFrame()
+        
+        # 저장된 인덱스 확인
+        start_index = 0
+        if os.path.exists('./static/database/last_index.txt'):
+            with open('./static/database/last_index.txt', 'r') as f:
+                start_index = int(f.read().strip())
+
+        for index, row in tqdm(akcURL.iterrows(), total=len(akcURL)):
+            if index < start_index:
+                continue  # 저장된 인덱스 이전은 건너뜀
+            
+            breedurl = row['breedurl']
+            result = pd.concat([result, self.get_breed_info(breedurl)], ignore_index=True)
+
+            # 10개마다 저장
+            if (index + 1) % 10 == 0:
+                result.to_csv('./static/database/akcBreedInfo.csv', index=False, mode='a', header=not os.path.exists('./static/database/akcBreedInfo.csv'))
+                with open('./static/database/last_index.txt', 'w') as f:
+                    f.write(str(index + 1))  # 현재 인덱스 저장
+
+        return result

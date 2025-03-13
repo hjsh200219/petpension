@@ -46,7 +46,7 @@ def show_schedule_page():
         st.session_state.지역_filter_widget = "전체"
     
     # UI 컴포넌트 사용하여 날짜 선택기 표시
-    start_date, end_date, search_button = UI.show_date_range_selector(
+    start_date, end_date, search_button = UI().show_date_range_selector(
         search_button_label="일정 조회"
     )
 
@@ -185,6 +185,7 @@ def show_schedule_page():
             
         # 검색 결과 저장 후 필터링된 결과도 초기화
         st.session_state.filtered_result = result
+
         # 필터값 초기화
         st.session_state.business_name_filter = "전체"
         st.session_state.biz_item_name_filter = "전체"
@@ -244,8 +245,6 @@ def show_schedule_page():
 
     # 결과 표시 (검색 결과가 있는 경우)
     if not st.session_state.result.empty:
-        st.success("일정 조회가 완료되었습니다.")
-        
         # 필터 설정
         filter_values = {
             '숙박업소': st.session_state.business_name_filter,
@@ -324,7 +323,7 @@ def show_schedule_page():
             apply_filters()
             
         # 필터링된 결과 표시
-        UI.show_dataframe_with_info(st.session_state.filtered_result)
+        UI().show_dataframe_with_info(st.session_state.filtered_result)
         
         # 필터링된 결과 다운로드 버튼
         if not st.session_state.filtered_result.empty:

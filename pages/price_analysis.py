@@ -41,7 +41,7 @@ def verify_user_password():
         st.subheader("🔒 관리자 로그인")
         
         # UI 컴포넌트 사용하여 비밀번호 입력 폼 생성
-        UI.create_password_input(
+        UI().create_password_input(
             on_change_callback=check_password,
             has_error=st.session_state.password_error,
             key="statistics_password_input"

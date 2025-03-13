@@ -45,9 +45,9 @@ with tab3:
     show_admin_page()
 
 # CSS 로드 및 배너, 푸터 표시
-UI.load_css()
+UI().load_css()
 
-UI.display_banner()
-UI.display_footer()
+UI().display_banner()
+UI().display_footer()
 
 # streamlit run app.py

@@ -29,7 +29,7 @@ def verify_user_password():
     
     if not st.session_state.password_verified:
         st.subheader("🔒 관리자 로그인")
-        UI.create_password_input(
+        UI().create_password_input(
             on_change_callback=check_password,
             has_error=st.session_state.password_error,
             key="review_password_input"

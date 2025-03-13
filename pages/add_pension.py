@@ -40,7 +40,7 @@ def verify_user_password():
         st.subheader("🔒 관리자 로그인")
         
         # UI 컴포넌트 사용하여 비밀번호 입력 폼 생성
-        UI.create_password_input(
+        UI().create_password_input(
             on_change_callback=check_password,
             has_error=st.session_state.password_error,
             key="add_pension_password_input"
@@ -82,7 +82,7 @@ def save_pension_data(pension_info):
 def display_current_pensions(pension_info):
     """현재 등록된 펜션 정보 표시"""
     st.subheader("현재 등록된 펜션 정보")
-    UI.show_dataframe_with_info(pension_info)
+    UI().show_dataframe_with_info(pension_info)
 
 def handle_pension_edit(pension_info):
     """펜션 정보 수정 UI 및 처리"""

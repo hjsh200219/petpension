@@ -1,11 +1,14 @@
-from src.data import Naver, Public
+from src.data import Naver, Public, AKC
+from src.ui import UI, BreedInfo
 from datetime import datetime, timedelta
 import pandas as pd
 from tqdm import tqdm
 from pathlib import Path
 
 naver = Naver()
-
+akc = AKC()
+ui = UI()
+breed_info = BreedInfo()
 # data = naver._waiting_status("1010023")
 # print(data)
 
@@ -62,7 +65,29 @@ naver = Naver()
 # result = public.find_pet()
 # print(result)
 
-desertion_no = int('448536202500200')
-petinshelter = pd.read_csv('./static/database/petinshelter.csv')
-selected_pet = petinshelter[petinshelter['desertionNo'] == desertion_no]
-print(selected_pet)
+# desertion_no = int('448536202500200')
+# petinshelter = pd.read_csv('./static/database/petinshelter.csv')
+# selected_pet = petinshelter[petinshelter['desertionNo'] == desertion_no]
+# print(selected_pet)
+
+
+# result = akc.get_breed_info('korean-jindo-dog')
+# print(result)
+# result = akc.get_breed_info('german-spitz')
+# print(result)
+
+# result = akc.get_breed_info_all()
+# result.to_csv('./static/database/akcBreedInfo.csv', index=False)
+
+
+# result = pd.read_csv('./static/database/akcBreedInfo.csv')
+# result = result.drop_duplicates(subset=['breed_name'])
+# result.to_csv('./static/database/akcBreedInfo.csv', index=False)
+
+# result = breed_info.show_breed_info_basic('진도견')
+
+# CoatType, CoatLength = breed_info.show_breed_trait('진도견')
+# print(CoatType, CoatLength)
+
+score, trait_desc, score_low, score_high = breed_info.show_breed_trait_5scale('진도견', 'Affectionate With Family')
+print(score, trait_desc, score_low, score_high)

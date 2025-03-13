@@ -8,23 +8,22 @@ from src.data import Public
 import time
 import re
 from st_aggrid import AgGrid, GridOptionsBuilder
+import plotly.graph_objects as go
+
 
 class UI:
-    """UI 관련 함수를 모아둔 클래스"""
+    def __init__(self) -> None:
+        pass
     
-    @staticmethod
-    def load_css():
+    def load_css(self):
         css_path = Path("./static/css/style.css")
-        """CSS 파일을 로드하는 함수"""
         with open(css_path) as f:
             st.markdown(
                 f'<style>{f.read()}</style>', 
                 unsafe_allow_html=True
             )
 
-    @staticmethod
-    def display_banner():
-        """페이지 상단에 배너를 표시하는 함수"""
+    def display_banner(self):
         st.markdown(
             """
              <div class="banner">
@@ -40,9 +39,7 @@ class UI:
             unsafe_allow_html=True
         )
 
-    @staticmethod
-    def display_footer():
-        """페이지 하단에 푸터를 표시하는 함수"""
+    def display_footer(self):
         current_year = datetime.now().year
         st.markdown(
             f"""
@@ -53,8 +50,7 @@ class UI:
             unsafe_allow_html=True
         )
 
-    @staticmethod
-    def add_input_focus_js(selector="input[type='password']", delay=800):
+    def add_input_focus_js(self, selector="input[type='password']", delay=800):
         """
         특정 입력 필드에 자동 포커스를 추가하는 JavaScript 코드
         
@@ -78,8 +74,7 @@ class UI:
         """
         st.components.v1.html(js_code, height=0)
 
-    @staticmethod
-    def create_password_input(on_change_callback: Callable, 
+    def create_password_input(self, on_change_callback: Callable, 
                             error_message: str = "비밀번호가 틀렸습니다. 다시 시도해주세요.",
                             has_error: bool = False,
                             placeholder: str = "비밀번호를 입력하세요",
@@ -101,7 +96,7 @@ class UI:
             입력 필드의 고유 키 (기본값: "password_input")
         """
         # 자동 포커스 스크립트 추가
-        UI.add_input_focus_js()
+        self.add_input_focus_js()
         
         # 오류 메시지 표시
         if has_error:
@@ -127,8 +122,7 @@ class UI:
         
         return password
 
-    @staticmethod
-    def create_filter_ui(data: pd.DataFrame, 
+    def create_filter_ui(self, data: pd.DataFrame, 
                         filter_values: Dict[str, str], 
                         on_change_callbacks: Dict[str, Callable],
                         column_names: Dict[str, str]) -> None:
@@ -177,34 +171,56 @@ class UI:
                     on_change=on_change_callbacks.get(filter_key, None)
                 )
 
-    @staticmethod
-    def show_dataframe_with_info(df: pd.DataFrame, 
+    def show_dataframe_with_info(self, df: pd.DataFrame, 
                                 hide_index: bool = True, 
                                 use_container_width: bool = True) -> None:
-        """
-        데이터프레임을 표시하고 결과 개수도 함께 보여줍니다.
+
+        # 가격 칼럼 천단위 콤마 추가
+        if '가격' in df.columns:
+            df['가격'] = df['가격'].apply(lambda x: "{:,.0f}".format(x) if pd.notnull(x) and isinstance(x, (int, float)) else x)
+
+        gb = GridOptionsBuilder.from_dataframe(df)
+        gb.configure_selection(selection_mode="single", use_checkbox=True)
+
+        gb.configure_column("숙박업소", headerName="숙박업소", rowGroup=True, hide=True, checkboxSelection=False)
+        grid_options = gb.build()
         
-        Parameters:
-        -----------
-        df : pd.DataFrame
-            표시할 데이터프레임
-        hide_index : bool
-            인덱스 숨김 여부
-        use_container_width : bool
-            컨테이너 너비 사용 여부
+        # 그룹 행의 체크박스 제거 및 선택 방지를 위한 고급 설정
+        grid_options['groupCheckboxSelection'] = False
+        grid_options['groupSelectsChildren'] = False
+        grid_options['suppressGroupSelectParent'] = True
+        
+        # 그룹 행에는 체크박스를 표시하지 않고 데이터 행에만 표시하는 함수
+        js_code = """
+        function(params) {
+            return !params.node.group;
+        }
         """
-        # 데이터프레임 표시
-        st.dataframe(
-            df, 
-            use_container_width=use_container_width,
-            hide_index=hide_index
+        grid_options['isRowSelectable'] = js_code
+        
+        # 그룹 행의 체크박스를 완전히 제거
+        if 'defaultColDef' not in grid_options:
+            grid_options['defaultColDef'] = {}
+        grid_options['defaultColDef']['headerCheckboxSelection'] = False
+        
+        if 'groupRowRendererParams' not in grid_options:
+            grid_options['groupRowRendererParams'] = {}
+        grid_options['groupRowRendererParams']['checkbox'] = False
+        grid_options['groupRowRendererParams']['suppressCount'] = False
+        
+        grid_response = AgGrid(
+            df,
+            gridOptions=grid_options,
+            enable_enterprise_modules=True,
+            height=500,
+            width='100%',
+            fit_columns_on_grid_load=True
         )
         
         # 결과 개수 표시
         st.info(f"총 {len(df)}개의 결과가 있습니다.")
 
-    @staticmethod
-    def show_date_range_selector(default_start_date=None, 
+    def show_date_range_selector(self, default_start_date=None, 
                                 default_end_date=None, 
                                 search_button_label="검색") -> Tuple:
         """
@@ -255,8 +271,7 @@ class UI:
         
         return start_date, end_date, search_button
     
-    @staticmethod
-    def display_success_message(message=None):
+    def display_success_message(self, message=None):
         """성공 메시지 표시 (세션 상태 활용)"""
         if message:
             st.success(message)
@@ -264,13 +279,11 @@ class UI:
             st.success(st.session_state.success_message)
             st.session_state.success_message = None
     
-    @staticmethod
-    def display_error_message(message):
+    def display_error_message(self, message):
         """에러 메시지 표시"""
         st.error(message)
     
-    @staticmethod
-    def create_date_region_selection():
+    def create_date_region_selection(self):
         """날짜 및 지역 선택 UI 생성"""
         col1, col2, col3 = st.columns([1, 1, 1])
         
@@ -289,8 +302,7 @@ class UI:
         
         return start_date, end_date, selected_region
     
-    @staticmethod
-    def create_pension_selection(pensions, default=None, key="selected_pensions"):
+    def create_pension_selection(self, pensions, default=None, key="selected_pensions"):
         """펜션 선택 UI 생성"""
         st.write("비교할 펜션 선택 (복수 선택 가능)")
         selected_pensions = st.multiselect(
@@ -301,8 +313,7 @@ class UI:
         )
         return selected_pensions
     
-    @staticmethod
-    def create_chart_type_selection(current_type="bar"):
+    def create_chart_type_selection(self, current_type="bar"):
         """차트 유형 선택 UI 생성"""
         chart_type = st.radio(
             "차트 유형 선택:",
@@ -321,15 +332,13 @@ class UI:
         else:
             return "radar"
     
-    @staticmethod
-    def create_logout_button(key="logout"):
+    def create_logout_button(self, key="logout"):
         """로그아웃 버튼 생성"""
         if st.button("로그아웃", key=key, type="primary"):
             st.session_state.password_verified = False
             st.rerun()
     
-    @staticmethod
-    def verify_user_password(password_field_key="password_input", session_key="password_verified", error_key="password_error", password_verify_function=None):
+    def verify_user_password(self, password_field_key="password_input", session_key="password_verified", error_key="password_error", password_verify_function=None):
         """
         사용자 비밀번호 검증을 위한 공통 함수
         
@@ -371,7 +380,7 @@ class UI:
         
         # 검증이 필요한 경우 UI 표시
         st.subheader("🔒 로그인")
-        UI.create_password_input(
+        UI().create_password_input(
             on_change_callback=check_password,
             has_error=st.session_state[error_key],
             key=password_field_key
@@ -379,18 +388,15 @@ class UI:
         
         return st.session_state[session_key]
     
-    @staticmethod
-    def create_progress_bar():
+    def create_progress_bar(self):
         """진행 상황 표시 바 생성"""
         return st.progress(0)
     
-    @staticmethod
-    def create_analysis_button():
+    def create_analysis_button(self):
         """분석 버튼 생성"""
         return st.button("분석 시작", use_container_width=True, key="analyze_button")
     
-    @staticmethod
-    def create_expandable_detail_section(title, dataframe, columns=None):
+    def create_expandable_detail_section(self, title, dataframe, columns=None):
         """펼칠 수 있는 상세 정보 섹션 생성"""
         with st.expander(title):
             if columns:
@@ -398,8 +404,7 @@ class UI:
             else:
                 st.dataframe(dataframe, use_container_width=True, hide_index=True)
     
-    @staticmethod
-    def display_detailed_data(data, display_columns, title="상세 데이터 보기", sort_by=None):
+    def display_detailed_data(self, data, display_columns, title="상세 데이터 보기", sort_by=None):
         """상세 데이터 표시 섹션"""
         with st.expander(title):
             if sort_by:
@@ -413,8 +418,7 @@ class UI:
                 hide_index=True
             )
 
-    @staticmethod
-    def extract_birth_year(age_string):
+    def extract_birth_year(self, age_string):
         try:
             if pd.isna(age_string) or not isinstance(age_string, str):
                 return None
@@ -431,8 +435,7 @@ class UI:
         except Exception:
             return None
         
-    @staticmethod
-    def total_count(upkind):
+    def total_count(self, upkind):
         total_count = Public().totalCount(upkind=upkind)
         count_placeholder = st.empty()
         
@@ -447,8 +450,7 @@ class UI:
                 time.sleep(0.001)
                 count_placeholder.subheader(f"🏠 전국에는 {i:,}마리가 보호 중입니다.")
 
-    @staticmethod
-    def apply_filters(data, upkind):
+    def apply_filters(self, data, upkind):
         """
         데이터에 필터를 적용하는 함수
         
@@ -590,32 +592,69 @@ class UI:
         
         return filtered_data
     
-    @staticmethod
-    def display_text_input(label, value, col):
+class BreedInfo:
+    def __init__(self) -> None:
+        self.breed_info = pd.read_csv('./static/database/akcBreedInfo.csv')
+        self.trait_info = pd.read_csv('./static/database/akcTraits.csv')
+        self.trait_averages = pd.read_csv('./static/database/trait_averages.csv')
+
+    def display_text_input(self, label, value, col):
         with col:
             st.text_input(label, disabled=True, value=value)
     
-    @staticmethod
-    def show_pet_detail(grid_response):
+    def show_pet_detail(self, grid_response):
         selected = grid_response.get('selected_rows', [])
         if selected is None or len(selected) == 0:
             return
-        selected = selected.to_dict(orient='records')
-        desertion_no = int(selected[0]['desertionNo'])
-        petinshelter = pd.read_csv('./static/database/petinshelter.csv')
-        selected_pet = petinshelter[petinshelter['desertionNo'] == desertion_no]
-    
+            
+        # selected의 타입에 따라 처리
+        import pandas as pd
+        
+        # 디버깅을 위해 타입 확인
+        try:
+            # DataFrame인 경우
+            if isinstance(selected, pd.DataFrame):
+                if len(selected) == 0:
+                    return
+                # DataFrame의 첫 번째 행을 딕셔너리로 변환
+                first_row = selected.iloc[0].to_dict()
+            else:
+                # 리스트인 경우
+                if len(selected) == 0:
+                    return
+                first_row = selected[0]
+                
+            # 'desertionNo' 키가 없는 경우 대체 키를 찾거나 오류 처리
+            if 'desertionNo' not in first_row:
+                st.warning("개별 유기번호를 선택해주세요.")
+                return
+                
+            desertion_no = int(first_row['desertionNo'])
+            petinshelter = pd.read_csv('./static/database/petinshelter.csv')
+            selected_pet = petinshelter[petinshelter['desertionNo'] == desertion_no]
+            
+            if len(selected_pet) == 0:
+                st.warning(f"유기번호 {desertion_no}에 해당하는 데이터를 찾을 수 없습니다.")
+                return
+                
+        except Exception as e:
+            st.error(f"데이터 처리 중 오류가 발생했습니다: {str(e)}")
+            st.write("selected 타입:", type(selected))
+            if hasattr(selected, 'shape'):
+                st.write("selected 형태:", selected.shape)
+            return
+
         with st.expander("공고정보", expanded=False):
             col1, col2, col3 = st.columns((1, 1, 2))
-            UI.display_text_input('유기번호', str(selected_pet['desertionNo'].iloc[0]), col1)
-            UI.display_text_input('접수일', selected_pet['happenDt'].iloc[0], col2)
-            UI.display_text_input('발견장소', selected_pet['happenPlace'].iloc[0], col3)
+            self.display_text_input('유기번호', str(selected_pet['desertionNo'].iloc[0]), col1)
+            self.display_text_input('접수일', selected_pet['happenDt'].iloc[0], col2)
+            self.display_text_input('발견장소', selected_pet['happenPlace'].iloc[0], col3)
             
             col1, col2, col3, col4 = st.columns((1, 1, 1, 1))
-            UI.display_text_input('공고번호', selected_pet['noticeNo'].iloc[0], col1)
-            UI.display_text_input('공고시작일', selected_pet['noticeSdt'].iloc[0], col2)
-            UI.display_text_input('공고종료일', selected_pet['noticeEdt'].iloc[0], col3)
-            UI.display_text_input('상태', selected_pet['processState'].iloc[0], col4)
+            self.display_text_input('공고번호', selected_pet['noticeNo'].iloc[0], col1)
+            self.display_text_input('공고시작일', selected_pet['noticeSdt'].iloc[0], col2)
+            self.display_text_input('공고종료일', selected_pet['noticeEdt'].iloc[0], col3)
+            self.display_text_input('상태', selected_pet['processState'].iloc[0], col4)
 
         with st.expander("동물정보 상세", expanded=True):
             col1, col2, col3 = st.columns([2, 1, 1])
@@ -623,26 +662,227 @@ class UI:
                 st.image(selected_pet['popfile'].iloc[0], use_container_width=True)
                 st.markdown('<style>img { max-height: 500px; }</style>', unsafe_allow_html=True)
                 st.markdown('<style>img { object-fit: contain; }</style>', unsafe_allow_html=True)
-            UI.display_text_input('나이', selected_pet['age'].iloc[0], col2)
-            UI.display_text_input('체중', selected_pet['weight'].iloc[0], col2)
-            UI.display_text_input('성별', selected_pet['sexCd'].iloc[0], col2)
-            UI.display_text_input('색상', selected_pet['colorCd'].iloc[0], col3)
-            UI.display_text_input('중성화 여부', selected_pet['neuterYn'].iloc[0], col3)
-            UI.display_text_input('특징', selected_pet['specialMark'].iloc[0], col3)
+            self.display_text_input('나이', selected_pet['age'].iloc[0], col2)
+            self.display_text_input('체중', selected_pet['weight'].iloc[0], col2)
+            self.display_text_input('성별', selected_pet['sexCd'].iloc[0], col2)
+            self.display_text_input('색상', selected_pet['colorCd'].iloc[0], col3)
+            self.display_text_input('중성화 여부', selected_pet['neuterYn'].iloc[0], col3)
+            self.display_text_input('특징', selected_pet['specialMark'].iloc[0], col3)
 
-        with st.expander("품종정보 상세", expanded=True):
-            col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
-            kindCd = selected_pet['kindCd'].iloc[0]
-            kindCd = kindCd.replace('[개]', '').replace('[고양이]', '').replace('[기타품종]', '').strip()
-            UI.display_text_input('품종', kindCd, col1)
+        kindCd = selected_pet['kindCd'].iloc[0]
+        kindCd = kindCd.replace('[개]', '').replace('[고양이]', '').replace('[기타품종]', '').strip()
+        with st.expander(f"{kindCd} 상세 정보", expanded=True):
+            col2, col3, col4 = st.columns([1, 1, 1])            
+            if kindCd in self.breed_info['breed_name_kor'].values:
+                height, weight, life_expectancy = self.show_breed_info_basic(kindCd)
+                
+                height = ', '.join(height) if isinstance(height, pd.Series) and not height.empty else ""
+                weight = ', '.join(weight) if isinstance(weight, pd.Series) and not weight.empty else ""
+                life_expectancy = ', '.join(life_expectancy) if isinstance(life_expectancy, pd.Series) and not life_expectancy.empty else ""
 
+                self.display_text_input('키', height, col2)
+                self.display_text_input('체중', weight, col3)
+                self.display_text_input('기대수명', life_expectancy, col4)
+            else:
+                self.display_text_input('키', "", col2)
+                self.display_text_input('체중', "", col3)
+                self.display_text_input('기대수명', "", col4)
+
+            tab1, tab2, tab3, tab4 = st.tabs(["Fmaily Life", "Physical", "Social", "Personality"])
+            with tab1:
+                col1, col2 = st.columns([1, 1])
+                with col1:
+                    self.show_breed_trait_5scale(kindCd, 'Affectionate With Family')
+                with col2:
+                    self.show_breed_trait_5scale(kindCd, 'Good With Young Children')
+                with col1:
+                        self.show_breed_trait_5scale(kindCd, 'Good With Other Dogs')
+            
+            with tab2:
+                col1, col2 = st.columns([1, 1])
+                with col1:
+                    self.show_breed_trait_5scale(kindCd, 'Shedding Level')
+                with col2:
+                    self.show_breed_trait_5scale(kindCd, 'Coat Grooming Frequency')
+                with col1:
+                    self.show_breed_trait_5scale(kindCd, 'Drooling Level')
+                self.show_breed_trait_hair(kindCd)
+            
+            with tab3:
+                col1, col2 = st.columns([1, 1])
+                with col1:
+                    self.show_breed_trait_5scale(kindCd, 'Openness To Strangers')
+                with col2:
+                    self.show_breed_trait_5scale(kindCd, 'Playfulness Level')
+                with col1:
+                    self.show_breed_trait_5scale(kindCd, 'Watchdog/Protective Nature')
+                with col2:
+                    self.show_breed_trait_5scale(kindCd, 'Adaptability Level')
+
+            with tab4:
+                col1, col2 = st.columns([1, 1])
+                with col1:
+                    self.show_breed_trait_5scale(kindCd, 'Trainability Level')
+                with col2:
+                    self.show_breed_trait_5scale(kindCd, 'Energy Level')
+                with col1:
+                    self.show_breed_trait_5scale(kindCd, 'Barking Level')
+                with col2:
+                    self.show_breed_trait_5scale(kindCd, 'Mental Stimulation Needs')
+
+            
         with st.expander("보호소 정보", expanded=False):
             col1, col2, col3 = st.columns((1, 1, 2))
-            UI.display_text_input('보호소', selected_pet['careNm'].iloc[0], col1)
-            UI.display_text_input('보호소 전화번호', selected_pet['careTel'].iloc[0], col2)
-            UI.display_text_input('보호소 주소', selected_pet['careAddr'].iloc[0], col3)
+            self.display_text_input('보호소', selected_pet['careNm'].iloc[0], col1)
+            self.display_text_input('보호소 전화번호', selected_pet['careTel'].iloc[0], col2)
+            self.display_text_input('보호소 주소', selected_pet['careAddr'].iloc[0], col3)
 
             col1, col2, col3, col4 = st.columns((1, 1, 1, 1))
-            UI.display_text_input('관할기관', selected_pet['orgNm'].iloc[0], col1)
-            UI.display_text_input('담당자', selected_pet['chargeNm'].iloc[0], col2)
-            UI.display_text_input('담당자연락처', selected_pet['officetel'].iloc[0], col3)
+            self.display_text_input('관할기관', selected_pet['orgNm'].iloc[0], col1)
+            self.display_text_input('담당자', selected_pet['chargeNm'].iloc[0], col2)
+            self.display_text_input('담당자연락처', selected_pet['officetel'].iloc[0], col3)
+
+    def show_breed_info_basic(self, breed_name):        
+        selected_breed = self.breed_info[self.breed_info['breed_name_kor'] == breed_name]
+        height,weight,life_expectancy = selected_breed['height_k'],selected_breed['weight_k'],selected_breed['life_expectancy_k']
+        
+        return height,weight,life_expectancy
+    
+    def show_breed_trait(self, breed_name):
+        selected_breed = self.breed_info[self.breed_info['breed_name_kor'] == breed_name]
+        AffectionateWithFamily = selected_breed['Affectionate With Family']
+        GoodWithYoungChildren = selected_breed['Good With Young Children']
+        GoodWithOtherDogs = selected_breed['Good With Other Dogs']
+        SheddingLevel = selected_breed['Shedding Level']
+        CoatGroomingFrequency = selected_breed['Coat Grooming Frequency']
+        DroolingLevel = selected_breed['Drooling Level']
+        OpennessToStrangers = selected_breed['Openness To Strangers']
+        PlayfulnessLevel = selected_breed['Playfulness Level']
+        WatchdogProtectiveNature = selected_breed['Watchdog/Protective Nature']
+        AdaptabilityLevel = selected_breed['Adaptability Level']
+        TrainabilityLevel = selected_breed['Trainability Level']
+        EnergyLevel = selected_breed['Energy Level']
+        BarkingLevel = selected_breed['Barking Level']
+        MentalStimulationNeeds = selected_breed['Mental Stimulation Needs']
+        CoatType = selected_breed['Coat Type']
+        CoatLength = selected_breed['Coat Length']
+        return CoatType, CoatLength
+    
+    def show_breed_trait_5scale(self, breed_name, trait):
+        score = self.breed_info.loc[self.breed_info['breed_name_kor'] == breed_name, trait].values[0]
+        trait_desc = self.trait_info.loc[self.trait_info['trait'] == trait, 'trait_desc'].values[0]
+        score_low = self.trait_info.loc[self.trait_info['trait'] == trait, 'score_low'].values[0]
+        score_high = self.trait_info.loc[self.trait_info['trait'] == trait, 'score_high'].values[0]
+        average_score = self.trait_averages.loc[self.trait_averages['trait'] == trait, 'average_score'].values[0]
+
+        col1, col2 = st.columns([1.5, 1])
+        with col1:
+            fig = go.Figure(go.Indicator(
+                mode="gauge+number+delta",
+                value=score,
+                title={'text': trait},
+                gauge={
+                'axis': {'range': [1, 5],
+                         'tickmode': "array",
+                         "tickvals": [1, 2, 3, 4, 5],
+                         "ticktext": ["", "", "", "", ""]},
+                'bar': {'color': "blue"},
+                'threshold': {
+                    'line': {'color': "red", 'width': 4},
+                    'thickness': 0.75,
+                        'value': average_score
+                    }
+                },
+            ))
+
+            # 차트 레이아웃 설정 - 높이와 마진을 일정하게 조정
+            fig.update_layout(
+                height=200,
+                margin=dict(t=60, b=10, l=10, r=10),
+                autosize=True,
+                font=dict(size=12)
+            )
+
+            st.plotly_chart(fig, use_container_width=True)
+        with col2:
+            st.write(trait_desc)
+
+    def show_breed_trait_hair(self, breed_name, trait=None):
+        """품종의 털 타입과 털 길이를 체크박스 형태로 표시합니다."""
+        selected_breed = self.breed_info[self.breed_info['breed_name_kor'] == breed_name]
+        coat_type = selected_breed['Coat Type'].values[0]
+        coat_type_desc = self.trait_info.loc[self.trait_info['trait'] == 'Coat Type', 'trait_desc'].values[0]
+        coat_length = selected_breed['Coat Length'].values[0]
+        coat_length_desc = self.trait_info.loc[self.trait_info['trait'] == 'Coat Length', 'trait_desc'].values[0]
+        
+        # 문자열 형태에서 리스트로 변환 (필요한 경우)
+        if isinstance(coat_type, str):
+            coat_type = eval(coat_type)
+        if isinstance(coat_length, str):
+            coat_length = eval(coat_length)
+        
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            # 털 타입 옵션
+            st.subheader("털 유형")
+            coat_type_options = ["Wiry", "Hairless", "Smooth", "Rough", "Corded", "Curly", "Wavy", "Double", "Silky"]
+            
+            # 각 행에 3개씩 배치
+            rows = [coat_type_options[i:i+3] for i in range(0, len(coat_type_options), 3)]
+            
+            for row in rows:
+                cols = st.columns(3)
+                for i, option in enumerate(row):
+                    with cols[i]:
+                        # 해당 옵션이 선택된 경우 파란색, 아닌 경우 회색으로 표시
+                        if option in coat_type:
+                            st.markdown(f"""
+                            <div style="display: flex; align-items: center;">
+                                <div style="color: #4F7CAC; font-size: 24px; margin-right: 10px;">✓</div>
+                                <div style="color: #4F7CAC;">{option}</div>
+                            </div>
+                            """, unsafe_allow_html=True)
+                        else:
+                            st.markdown(f"""
+                            <div style="display: flex; align-items: center;">
+                                <div style="color: #CCCCCC; font-size: 24px; margin-right: 10px;">✗</div>
+                                <div style="color: #CCCCCC;">{option}</div>
+                            </div>
+                            """, unsafe_allow_html=True)
+        with col2:
+            st.write(coat_type_desc)
+        
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            # 털 길이 옵션
+            st.subheader("털 길이")
+            coat_length_options = ["Short", "Medium", "Long"]
+            
+            cols = st.columns(3)
+            for i, option in enumerate(coat_length_options):
+                with cols[i]:
+                    # 해당 옵션이 선택된 경우 파란색, 아닌 경우 회색으로 표시
+                    if option in coat_length:
+                        st.markdown(f"""
+                        <div style="display: flex; align-items: center;">
+                            <div style="color: #4F7CAC; font-size: 24px; margin-right: 10px;">✓</div>
+                            <div style="color: #4F7CAC;">{option}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    else:
+                        st.markdown(f"""
+                        <div style="display: flex; align-items: center;">
+                            <div style="color: #CCCCCC; font-size: 24px; margin-right: 10px;">✗</div>
+                            <div style="color: #CCCCCC;">{option}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+        with col2:
+            st.write(coat_length_desc)
+            
+        return coat_type, coat_length
+        
+        
+        
+        
+        
+        
