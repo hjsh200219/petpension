@@ -9,7 +9,8 @@ import time
 import re
 from st_aggrid import AgGrid, GridOptionsBuilder
 import plotly.graph_objects as go
-
+from src.data import Public, Common
+import pydeck as pdk
 
 class UI:
     def __init__(self) -> None:
@@ -185,36 +186,14 @@ class UI:
         gb.configure_column("숙박업소", headerName="숙박업소", rowGroup=True, hide=True, checkboxSelection=False)
         grid_options = gb.build()
         
-        # 그룹 행의 체크박스 제거 및 선택 방지를 위한 고급 설정
-        grid_options['groupCheckboxSelection'] = False
-        grid_options['groupSelectsChildren'] = False
-        grid_options['suppressGroupSelectParent'] = True
-        
-        # 그룹 행에는 체크박스를 표시하지 않고 데이터 행에만 표시하는 함수
-        js_code = """
-        function(params) {
-            return !params.node.group;
-        }
-        """
-        grid_options['isRowSelectable'] = js_code
-        
-        # 그룹 행의 체크박스를 완전히 제거
-        if 'defaultColDef' not in grid_options:
-            grid_options['defaultColDef'] = {}
-        grid_options['defaultColDef']['headerCheckboxSelection'] = False
-        
-        if 'groupRowRendererParams' not in grid_options:
-            grid_options['groupRowRendererParams'] = {}
-        grid_options['groupRowRendererParams']['checkbox'] = False
-        grid_options['groupRowRendererParams']['suppressCount'] = False
-        
         grid_response = AgGrid(
             df,
             gridOptions=grid_options,
             enable_enterprise_modules=True,
             height=500,
             width='100%',
-            fit_columns_on_grid_load=True
+            fit_columns_on_grid_load=True,
+            use_container_width = True
         )
         
         # 결과 개수 표시
@@ -602,6 +581,88 @@ class BreedInfo:
         with col:
             st.text_input(label, disabled=True, value=value)
     
+    def show_shelter_detail(self, filtered_data):
+        display_columns = ['시군구', 'desertionNo', 'happenDt', 'kindCd', 'age', 'sexCd', 'careNm', '시도']
+        display_data = filtered_data[display_columns].copy()
+        
+        gb = GridOptionsBuilder.from_dataframe(display_data)
+        gb.configure_selection(selection_mode="single", use_checkbox=True)
+
+        # 컬럼 헤더 및 그룹화 설정
+        gb.configure_column("시도", headerName="시도", rowGroup=True, hide=True, use_checkbox=False)
+        gb.configure_column("시군구", headerName="시군구", use_checkbox=True)
+        gb.configure_column("desertionNo", headerName="유기번호", use_checkbox=True)
+        gb.configure_column("happenDt", headerName="발견일", use_checkbox=True)
+        gb.configure_column("kindCd", headerName="품종", use_checkbox=True)
+        gb.configure_column("age", headerName="나이", use_checkbox=True)
+        gb.configure_column("sexCd", headerName="성별", use_checkbox=True)
+        gb.configure_column("careNm", headerName="보호소", use_checkbox=True)
+
+        grid_options = gb.build()
+
+        # AgGrid 표시
+        grid_response = AgGrid(
+            display_data,
+            gridOptions=grid_options,
+            enable_enterprise_modules=True,
+            height=400,
+            width='100%',
+            fit_columns_on_grid_load=True,
+            use_container_width = True
+        )
+
+        return grid_response
+    
+    def show_map(self, petinshelter):
+        shelterlist = pd.read_csv('./static/database/보호소코드.csv')
+        shelterlist = shelterlist[shelterlist['주소'].notna()]
+
+        # 보호소별 동물 수 카운트
+        shelterlist['보호 중 동물 수'] = shelterlist['보호소명'].map(petinshelter['careNm'].value_counts())
+
+        with st.spinner("보호소의 위경도 정보를 업데이트 중입니다..."):
+            for index, row in shelterlist.iterrows():
+                if pd.isna(row['lat']) or pd.isna(row['lon']):
+                    lat, lon = Common().convert_gps(row['주소'])
+                    shelterlist.loc[index, 'lat'] = lat
+                    shelterlist.loc[index, 'lon'] = lon
+        
+        shelterlist_status = shelterlist[['보호소명', '보호 중 동물 수', '주소', 'lat', 'lon']]
+        shelterlist_status = shelterlist_status.dropna(subset=['보호 중 동물 수'])
+        
+        # pydeck의 ScatterplotLayer를 사용하여 각 보호소를 원형 마커로 표시합니다.
+        layer = pdk.Layer(
+            "ScatterplotLayer",
+            data=shelterlist_status,
+            get_position='[lon, lat]',
+            get_fill_color='[255, 0, 0, 160]',  # RGBA 형식
+            get_radius=2000,
+            pickable=True,  # 마우스 이벤트 활성화
+        )
+        
+        # 초기 지도 뷰 설정 (전체 데이터의 중심 좌표 기준)
+        view_state = pdk.ViewState(
+            latitude=37.515586, 
+            longitude=127.056992,
+            zoom=9,
+            pitch=0,
+        )
+        
+        # 툴팁 설정: 마우스 오버 시 보호소명과 보호 중 동물 수 표시
+        tooltip = {
+            "html": "<b>보호소:</b> {보호소명} <br/><b>보호 중:</b> {보호 중 동물 수}",  # 숫자 포맷 추가
+            "style": {"backgroundColor": "steelblue", "color": "white"}
+        }
+        
+        # pydeck Deck 객체 생성
+        deck = pdk.Deck(
+            layers=[layer],
+            initial_view_state=view_state,
+            tooltip=tooltip
+        )
+        
+        st.pydeck_chart(deck)
+
     def show_pet_detail(self, grid_response):
         selected = grid_response.get('selected_rows', [])
         if selected is None or len(selected) == 0:
@@ -881,7 +942,7 @@ class BreedInfo:
             
         return coat_type, coat_length
         
-        
+
         
         
         

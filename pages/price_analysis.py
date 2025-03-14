@@ -357,6 +357,30 @@ def analyze_data(start_date, end_date, selected_region, selected_pensions, pensi
         else:
             final_df = pd.DataFrame(columns=['숙박업소', '숙박상품', '날짜', '가격', '주소', '카테고리'])
         
+        # 가격 컬럼을 숫자 타입으로 변환 (문자열, 쉼표 등 처리)
+        def convert_price(price):
+            if pd.isna(price):
+                return float('nan')
+            
+            # 문자열인 경우
+            if isinstance(price, str):
+                # 쉼표 제거
+                price = price.replace(',', '')
+                
+                try:
+                    return float(price)
+                except ValueError:
+                    return float('nan')
+            
+            # 이미 숫자인 경우
+            elif isinstance(price, (int, float)):
+                return float(price)
+            
+            # 기타 처리 불가능한 경우
+            return float('nan')
+        
+        final_df['가격'] = final_df['가격'].apply(convert_price)
+        
         # 카테고리 순서 설정 - 카페이안 카테고리 다음에 선택된 펜션들
         category_order = cafe_ian_categories + selected_pensions
         

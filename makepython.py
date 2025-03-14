@@ -1,4 +1,4 @@
-from src.data import Naver, Public, AKC
+from src.data import Naver, Public, AKC, Common
 from src.ui import UI, BreedInfo
 from datetime import datetime, timedelta
 import pandas as pd
@@ -89,5 +89,5 @@ breed_info = BreedInfo()
 # CoatType, CoatLength = breed_info.show_breed_trait('진도견')
 # print(CoatType, CoatLength)
 
-score, trait_desc, score_low, score_high = breed_info.show_breed_trait_5scale('진도견', 'Affectionate With Family')
-print(score, trait_desc, score_low, score_high)
+result = Common().convert_pension_geo()
+print(result)

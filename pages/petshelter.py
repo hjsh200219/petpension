@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import sys
 from datetime import datetime, timedelta
-from src.data import Public
+from src.data import Public, Common
 from src.ui import UI, BreedInfo
 from pathlib import Path
 from threading import Thread, Lock
@@ -21,7 +21,7 @@ def show_pet_list(upkind):
     if os.path.exists(shelter_data_path):
         try:
             shelter_data = pd.read_csv(shelter_data_path, header=None, 
-                                      names=['보호소코드', '보호소명', '시도코드', '시도명', '시군구코드', '시군구명'])
+                                      names=['보호소코드', '보호소명', '시도코드', '시도명', '시군구코드', '시군구명', '주소', 'lat', 'lon'])
             shelter_data = shelter_data.drop_duplicates(subset=['보호소명'])
             shelter_to_sido = dict(zip(shelter_data['보호소명'], shelter_data['시도명']))
             shelter_to_sigungu = dict(zip(shelter_data['보호소명'], shelter_data['시군구명']))
@@ -119,35 +119,11 @@ def show_pet_list(upkind):
         if filtered_data.empty:
             st.info("검색 조건에 맞는 동물이 없습니다.")
         else:
-            display_columns = ['시군구', 'desertionNo', 'happenDt', 'kindCd', 'age', 'sexCd', 'careNm', '시도']
-            display_data = filtered_data[display_columns].copy()
-            
-            gb = GridOptionsBuilder.from_dataframe(display_data)
-            gb.configure_selection(selection_mode="single", use_checkbox=True)
-
-            # 컬럼 헤더 및 그룹화 설정
-            gb.configure_column("시도", headerName="시도", rowGroup=True, hide=True, use_checkbox=False)
-            gb.configure_column("시군구", headerName="시군구", use_checkbox=True)
-            gb.configure_column("desertionNo", headerName="유기번호", use_checkbox=True)
-            gb.configure_column("happenDt", headerName="발견일", use_checkbox=True)
-            gb.configure_column("kindCd", headerName="품종", use_checkbox=True)
-            gb.configure_column("age", headerName="나이", use_checkbox=True)
-            gb.configure_column("sexCd", headerName="성별", use_checkbox=True)
-            gb.configure_column("careNm", headerName="보호소", use_checkbox=True)
-
-            grid_options = gb.build()
-
-            # AgGrid 표시
-            grid_response = AgGrid(
-                display_data,
-                gridOptions=grid_options,
-                enable_enterprise_modules=True,
-                height=400,
-                width='100%',
-                fit_columns_on_grid_load=True
-            )
-            
+            with st.expander("지도 보기", expanded=True):
+                BreedInfo().show_map(filtered_data)
+            grid_response = BreedInfo().show_shelter_detail(filtered_data)            
             BreedInfo().show_pet_detail(grid_response)
+
 
 def show_petshelter_page():
     tab1, tab2, tab3 = st.tabs(["강아지","고양이","기타"])

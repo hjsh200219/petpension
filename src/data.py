@@ -36,6 +36,30 @@ class Common:
             'Referer': 'https://m.place.naver.com/',
             'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7'
         }
+        self.pension_info = pd.read_csv('./static/database/pension_info.csv')
+        self.kakao_api_key = "5258520551aac24c4018b896358b16f6"
+
+
+    def convert_gps(self, address):
+        url = "https://dapi.kakao.com/v2/local/search/address.json"
+        headers = {"Authorization": f"KakaoAK {self.kakao_api_key}"}
+        params = {"query": address}
+        response = req.get(url, headers=headers, params=params)
+        if response.status_code == 200:
+            result = response.json()
+            if result['documents']:
+                document = result['documents'][0]
+                lat = document['address']['y']
+                lon = document['address']['x']
+                return lat, lon
+        return None, None
+
+    def convert_pension_geo(self):
+        for index, row in tqdm(self.pension_info.iterrows(), total=len(self.pension_info)):
+            lat, lon = self.convert_gps(row['addressNew'])
+            self.pension_info.loc[index, 'lat'] = lat
+            self.pension_info.loc[index, 'lon'] = lon
+        self.pension_info.to_csv('./static/database/pension_info.csv', index=False)
 
 class Naver:
     def __init__(self):

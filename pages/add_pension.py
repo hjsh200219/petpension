@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import os
 from pathlib import Path
-from src.data import Naver
+from src.data import Naver, Common
 from src.ui import UI
 from src.settings import verify_password
 
@@ -64,7 +64,7 @@ def load_pension_data():
     # businessName 컬럼이 가장 먼저 오도록 컬럼 순서 재정렬
     pension_info = pension_info[
         ['businessName', 'channelId', 'businessId', 
-         'bizItemName', 'bizItemId', 'addressNew']
+         'bizItemName', 'bizItemId', 'addressNew', 'lat', 'lon']
     ]
     
     return pension_info
@@ -82,6 +82,15 @@ def save_pension_data(pension_info):
 def display_current_pensions(pension_info):
     """현재 등록된 펜션 정보 표시"""
     st.subheader("현재 등록된 펜션 정보")
+    pension_info = pension_info.rename(columns={
+                        'businessName': '숙박업소', 
+                        'bizItemName': 'bizItemName', 
+                        'businessId': 'businessId', 
+                        'bizItemId': 'bizItemId',
+                        'addressNew': '주소',
+                        'lat': 'lat',
+                        'lon': 'lon'
+                    })
     UI().show_dataframe_with_info(pension_info)
 
 def handle_pension_edit(pension_info):
@@ -130,7 +139,7 @@ def handle_pension_edit(pension_info):
         col1, col2, col3, col4 = st.columns((2, 1, 2, 1))
         with col1:
             business_name = st.text_input(
-                "businessName", 
+                "숙박업소", 
                 value=selected_pension['businessName']
             )
         with col2:
@@ -149,11 +158,36 @@ def handle_pension_edit(pension_info):
                 value=selected_pension['bizItemId']
             )
         
-        address = st.text_input(
-            "주소", 
-            value=selected_pension['addressNew']
-        )
-        
+        col1, col2, col3, col4 = st.columns((3, 1, 1, 1))
+        with col1:
+            address = st.text_input(
+                "주소", 
+                value=selected_pension['addressNew']
+            )
+        with col2:
+            lat = st.text_input(
+                "위도", 
+                value=selected_pension['lat']
+            )
+        with col3:
+            lon = st.text_input(
+                "경도", 
+                value=selected_pension['lon']
+            )
+        with col4:
+            update_geo = st.button("좌표 업데이트", key="update_geo", use_container_width=True, type="primary")
+            if update_geo:
+                idx = pension_info[
+                    (pension_info['businessName'] == selected_pension['businessName']) & 
+                    (pension_info['bizItemName'] == selected_pension['bizItemName'])
+                ].index
+                if len(idx) > 0:
+                    lat, lon = Common().convert_gps(address)
+                    pension_info.loc[idx, 'lat'] = lat
+                    pension_info.loc[idx, 'lon'] = lon
+                    st.success("좌표 업데이트 완료")
+                else:
+                    st.error("해당 펜션 정보를 찾을 수 없습니다.")
         # 수정 버튼
         if st.button("수정 저장", key="save_edit"):
             # 인덱스를 찾아서 해당 행만 업데이트
