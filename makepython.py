@@ -89,5 +89,19 @@ breed_info = BreedInfo()
 # CoatType, CoatLength = breed_info.show_breed_trait('진도견')
 # print(CoatType, CoatLength)
 
-result = Common().convert_pension_geo()
-print(result)
+# result = Common().convert_pension_geo()
+# print(result)
+
+
+result = pd.read_csv('./static/database/akcBreedInfo.csv')
+result = result['Coat Length'].drop_duplicates()
+coat_type_list = []
+for coat_types in tqdm(result, total=len(result)):
+    coat_type = coat_types.split(',')
+    for coat_type in coat_type:
+        coat_type = coat_type.replace("'", "").replace("[", "").replace("]", "")
+        coat_type = coat_type.strip()
+        coat_type_list.append(coat_type)
+
+coat_type_list = list(set(coat_type_list))
+print(coat_type_list)

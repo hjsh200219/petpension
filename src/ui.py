@@ -803,145 +803,206 @@ class BreedInfo:
             self.display_text_input('담당자', selected_pet['chargeNm'].iloc[0], col2)
             self.display_text_input('담당자연락처', selected_pet['officetel'].iloc[0], col3)
 
-    def show_breed_info_basic(self, breed_name):        
+    def show_breed_info_basic(self, breed_name):
+        # 해당 품종이 breed_info에 있는지 확인
+        if breed_name not in self.breed_info['breed_name_kor'].values:
+            return "", "", ""
+            
         selected_breed = self.breed_info[self.breed_info['breed_name_kor'] == breed_name]
-        height,weight,life_expectancy = selected_breed['height_k'],selected_breed['weight_k'],selected_breed['life_expectancy_k']
         
-        return height,weight,life_expectancy
+        if selected_breed.empty:
+            return "", "", ""
+            
+        try:
+            height = selected_breed['height_k']
+            weight = selected_breed['weight_k']
+            life_expectancy = selected_breed['life_expectancy_k']
+            
+            return height, weight, life_expectancy
+        except Exception as e:
+            st.error(f"기본 정보 조회 중 오류 발생: {str(e)}")
+            return "", "", ""
     
     def show_breed_trait(self, breed_name):
+        # 해당 품종이 breed_info에 있는지 확인
+        if breed_name not in self.breed_info['breed_name_kor'].values:
+            st.info(f"{breed_name} 품종에 대한 정보가 없습니다.")
+            return None, None, None, None, None, None, None, None, None, None, None, None, None
+            
         selected_breed = self.breed_info[self.breed_info['breed_name_kor'] == breed_name]
-        AffectionateWithFamily = selected_breed['Affectionate With Family']
-        GoodWithYoungChildren = selected_breed['Good With Young Children']
-        GoodWithOtherDogs = selected_breed['Good With Other Dogs']
-        SheddingLevel = selected_breed['Shedding Level']
-        CoatGroomingFrequency = selected_breed['Coat Grooming Frequency']
-        DroolingLevel = selected_breed['Drooling Level']
-        OpennessToStrangers = selected_breed['Openness To Strangers']
-        PlayfulnessLevel = selected_breed['Playfulness Level']
-        WatchdogProtectiveNature = selected_breed['Watchdog/Protective Nature']
-        AdaptabilityLevel = selected_breed['Adaptability Level']
-        TrainabilityLevel = selected_breed['Trainability Level']
-        EnergyLevel = selected_breed['Energy Level']
-        BarkingLevel = selected_breed['Barking Level']
-        MentalStimulationNeeds = selected_breed['Mental Stimulation Needs']
-        CoatType = selected_breed['Coat Type']
-        CoatLength = selected_breed['Coat Length']
-        return CoatType, CoatLength
+        
+        if selected_breed.empty:
+            st.info(f"{breed_name} 품종 정보를 찾을 수 없습니다.")
+            return None, None, None, None, None, None, None, None, None, None, None, None, None
+            
+        try:
+            AffectionateWithFamily = selected_breed['Affectionate With Family'].values[0]
+            GoodWithYoungChildren = selected_breed['Good With Young Children'].values[0]
+            GoodWithOtherDogs = selected_breed['Good With Other Dogs'].values[0]
+            SheddingLevel = selected_breed['Shedding Level'].values[0]
+            CoatGroomingFrequency = selected_breed['Coat Grooming Frequency'].values[0]
+            DroolingLevel = selected_breed['Drooling Level'].values[0]
+            OpennessToStrangers = selected_breed['Openness To Strangers'].values[0]
+            PlayfulnessLevel = selected_breed['Playfulness Level'].values[0]
+            WatchdogProtectiveNature = selected_breed['Watchdog/Protective Nature'].values[0]
+            AdaptabilityLevel = selected_breed['Adaptability Level'].values[0]
+            TrainabilityLevel = selected_breed['Trainability Level'].values[0]
+            EnergyLevel = selected_breed['Energy Level'].values[0]
+            BarkingLevel = selected_breed['Barking Level'].values[0]
+            MentalStimulationNeeds = selected_breed['Mental Stimulation Needs'].values[0]
+            CoatType = selected_breed['Coat Type'].values[0]
+            CoatLength = selected_breed['Coat Length'].values[0]
+            return CoatType, CoatLength
+        except Exception as e:
+            st.error(f"품종 특성 정보 조회 중 오류 발생: {str(e)}")
+            return None, None
     
     def show_breed_trait_5scale(self, breed_name, trait):
-        score = self.breed_info.loc[self.breed_info['breed_name_kor'] == breed_name, trait].values[0]
+        # 해당 품종이 breed_info에 있는지 확인
+        if breed_name not in self.breed_info['breed_name_kor'].values:
+            st.info(f"{breed_name} 품종에 대한 정보가 없습니다.")
+            return
+        
+        # 해당 품종의 데이터 필터링
+        filtered_data = self.breed_info.loc[self.breed_info['breed_name_kor'] == breed_name, trait]
+        
+        # 필터링된 데이터가 비어있는지 확인
+        if filtered_data.empty:
+            st.info(f"{breed_name} 품종의 '{trait}' 속성 정보가 없습니다.")
+            return
+        
+        score = filtered_data.values[0]
         trait_desc = self.trait_info.loc[self.trait_info['trait'] == trait, 'trait_desc'].values[0]
         score_low = self.trait_info.loc[self.trait_info['trait'] == trait, 'score_low'].values[0]
         score_high = self.trait_info.loc[self.trait_info['trait'] == trait, 'score_high'].values[0]
         average_score = self.trait_averages.loc[self.trait_averages['trait'] == trait, 'average_score'].values[0]
 
-        col1, col2 = st.columns([1.5, 1])
-        with col1:
-            fig = go.Figure(go.Indicator(
-                mode="gauge+number+delta",
-                value=score,
-                title={'text': trait},
-                gauge={
-                'axis': {'range': [1, 5],
-                         'tickmode': "array",
-                         "tickvals": [1, 2, 3, 4, 5],
-                         "ticktext": ["", "", "", "", ""]},
-                'bar': {'color': "blue"},
-                'threshold': {
-                    'line': {'color': "red", 'width': 4},
-                    'thickness': 0.75,
-                        'value': average_score
-                    }
-                },
-            ))
+        fig = go.Figure(go.Indicator(
+            mode="gauge+number+delta",
+            value=score,
+            title={'text': trait},
+            gauge={
+            'axis': {'range': [1, 5],
+                        'tickmode': "array",
+                        "tickvals": [1, 2, 3, 4, 5],
+                        "ticktext": ["", "", "", "", ""]},
+            'bar': {'color': "blue"},
+            'threshold': {
+                'line': {'color': "red", 'width': 4},
+                'thickness': 0.75,
+                    'value': average_score
+                }
+            },
+            delta={'reference': average_score}
+        ))
 
-            # 차트 레이아웃 설정 - 높이와 마진을 일정하게 조정
-            fig.update_layout(
-                height=200,
-                margin=dict(t=60, b=10, l=10, r=10),
-                autosize=True,
-                font=dict(size=12)
-            )
+        # 차트 레이아웃 설정 - 높이와 마진을 일정하게 조정
+        fig.update_layout(
+            height=200,
+            margin=dict(t=60, b=10, l=10, r=10),
+            autosize=False,
+            font=dict(size=12)
+        )
 
-            st.plotly_chart(fig, use_container_width=True)
-        with col2:
-            st.write(trait_desc)
+        st.plotly_chart(fig, use_container_width=True)
+        st.write(trait_desc)
 
     def show_breed_trait_hair(self, breed_name, trait=None):
         """품종의 털 타입과 털 길이를 체크박스 형태로 표시합니다."""
+        # 해당 품종이 breed_info에 있는지 확인
+        if breed_name not in self.breed_info['breed_name_kor'].values:
+            st.info(f"{breed_name} 품종에 대한 털 정보가 없습니다.")
+            return
+            
         selected_breed = self.breed_info[self.breed_info['breed_name_kor'] == breed_name]
-        coat_type = selected_breed['Coat Type'].values[0]
-        coat_type_desc = self.trait_info.loc[self.trait_info['trait'] == 'Coat Type', 'trait_desc'].values[0]
-        coat_length = selected_breed['Coat Length'].values[0]
-        coat_length_desc = self.trait_info.loc[self.trait_info['trait'] == 'Coat Length', 'trait_desc'].values[0]
         
-        # 문자열 형태에서 리스트로 변환 (필요한 경우)
-        if isinstance(coat_type, str):
-            coat_type = eval(coat_type)
-        if isinstance(coat_length, str):
-            coat_length = eval(coat_length)
-        
-        col1, col2 = st.columns([1, 1])
-        with col1:
-            # 털 타입 옵션
-            st.subheader("털 유형")
-            coat_type_options = ["Wiry", "Hairless", "Smooth", "Rough", "Corded", "Curly", "Wavy", "Double", "Silky"]
+        # 선택된 데이터가 비어있는지 확인
+        if selected_breed.empty:
+            st.info(f"{breed_name} 품종 정보를 찾을 수 없습니다.")
+            return
             
-            # 각 행에 3개씩 배치
-            rows = [coat_type_options[i:i+3] for i in range(0, len(coat_type_options), 3)]
+        try:
+            coat_type = selected_breed['Coat Type'].values[0]
+            coat_type_desc = self.trait_info.loc[self.trait_info['trait'] == 'Coat Type', 'trait_desc'].values[0]
             
-            for row in rows:
-                cols = st.columns(3)
-                for i, option in enumerate(row):
-                    with cols[i]:
-                        # 해당 옵션이 선택된 경우 파란색, 아닌 경우 회색으로 표시
-                        if option in coat_type:
-                            st.markdown(f"""
-                            <div style="display: flex; align-items: center;">
-                                <div style="color: #4F7CAC; font-size: 24px; margin-right: 10px;">✓</div>
-                                <div style="color: #4F7CAC;">{option}</div>
-                            </div>
-                            """, unsafe_allow_html=True)
-                        else:
-                            st.markdown(f"""
-                            <div style="display: flex; align-items: center;">
-                                <div style="color: #CCCCCC; font-size: 24px; margin-right: 10px;">✗</div>
-                                <div style="color: #CCCCCC;">{option}</div>
-                            </div>
-                            """, unsafe_allow_html=True)
-        with col2:
-            st.write(coat_type_desc)
-        
-        col1, col2 = st.columns([1, 1])
-        with col1:
-            # 털 길이 옵션
-            st.subheader("털 길이")
-            coat_length_options = ["Short", "Medium", "Long"]
+            coat_length = selected_breed['Coat Length'].values[0]
+            coat_length_desc = self.trait_info.loc[self.trait_info['trait'] == 'Coat Length', 'trait_desc'].values[0]
             
-            cols = st.columns(3)
-            for i, option in enumerate(coat_length_options):
-                with cols[i]:
-                    # 해당 옵션이 선택된 경우 파란색, 아닌 경우 회색으로 표시
-                    if option in coat_length:
-                        st.markdown(f"""
-                        <div style="display: flex; align-items: center;">
-                            <div style="color: #4F7CAC; font-size: 24px; margin-right: 10px;">✓</div>
-                            <div style="color: #4F7CAC;">{option}</div>
-                        </div>
-                        """, unsafe_allow_html=True)
-                    else:
-                        st.markdown(f"""
-                        <div style="display: flex; align-items: center;">
-                            <div style="color: #CCCCCC; font-size: 24px; margin-right: 10px;">✗</div>
-                            <div style="color: #CCCCCC;">{option}</div>
-                        </div>
-                        """, unsafe_allow_html=True)
-        with col2:
-            st.write(coat_length_desc)
-            
-        return coat_type, coat_length
-        
+            # 털 타입과 길이가 여러 개일 수 있으므로 리스트로 분리
+            if isinstance(coat_type, str):
+                coat_types = [t.strip() for t in coat_type.split(',')]
+            else:
+                coat_types = []
+                
+            if isinstance(coat_length, str):
+                coat_lengths = [l.strip() for l in coat_length.split(',')]
+            else:
+                coat_lengths = []
+                
+            # UI에 표시
+            col1, col2 = st.columns(2)
+            def create_coat_type_figure(coat_types, preset_color, height=410):
+                for type in coat_types:
+                    key = type[0] if isinstance(type, list) else type
+                    key = key.replace("'", "").replace("[", "").replace("]", "").strip()
+                    
+                    if key in preset_color:
+                        preset_color[key]['color'] = 'blue'
+
+                fig = go.Figure()
+                for coat_type, data in preset_color.items():
+                    fig.add_trace(go.Scatter(
+                        x=[data['bubbleX']],
+                        y=[data['bubbleY']],
+                        name=coat_type,
+                        text=data['text'],
+                        marker=dict(size=110, color=data['color']),
+                        mode='markers+text',
+                        textposition='middle center',
+                    ))
+                
+                fig.update_layout(
+                    height=height,
+                    width=300,
+                    xaxis=dict(showgrid=False, zeroline=False, visible=False),
+                    yaxis=dict(showgrid=False, zeroline=False, visible=False),
+                    showlegend=False,
+                    margin=dict(t=1, b=1, l=10, r=10),
+                    font=dict(size=18)
+                )
+                return fig
+
+            with col1:
+                st.write("##### Coat Type")
+                preset_color = {
+                    'Double': {'bubbleX': 1, 'bubbleY': 1, 'text': 'Double', 'color': 'gray'},
+                    'Wavy': {'bubbleX': 1, 'bubbleY': 2, 'text': 'Wavy', 'color': 'gray'},
+                    'Corded': {'bubbleX': 1, 'bubbleY': 3, 'text': 'Corded', 'color': 'gray'},
+                    'Wiry': {'bubbleX': 2, 'bubbleY': 1, 'text': 'Wiry', 'color': 'gray'},
+                    'Curly': {'bubbleX': 2, 'bubbleY': 2, 'text': 'Curly', 'color': 'gray'},
+                    'Hairless': {'bubbleX': 2, 'bubbleY': 3, 'text': 'Hairless', 'color': 'gray'},
+                    'Silky': {'bubbleX': 3, 'bubbleY': 1, 'text': 'Silky', 'color': 'gray'},
+                    'Smooth': {'bubbleX': 3, 'bubbleY': 2, 'text': 'Smooth', 'color': 'gray'},
+                    'Rough': {'bubbleX': 3, 'bubbleY': 3, 'text': 'Rough', 'color': 'gray'}
+                }
+                fig = create_coat_type_figure(coat_types, preset_color, height=410)
+                st.plotly_chart(fig, use_container_width=True)
+                st.write(coat_type_desc)
+
+            with col2:
+                st.write("##### Coat Length")
+                preset_length = {
+                    'Short': {'bubbleX': 1, 'bubbleY': 1, 'text': 'Short', 'color': 'gray'},
+                    'Medium': {'bubbleX': 2, 'bubbleY': 1, 'text': 'Medium', 'color': 'gray'},
+                    'Long': {'bubbleX': 3, 'bubbleY': 1, 'text': 'Long', 'color': 'gray'},
+                }
+                fig = create_coat_type_figure(coat_lengths, preset_length, height=180)
+                st.plotly_chart(fig, use_container_width=True)
+                st.write(coat_length_desc)
+
+        except Exception as e:
+            st.error(f"털 정보 표시 중 오류가 발생했습니다: {str(e)}")
+            return
 
         
         
