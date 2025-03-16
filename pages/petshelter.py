@@ -14,6 +14,8 @@ from st_aggrid import AgGrid, GridOptionsBuilder
 
 
 public = Public()
+ui = UI()
+breedinfo = BreedInfo()
 
 def show_pet_list(upkind):     
     # 데이터 세션 상태 키
@@ -33,8 +35,7 @@ def show_pet_list(upkind):
         with st.expander("필터 옵션 보기", expanded=False):
             st.write("검색 후 필터 옵션을 보고 조건을 선택해 검색 결과를 조정할 수 있습니다.", unsafe_allow_html=False)
         st.subheader("전체 목록")
-        with st.expander("지도 보기", expanded=False):
-            st.write("검색 결과를 지도에 표시합니다.", unsafe_allow_html=False)
+        breedinfo.show_map_null()
         with st.expander("상세 정보 보기", expanded=False):
             st.write("검색 결과를 상세하게 표시합니다.", unsafe_allow_html=False)
         with st.expander("공고 정보", expanded=False):

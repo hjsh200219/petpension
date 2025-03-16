@@ -606,7 +606,7 @@ class BreedInfo:
         shelterlist = shelterlist[shelterlist['주소'].notna()]
 
         # 보호소별 동물 수 카운트
-        shelterlist['보호 중 동물 수'] = shelterlist['보호소명'].map(petinshelter['careNm'].value_counts())
+        shelterlist['count_pet'] = shelterlist['보호소명'].map(petinshelter['careNm'].value_counts())
 
         with st.spinner("보호소의 위경도 정보를 업데이트 중입니다..."):
             for index, row in shelterlist.iterrows():
@@ -617,17 +617,17 @@ class BreedInfo:
 
         shelterlist.to_csv('./static/database/보호소코드.csv', index=False)
         
-        shelterlist_status = shelterlist[['보호소명', '보호 중 동물 수', '주소', 'lat', 'lon']]
-        shelterlist_status = shelterlist_status.dropna(subset=['보호 중 동물 수'])
+        shelterlist_status = shelterlist[['보호소명', 'count_pet', '주소', 'lat', 'lon']]
+        shelterlist_status = shelterlist_status.dropna(subset=['count_pet'])
         
         # pydeck의 ScatterplotLayer를 사용하여 각 보호소를 원형 마커로 표시합니다.
         layer = pdk.Layer(
             "ScatterplotLayer",
             data=shelterlist_status,
             get_position='[lon, lat]',
-            get_fill_color='[255, 0, 0, 160]',  # RGBA 형식
-            get_radius=2000,
-            pickable=True,  # 마우스 이벤트 활성화
+            get_fill_color='[255, 0, 0, 160]',
+            get_radius='count_pet * 30',
+            pickable=True,
         )
         
         # 초기 지도 뷰 설정 (전체 데이터의 중심 좌표 기준)
@@ -638,9 +638,9 @@ class BreedInfo:
             pitch=0,
         )
         
-        # 툴팁 설정: 마우스 오버 시 보호소명과 보호 중 동물 수 표시
+        # 툴팁 설정: 마우스 오버 시 보호소명과 count_pet 표시
         tooltip = {
-            "html": "<b>보호소:</b> {보호소명} <br/><b>보호 중:</b> {보호 중 동물 수}<br/><b>보호 중:</b> {주소}",
+            "html": "<b>보호소:</b> {보호소명} <br/><b>보호 중:</b> {count_pet}<br/><b>보호 중:</b> {주소}",
             "style": {"backgroundColor": "steelblue", "color": "white"}
         }
         
@@ -652,6 +652,33 @@ class BreedInfo:
         )
         
         st.pydeck_chart(deck)
+
+    def show_map_null(self):
+        map_df = pd.DataFrame()
+
+        with st.expander("골프장 위치 지도", expanded=False):
+            layer = pdk.Layer(
+                "ScatterplotLayer",
+                data=map_df,
+                get_position='[lon, lat]',
+                get_fill_color='[255, 0, 0, 160]',
+                get_radius='cc_name_count * 100',
+                pickable=True,
+            )
+            
+            view_state = pdk.ViewState(
+                latitude=37.5, 
+                longitude=126.9,
+                zoom=8,
+                pitch=0,
+            )
+            
+            deck = pdk.Deck(
+                layers=[layer],
+                initial_view_state=view_state,
+            )
+            
+            st.pydeck_chart(deck)
 
     def show_pet_detail(self, grid_response):
         selected = grid_response.get('selected_rows', [])
