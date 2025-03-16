@@ -1,7 +1,20 @@
+import streamlit as st
 import pandas as pd
 import os
+import sys
+from pathlib import Path
+
+# 프로젝트 루트 디렉토리를 Python 경로에 추가
+current_file = Path(__file__).resolve()
+project_root = current_file.parent.parent
+sys.path.insert(0, str(project_root))
+
+from src.data import Public
+
+public = Public()
 
 def update_shelter_address():
+    public.update_shelter_info()
     """
     보호소코드.csv 파일에 주소 칼럼을 추가하고 petinshelter.csv 파일에서 주소 정보를 가져와 업데이트합니다.
     """
@@ -26,7 +39,7 @@ def update_shelter_address():
     print(f"총 {len(shelter_address_map)}개의 고유한 보호소-주소 매핑을 찾았습니다.")
     
     # 주소 칼럼 추가
-    shelter_code_df['주소'] = ''
+    shelter_code_df['주소'] = shelter_code_df.get('주소', '')
     
     # 매핑을 통해 주소 업데이트
     print("주소 정보 업데이트 중...")
@@ -39,7 +52,7 @@ def update_shelter_address():
         # 보호소명으로 주소 찾기
         matching_shelters = shelter_address_map[shelter_address_map['careNm'] == shelter_name]
         
-        if not matching_shelters.empty:
+        if not matching_shelters.empty and row['주소'] == '':
             # 첫 번째 일치하는 주소 사용
             shelter_code_df.at[idx, '주소'] = matching_shelters.iloc[0]['careAddr']
             updated_count += 1
@@ -47,6 +60,8 @@ def update_shelter_address():
     print(f"총 {updated_count}개 보호소의 주소 정보가 업데이트되었습니다.")
     
     # 결과 저장
+    shelter_code_df['lat'] = shelter_code_df.get('lat', '')
+    shelter_code_df['lon'] = shelter_code_df.get('lng', '')
     shelter_code_df.to_csv(output_path, index=False)
     print(f"업데이트된 보호소 정보가 '{output_path}'에 저장되었습니다.")
     

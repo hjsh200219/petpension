@@ -16,7 +16,7 @@ if os.environ.get('STREAMLIT_DEVELOPMENT', 'false').lower() == 'true':
 
 def show_schedule_page():
     # Naver 객체 생성
-    st.subheader("🐾 반려동물 동반 숙박시설 조회")
+    st.subheader("🏠 반려동물 동반 숙박시설 조회")
     naver = Naver()
     
     # 세션 상태 초기화
@@ -357,6 +357,7 @@ def show_schedule_page():
         # 처음 로드 시 필터 적용
         if search_button:
             apply_filters()
+
             
         # 필터링된 결과 표시
         try:

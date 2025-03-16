@@ -17,11 +17,6 @@ def verify_password(password):
     # 입력된 비밀번호의 SHA-256 해시 계산
     password_hash = hashlib.sha256(password.encode()).hexdigest()
     
-    # 디버깅 메시지 출력
-    print(f"입력된 비밀번호: {password}")
-    print(f"계산된 해시: {password_hash}")
-    print(f"저장된 해시: {ADMIN_PASSWORD_HASH}")
-    
     # 저장된 해시와 비교
     return password_hash == ADMIN_PASSWORD_HASH
 
@@ -31,6 +26,4 @@ def set_password(password):
     주의: 이 함수는 개발 환경에서만 사용해야 함
     """
     password_hash = hashlib.sha256(password.encode()).hexdigest()
-    print(f"새 비밀번호 해시: {password_hash}")
-    print("이 해시값을 환경 변수 ADMIN_PASSWORD_HASH에 설정하세요.")
     return password_hash 

@@ -11,6 +11,7 @@ from st_aggrid import AgGrid, GridOptionsBuilder
 import plotly.graph_objects as go
 from src.data import Public, Common
 import pydeck as pdk
+import pandas as pd
 
 class UI:
     def __init__(self) -> None:
@@ -115,10 +116,11 @@ class UI:
             )
         with col2:
             st.button(
-                "확인", 
+                "로그인", 
                 key=f"{key}_button", 
                 use_container_width=True,
-                on_click=on_change_callback
+                on_click=on_change_callback,
+                type="primary"
             )
         
         return password
@@ -226,7 +228,7 @@ class UI:
             default_end_date = (datetime.now() + timedelta(days=7)).date()
         
         # 날짜 선택 레이아웃
-        col1, col2, col3 = st.columns((1, 1, 3))
+        col1, col2, col3, col4 = st.columns((1, 1, 1, 4))
         
         with col1:
             start_date = st.date_input(
@@ -245,7 +247,8 @@ class UI:
         with col3:
             search_button = st.button(
                 search_button_label, 
-                use_container_width=False
+                use_container_width=True,
+                type="primary"
             )
         
         return start_date, end_date, search_button
@@ -396,23 +399,6 @@ class UI:
                 use_container_width=True, 
                 hide_index=True
             )
-
-    def extract_birth_year(self, age_string):
-        try:
-            if pd.isna(age_string) or not isinstance(age_string, str):
-                return None
-                
-            # 괄호 앞의 숫자 추출 (예: "2017(년생)" -> "2017")
-            match = re.search(r'^(\d{4})(?:\s*\(|$)', age_string.strip())
-            if match:
-                year = int(match.group(1))
-                # 유효한 연도 범위 확인 (1990년부터 현재 연도까지)
-                current_year = datetime.now().year
-                if 1990 <= year <= current_year + 1:  # +1은 내년 출생 표기도 허용
-                    return year
-            return None
-        except Exception:
-            return None
         
     def total_count(self, upkind):
         total_count = Public().totalCount(upkind=upkind)
@@ -570,7 +556,7 @@ class UI:
         filtered_data['happenDt'] = filtered_data['happenDt'].dt.strftime('%Y-%m-%d')
         
         return filtered_data
-    
+
 class BreedInfo:
     def __init__(self) -> None:
         self.breed_info = pd.read_csv('./static/database/akcBreedInfo.csv')
@@ -581,8 +567,10 @@ class BreedInfo:
         with col:
             st.text_input(label, disabled=True, value=value)
     
-    def show_shelter_detail(self, filtered_data):
+    def show_shelter_detail(self, filtered_data, breed = None):
         display_columns = ['시군구', 'desertionNo', 'happenDt', 'kindCd', 'age', 'sexCd', 'careNm', '시도']
+        if breed:
+            filtered_data = filtered_data[filtered_data['kindCd'].str.contains(breed)]
         display_data = filtered_data[display_columns].copy()
         
         gb = GridOptionsBuilder.from_dataframe(display_data)
@@ -626,6 +614,8 @@ class BreedInfo:
                     lat, lon = Common().convert_gps(row['주소'])
                     shelterlist.loc[index, 'lat'] = lat
                     shelterlist.loc[index, 'lon'] = lon
+
+        shelterlist.to_csv('./static/database/보호소코드.csv', index=False)
         
         shelterlist_status = shelterlist[['보호소명', '보호 중 동물 수', '주소', 'lat', 'lon']]
         shelterlist_status = shelterlist_status.dropna(subset=['보호 중 동물 수'])
@@ -650,7 +640,7 @@ class BreedInfo:
         
         # 툴팁 설정: 마우스 오버 시 보호소명과 보호 중 동물 수 표시
         tooltip = {
-            "html": "<b>보호소:</b> {보호소명} <br/><b>보호 중:</b> {보호 중 동물 수}",  # 숫자 포맷 추가
+            "html": "<b>보호소:</b> {보호소명} <br/><b>보호 중:</b> {보호 중 동물 수}<br/><b>보호 중:</b> {주소}",
             "style": {"backgroundColor": "steelblue", "color": "white"}
         }
         
@@ -667,9 +657,6 @@ class BreedInfo:
         selected = grid_response.get('selected_rows', [])
         if selected is None or len(selected) == 0:
             return
-            
-        # selected의 타입에 따라 처리
-        import pandas as pd
         
         # 디버깅을 위해 타입 확인
         try:
@@ -730,9 +717,39 @@ class BreedInfo:
             self.display_text_input('중성화 여부', selected_pet['neuterYn'].iloc[0], col3)
             self.display_text_input('특징', selected_pet['specialMark'].iloc[0], col3)
 
-        kindCd = selected_pet['kindCd'].iloc[0]
-        kindCd = kindCd.replace('[개]', '').replace('[고양이]', '').replace('[기타품종]', '').strip()
-        with st.expander(f"{kindCd} 상세 정보", expanded=True):
+        # 품종 정보 추출 및 매핑
+        if 'kindCd' in selected_pet.columns:
+            kindCd = selected_pet['kindCd'].iloc[0]
+            # "[개]", "[고양이]" 등의 접두사 제거
+            if isinstance(kindCd, str):
+                kindCd = kindCd.replace("[개]", "").replace("[고양이]", "").replace("[기타축종]", "").strip()
+            kindCd = self.kindCd_mapping(kindCd)
+            self.show_breed_info(kindCd)
+        else:
+            st.warning("품종 정보를 찾을 수 없습니다.")
+
+        self.show_shelter_info(selected_pet)
+
+    def kindCd_mapping(self, kindCd):
+        # None 또는 빈 문자열 처리
+        if kindCd is None or not isinstance(kindCd, str) or kindCd.strip() == '':
+            return ""
+            
+        kindCd_mapping = {
+            "푸들": "스탠다드 푸들"
+        }
+        
+        kindCd = kindCd_mapping.get(kindCd, kindCd)
+        kindCd = kindCd.replace("믹스", "").replace("잡종", "").strip()
+        return kindCd
+
+    def show_breed_info(self, kindCd, expandedoption=True):
+        # kindCd가 없거나 빈 문자열인 경우 정보 표시 스킵
+        if kindCd is None or kindCd == "":
+            st.info("품종 정보가 없습니다.")
+            return
+            
+        with st.expander(f"{kindCd} 상세 정보", expanded=expandedoption):
             col2, col3, col4 = st.columns([1, 1, 1])            
             if kindCd in self.breed_info['breed_name_kor'].values:
                 height, weight, life_expectancy = self.show_breed_info_basic(kindCd)
@@ -749,7 +766,10 @@ class BreedInfo:
                 self.display_text_input('체중', "", col3)
                 self.display_text_input('기대수명', "", col4)
 
-            tab1, tab2, tab3, tab4 = st.tabs(["Fmaily Life", "Physical", "Social", "Personality"])
+            tab0, tab1, tab2, tab3, tab4 = st.tabs(["How to read", "Fmaily Life", "Physical", "Social", "Personality"])
+            with tab0:
+                self.show_breed_trait_5scale_example()
+                
             with tab1:
                 col1, col2 = st.columns([1, 1])
                 with col1:
@@ -791,7 +811,7 @@ class BreedInfo:
                 with col2:
                     self.show_breed_trait_5scale(kindCd, 'Mental Stimulation Needs')
 
-            
+    def show_shelter_info(self, selected_pet):
         with st.expander("보호소 정보", expanded=False):
             col1, col2, col3 = st.columns((1, 1, 2))
             self.display_text_input('보호소', selected_pet['careNm'].iloc[0], col1)
@@ -857,6 +877,73 @@ class BreedInfo:
             st.error(f"품종 특성 정보 조회 중 오류 발생: {str(e)}")
             return None, None
     
+    def show_breed_trait_5scale_example(self):
+        st.write("##### 속성 점수를 이해하는 방법")
+        scores = [2, 4]
+        average_scores = [4.5, 2.5]
+        trait_desc = "속성에 대한 설명이 이 영역에 표시됩니다. ex. 훈련에 얼마나 잘 반응하며 새로운 것을 배우려는 의지가 어느 정도인지를 나타냅니다. 일부 품종은 주인을 기쁘게 하려고 노력하지만, 다른 품종은 자기 주장이 강해 스스로 원하는 대로 행동합니다."
+        score_low = "낮은 점수의 의미"
+        score_high = "높은 점수의 의미"
+        traits = ["속성 이름(1)", "속성 이름(2)"]
+
+        for i in range(2):
+            col1, col2 = st.columns([1, 1])
+            with col1:
+                fig = go.Figure(go.Indicator(
+                    mode="gauge+number+delta",
+                    value=scores[i],
+                    title={'text': traits[i]},
+                    gauge={
+                        'axis': {'range': [1, 5],
+                                 'tickmode': "array",
+                                 "tickvals": [1, 2, 3, 4, 5],
+                                 "ticktext": [f"{score_low}", "", "", "", f"{score_high}"]},
+                        'bar': {'color': "blue"},
+                        'threshold': {
+                            'line': {'color': "red", 'width': 4},
+                            'thickness': 0.75,
+                            'value': average_scores[i]
+                        }
+                    },
+                    delta={'reference': average_scores[i]}
+                ))
+
+                fig.update_layout(
+                    height=200,
+                    margin=dict(t=60, b=10, l=10, r=10),
+                    autosize=False,
+                    font=dict(size=16, color="gray")  # 폰트 색상을 gray로 변경
+                )
+
+                # 고유한 key 추가
+                st.plotly_chart(fig, use_container_width=True, key=f"chart_{traits[i]}_{i+1}")
+                st.write(f"<span style='color:gray;'>{trait_desc}</span>", unsafe_allow_html=True)
+
+            with col2:
+                col2_1, col2_2 = st.columns([1, 3])
+                with col2_1:
+                    st.write(f"<span style='color:gray;'>{traits[i]}</span>", unsafe_allow_html=True)
+                    st.write(f"<span style='color:gray;'>{score_low}</span>", unsafe_allow_html=True)
+                    st.write(f"<span style='color:gray;'>{score_high}</span>", unsafe_allow_html=True)
+                    st.write(f"<span style='color:gray;'>{scores[i]}</span>", unsafe_allow_html=True)
+                    delta = scores[i] - average_scores[i]
+                    color = 'red' if delta < 0 else 'green'
+                    st.markdown(f"<span style='color:{color};'>&#9660; {delta}</span> ", unsafe_allow_html=True)
+                    st.write("<span style='color:red;'>|</span>", unsafe_allow_html=True)
+                    st.write(f"<span style='color:gray;'>{trait_desc[:9]}...</span>", unsafe_allow_html=True)
+                with col2_2:
+                    st.write("<span style='color:gray;'>속성 이름</span>", unsafe_allow_html=True)
+                    st.write("<span style='color:gray;'>속성의 점수가 낮을 때의 품종이 어떤 성향을 가지는지 설명</span>", unsafe_allow_html=True)
+                    st.write("<span style='color:gray;'>속성의 점수가 높을 때의 품종이 어떤 성향을 가지는지 설명</span>", unsafe_allow_html=True)
+                    st.write("<span style='color:gray;'>해당 품종의 속성 점수</span>", unsafe_allow_html=True)
+                    st.write("<span style='color:gray;'>다른 품종의 평균 대비 상대 점수</span>", unsafe_allow_html=True)
+                    st.write("<span style='color:gray;'>다른 품종의 평균 점수를 그래프에 표시</span>", unsafe_allow_html=True)
+                    st.write("<span style='color:gray;'>품종의 특성에 대한 설명</span>", unsafe_allow_html=True)
+
+            if i != len(scores) - 1:
+                st.divider()
+
+
     def show_breed_trait_5scale(self, breed_name, trait):
         # 해당 품종이 breed_info에 있는지 확인
         if breed_name not in self.breed_info['breed_name_kor'].values:
@@ -865,27 +952,28 @@ class BreedInfo:
         
         # 해당 품종의 데이터 필터링
         filtered_data = self.breed_info.loc[self.breed_info['breed_name_kor'] == breed_name, trait]
+        trait_name = self.trait_info.loc[self.trait_info['trait'] == trait, 'trait_ko'].values[0]
         
         # 필터링된 데이터가 비어있는지 확인
         if filtered_data.empty:
-            st.info(f"{breed_name} 품종의 '{trait}' 속성 정보가 없습니다.")
+            st.info(f"{breed_name} 품종의 '{trait_name}' 속성 정보가 없습니다.")
             return
         
         score = filtered_data.values[0]
-        trait_desc = self.trait_info.loc[self.trait_info['trait'] == trait, 'trait_desc'].values[0]
-        score_low = self.trait_info.loc[self.trait_info['trait'] == trait, 'score_low'].values[0]
-        score_high = self.trait_info.loc[self.trait_info['trait'] == trait, 'score_high'].values[0]
+        trait_desc = self.trait_info.loc[self.trait_info['trait'] == trait, 'trait_desc_ko'].values[0]
+        score_low = self.trait_info.loc[self.trait_info['trait'] == trait, 'score_low_ko'].values[0]
+        score_high = self.trait_info.loc[self.trait_info['trait'] == trait, 'score_high_ko'].values[0]
         average_score = self.trait_averages.loc[self.trait_averages['trait'] == trait, 'average_score'].values[0]
 
         fig = go.Figure(go.Indicator(
             mode="gauge+number+delta",
             value=score,
-            title={'text': trait},
+            title={'text': trait_name},
             gauge={
             'axis': {'range': [1, 5],
                         'tickmode': "array",
                         "tickvals": [1, 2, 3, 4, 5],
-                        "ticktext": ["", "", "", "", ""]},
+                        "ticktext": [f"{score_low}", "", "", "", f"{score_high}"]},
             'bar': {'color': "blue"},
             'threshold': {
                 'line': {'color': "red", 'width': 4},
@@ -901,10 +989,12 @@ class BreedInfo:
             height=200,
             margin=dict(t=60, b=10, l=10, r=10),
             autosize=False,
-            font=dict(size=12)
+            font=dict(size=16)
         )
 
-        st.plotly_chart(fig, use_container_width=True)
+        # 고유한 key 추가
+        unique_key = f"trait_chart_{breed_name}_{trait}".replace(" ", "_").replace("/", "_")
+        st.plotly_chart(fig, use_container_width=True, key=unique_key)
         st.write(trait_desc)
 
     def show_breed_trait_hair(self, breed_name, trait=None):
@@ -923,10 +1013,12 @@ class BreedInfo:
             
         try:
             coat_type = selected_breed['Coat Type'].values[0]
-            coat_type_desc = self.trait_info.loc[self.trait_info['trait'] == 'Coat Type', 'trait_desc'].values[0]
+            trait_name_type = self.trait_info.loc[self.trait_info['trait'] == 'Coat Type', 'trait_ko'].values[0]
+            coat_type_desc = self.trait_info.loc[self.trait_info['trait'] == 'Coat Type', 'trait_desc_ko'].values[0]
             
             coat_length = selected_breed['Coat Length'].values[0]
-            coat_length_desc = self.trait_info.loc[self.trait_info['trait'] == 'Coat Length', 'trait_desc'].values[0]
+            trait_name_length = self.trait_info.loc[self.trait_info['trait'] == 'Coat Length', 'trait_ko'].values[0]
+            coat_length_desc = self.trait_info.loc[self.trait_info['trait'] == 'Coat Length', 'trait_desc_ko'].values[0]
             
             # 털 타입과 길이가 여러 개일 수 있으므로 리스트로 분리
             if isinstance(coat_type, str):
@@ -973,7 +1065,7 @@ class BreedInfo:
                 return fig
 
             with col1:
-                st.write("##### Coat Type")
+                st.write(f"##### {trait_name_type}")
                 preset_color = {
                     'Double': {'bubbleX': 1, 'bubbleY': 1, 'text': 'Double', 'color': 'gray'},
                     'Wavy': {'bubbleX': 1, 'bubbleY': 2, 'text': 'Wavy', 'color': 'gray'},
@@ -986,25 +1078,36 @@ class BreedInfo:
                     'Rough': {'bubbleX': 3, 'bubbleY': 3, 'text': 'Rough', 'color': 'gray'}
                 }
                 fig = create_coat_type_figure(coat_types, preset_color, height=410)
-                st.plotly_chart(fig, use_container_width=True)
+                # 고유한 key 추가
+                coat_type_key = f"coat_type_chart_{breed_name}".replace(" ", "_")
+                st.plotly_chart(fig, use_container_width=True, key=coat_type_key)
                 st.write(coat_type_desc)
 
             with col2:
-                st.write("##### Coat Length")
+                st.write(f"##### {trait_name_length}")
                 preset_length = {
                     'Short': {'bubbleX': 1, 'bubbleY': 1, 'text': 'Short', 'color': 'gray'},
                     'Medium': {'bubbleX': 2, 'bubbleY': 1, 'text': 'Medium', 'color': 'gray'},
                     'Long': {'bubbleX': 3, 'bubbleY': 1, 'text': 'Long', 'color': 'gray'},
                 }
                 fig = create_coat_type_figure(coat_lengths, preset_length, height=180)
-                st.plotly_chart(fig, use_container_width=True)
+                # 고유한 key 추가
+                coat_length_key = f"coat_length_chart_{breed_name}".replace(" ", "_")
+                st.plotly_chart(fig, use_container_width=True, key=coat_length_key)
                 st.write(coat_length_desc)
 
         except Exception as e:
             st.error(f"털 정보 표시 중 오류가 발생했습니다: {str(e)}")
             return
 
-        
-        
+    def search_breed(self, breed_name):
+        search_result = self.breed_info[self.breed_info['breed_name_kor'].str.contains(breed_name)]
+        if search_result.empty:
+            st.info(f"{breed_name} 품종에 대한 정보가 없습니다.")
+            return None
+        else:
+            # Series 대신 DataFrame 반환
+            return pd.DataFrame({'품종': search_result['breed_name_kor'].values})
+    
         
         
