@@ -97,7 +97,7 @@ public.update_shelter_info()
 # result.to_csv('./static/database/akcBreedInfo.csv', index=False)
 
 # """견종 기본 정보 표시 테스트"""
-# result = breed_info.show_breed_info_basic('진도견')
+# result = breed_info.get_breed_info_basic('진도견')
 # print(result)
 
 # """견종 특성 정보 표시 테스트"""

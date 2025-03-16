@@ -117,7 +117,7 @@ def test_breed_info_basic():
     # 지연 import로 순환 참조 방지
     from src.ui import BreedInfo
     breed_info = BreedInfo()
-    result = breed_info.show_breed_info_basic('진도견')
+    result = breed_info.get_breed_info_basic('진도견')
     print(result)
 
 def test_breed_trait():

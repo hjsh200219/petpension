@@ -568,7 +568,7 @@ class BreedInfo:
             st.text_input(label, disabled=True, value=value)
     
     def show_shelter_detail(self, filtered_data, breed = None):
-        display_columns = ['시군구', 'desertionNo', 'happenDt', 'kindCd', 'age', 'sexCd', 'careNm', '시도']
+        display_columns = ['시군구', 'desertionNo', 'happenDt', 'kindCd', 'age', 'sexCd', '시도', 'careNm']
         if breed:
             filtered_data = filtered_data[filtered_data['kindCd'].str.contains(breed)]
         display_data = filtered_data[display_columns].copy()
@@ -577,14 +577,14 @@ class BreedInfo:
         gb.configure_selection(selection_mode="single", use_checkbox=True)
 
         # 컬럼 헤더 및 그룹화 설정
-        gb.configure_column("시도", headerName="시도", rowGroup=True, hide=True, use_checkbox=False)
+        gb.configure_column("시도", headerName="시도", use_checkbox=False, rowGroup=True, hide=True)
         gb.configure_column("시군구", headerName="시군구", use_checkbox=True)
         gb.configure_column("desertionNo", headerName="유기번호", use_checkbox=True)
         gb.configure_column("happenDt", headerName="발견일", use_checkbox=True)
         gb.configure_column("kindCd", headerName="품종", use_checkbox=True)
         gb.configure_column("age", headerName="나이", use_checkbox=True)
         gb.configure_column("sexCd", headerName="성별", use_checkbox=True)
-        gb.configure_column("careNm", headerName="보호소", use_checkbox=True)
+        gb.configure_column("careNm", headerName="보호소", use_checkbox=True, rowGroup=True, hide=True)
 
         grid_options = gb.build()
 
@@ -593,7 +593,7 @@ class BreedInfo:
             display_data,
             gridOptions=grid_options,
             enable_enterprise_modules=True,
-            height=400,
+            height=600,
             width='100%',
             fit_columns_on_grid_load=True,
             use_container_width = True
@@ -719,30 +719,8 @@ class BreedInfo:
                 st.write("selected 형태:", selected.shape)
             return
 
-        with st.expander("공고정보", expanded=False):
-            col1, col2, col3 = st.columns((1, 1, 2))
-            self.display_text_input('유기번호', str(selected_pet['desertionNo'].iloc[0]), col1)
-            self.display_text_input('접수일', selected_pet['happenDt'].iloc[0], col2)
-            self.display_text_input('발견장소', selected_pet['happenPlace'].iloc[0], col3)
-            
-            col1, col2, col3, col4 = st.columns((1, 1, 1, 1))
-            self.display_text_input('공고번호', selected_pet['noticeNo'].iloc[0], col1)
-            self.display_text_input('공고시작일', selected_pet['noticeSdt'].iloc[0], col2)
-            self.display_text_input('공고종료일', selected_pet['noticeEdt'].iloc[0], col3)
-            self.display_text_input('상태', selected_pet['processState'].iloc[0], col4)
-
-        with st.expander("동물정보 상세", expanded=True):
-            col1, col2, col3 = st.columns([2, 1, 1])
-            with col1:
-                st.image(selected_pet['popfile'].iloc[0], use_container_width=True)
-                st.markdown('<style>img { max-height: 500px; }</style>', unsafe_allow_html=True)
-                st.markdown('<style>img { object-fit: contain; }</style>', unsafe_allow_html=True)
-            self.display_text_input('나이', selected_pet['age'].iloc[0], col2)
-            self.display_text_input('체중', selected_pet['weight'].iloc[0], col2)
-            self.display_text_input('성별', selected_pet['sexCd'].iloc[0], col2)
-            self.display_text_input('색상', selected_pet['colorCd'].iloc[0], col3)
-            self.display_text_input('중성화 여부', selected_pet['neuterYn'].iloc[0], col3)
-            self.display_text_input('특징', selected_pet['specialMark'].iloc[0], col3)
+        self.show_notice_info(selected_pet)
+        self.show_pet_info(selected_pet)
 
         # 품종 정보 추출 및 매핑
         if 'kindCd' in selected_pet.columns:
@@ -756,7 +734,33 @@ class BreedInfo:
             st.warning("품종 정보를 찾을 수 없습니다.")
 
         self.show_shelter_info(selected_pet)
-
+    
+    def show_pet_info(self, selected_pet):
+        col1, col2, col3 = st.columns([2, 1, 1])
+        with col1:
+            st.image(selected_pet['popfile'].iloc[0], use_container_width=True)
+            st.markdown('<style>img { max-height: 500px; }</style>', unsafe_allow_html=True)
+            st.markdown('<style>img { object-fit: contain; }</style>', unsafe_allow_html=True)
+        self.display_text_input('나이', selected_pet['age'].iloc[0], col2)
+        self.display_text_input('체중', selected_pet['weight'].iloc[0], col2)
+        self.display_text_input('성별', selected_pet['sexCd'].iloc[0], col2)
+        self.display_text_input('색상', selected_pet['colorCd'].iloc[0], col3)
+        self.display_text_input('중성화 여부', selected_pet['neuterYn'].iloc[0], col3)
+        self.display_text_input('특징', selected_pet['specialMark'].iloc[0], col3)
+            
+    def show_notice_info(self, selected_pet):
+        with st.expander("공고정보", expanded=False):
+            col1, col2, col3 = st.columns((1, 1, 2))
+            self.display_text_input('유기번호', str(selected_pet['desertionNo'].iloc[0]), col1)
+            self.display_text_input('접수일', selected_pet['happenDt'].iloc[0], col2)
+            self.display_text_input('발견장소', selected_pet['happenPlace'].iloc[0], col3)
+            
+            col1, col2, col3, col4 = st.columns((1, 1, 1, 1))
+            self.display_text_input('공고번호', selected_pet['noticeNo'].iloc[0], col1)
+            self.display_text_input('공고시작일', selected_pet['noticeSdt'].iloc[0], col2)
+            self.display_text_input('공고종료일', selected_pet['noticeEdt'].iloc[0], col3)
+            self.display_text_input('상태', selected_pet['processState'].iloc[0], col4)
+            
     def kindCd_mapping(self, kindCd):
         # None 또는 빈 문자열 처리
         if kindCd is None or not isinstance(kindCd, str) or kindCd.strip() == '':
@@ -779,7 +783,7 @@ class BreedInfo:
         with st.expander(f"{kindCd} 상세 정보", expanded=expandedoption):
             col2, col3, col4 = st.columns([1, 1, 1])            
             if kindCd in self.breed_info['breed_name_kor'].values:
-                height, weight, life_expectancy = self.show_breed_info_basic(kindCd)
+                height, weight, life_expectancy = self.get_breed_info_basic(kindCd)
                 
                 height = ', '.join(height) if isinstance(height, pd.Series) and not height.empty else ""
                 weight = ', '.join(weight) if isinstance(weight, pd.Series) and not weight.empty else ""
@@ -850,7 +854,7 @@ class BreedInfo:
             self.display_text_input('담당자', selected_pet['chargeNm'].iloc[0], col2)
             self.display_text_input('담당자연락처', selected_pet['officetel'].iloc[0], col3)
 
-    def show_breed_info_basic(self, breed_name):
+    def get_breed_info_basic(self, breed_name):
         # 해당 품종이 breed_info에 있는지 확인
         if breed_name not in self.breed_info['breed_name_kor'].values:
             return "", "", ""
@@ -869,40 +873,6 @@ class BreedInfo:
         except Exception as e:
             st.error(f"기본 정보 조회 중 오류 발생: {str(e)}")
             return "", "", ""
-    
-    def show_breed_trait(self, breed_name):
-        # 해당 품종이 breed_info에 있는지 확인
-        if breed_name not in self.breed_info['breed_name_kor'].values:
-            st.info(f"{breed_name} 품종에 대한 정보가 없습니다.")
-            return None, None, None, None, None, None, None, None, None, None, None, None, None
-            
-        selected_breed = self.breed_info[self.breed_info['breed_name_kor'] == breed_name]
-        
-        if selected_breed.empty:
-            st.info(f"{breed_name} 품종 정보를 찾을 수 없습니다.")
-            return None, None, None, None, None, None, None, None, None, None, None, None, None
-            
-        try:
-            AffectionateWithFamily = selected_breed['Affectionate With Family'].values[0]
-            GoodWithYoungChildren = selected_breed['Good With Young Children'].values[0]
-            GoodWithOtherDogs = selected_breed['Good With Other Dogs'].values[0]
-            SheddingLevel = selected_breed['Shedding Level'].values[0]
-            CoatGroomingFrequency = selected_breed['Coat Grooming Frequency'].values[0]
-            DroolingLevel = selected_breed['Drooling Level'].values[0]
-            OpennessToStrangers = selected_breed['Openness To Strangers'].values[0]
-            PlayfulnessLevel = selected_breed['Playfulness Level'].values[0]
-            WatchdogProtectiveNature = selected_breed['Watchdog/Protective Nature'].values[0]
-            AdaptabilityLevel = selected_breed['Adaptability Level'].values[0]
-            TrainabilityLevel = selected_breed['Trainability Level'].values[0]
-            EnergyLevel = selected_breed['Energy Level'].values[0]
-            BarkingLevel = selected_breed['Barking Level'].values[0]
-            MentalStimulationNeeds = selected_breed['Mental Stimulation Needs'].values[0]
-            CoatType = selected_breed['Coat Type'].values[0]
-            CoatLength = selected_breed['Coat Length'].values[0]
-            return CoatType, CoatLength
-        except Exception as e:
-            st.error(f"품종 특성 정보 조회 중 오류 발생: {str(e)}")
-            return None, None
     
     def show_breed_trait_5scale_example(self):
         st.write("##### 속성 점수를 이해하는 방법")
@@ -969,7 +939,6 @@ class BreedInfo:
 
             if i != len(scores) - 1:
                 st.divider()
-
 
     def show_breed_trait_5scale(self, breed_name, trait):
         # 해당 품종이 breed_info에 있는지 확인
