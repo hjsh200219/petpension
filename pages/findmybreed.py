@@ -13,12 +13,7 @@ def show_findmybreed(upkind):
         return
     
     data_key = f"petinshelter_{upkind}"
-    petinshelter = st.session_state.get(data_key, None)
-
-    # 변수 초기화
-    selected_breed = None
-
-    # 반려동물 종류 입력 위젯
+    
     col1, col2, col3 = st.columns((2,1,4))
     with col1:
         breed_input = st.text_input(

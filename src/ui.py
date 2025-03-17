@@ -556,6 +556,20 @@ class UI:
         filtered_data['happenDt'] = filtered_data['happenDt'].dt.strftime('%Y-%m-%d')
         
         return filtered_data
+    
+    def show_preview(self):
+        with st.expander("필터 옵션 보기", expanded=False):
+            st.write("검색 후 필터 옵션을 보고 조건을 선택해 검색 결과를 조정할 수 있습니다.", unsafe_allow_html=False)
+        st.subheader("🐾 전체 목록")
+        BreedInfo().show_map_null()
+        with st.expander("상세 정보 보기", expanded=False):
+            st.write("검색 결과를 상세하게 표시합니다.", unsafe_allow_html=False)
+        with st.expander("공고 정보", expanded=False):
+            st.write("공고 정보를 확인할 수 있습니다.", unsafe_allow_html=False)
+        with st.expander("품종 상세 정보", expanded=False):
+            st.write("품종 상세 정보를 확인할 수 있습니다.", unsafe_allow_html=False)
+        with st.expander("보호소 정보", expanded=False):
+            st.write("보호소 정보를 확인할 수 있습니다.", unsafe_allow_html=False)
 
 class BreedInfo:
     def __init__(self) -> None:
@@ -659,7 +673,7 @@ class BreedInfo:
     def show_map_null(self):
         map_df = pd.DataFrame()
 
-        with st.expander("골프장 위치 지도", expanded=False):
+        with st.expander("지도 보기", expanded=False):
             layer = pdk.Layer(
                 "ScatterplotLayer",
                 data=map_df,
@@ -1111,5 +1125,3 @@ class BreedInfo:
         else:
             return pd.DataFrame({'품종': search_result['breed_name_kor'].values, '품종_영문': search_result['breed_name'].values})
     
-        
-        
