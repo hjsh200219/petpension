@@ -568,23 +568,26 @@ class BreedInfo:
             st.text_input(label, disabled=True, value=value)
     
     def show_shelter_detail(self, filtered_data, breed = None):
-        display_columns = ['시군구', 'desertionNo', 'happenDt', 'kindCd', 'age', 'sexCd', '시도', 'careNm']
+        display_columns = ['시도', 'careNm', '시군구', 'desertionNo', 'happenDt', 'kindCd', 'age', 'sexCd']
         if breed:
             filtered_data = filtered_data[filtered_data['kindCd'].str.contains(breed)]
         display_data = filtered_data[display_columns].copy()
-        
+
+        # 시도 기준으로 정렬
+        display_data = display_data.sort_values(by='시도', ascending=True)
+
         gb = GridOptionsBuilder.from_dataframe(display_data)
         gb.configure_selection(selection_mode="single", use_checkbox=True)
 
         # 컬럼 헤더 및 그룹화 설정
-        gb.configure_column("시도", headerName="시도", use_checkbox=False, rowGroup=True, hide=True)
+        gb.configure_column("시도", headerName="시도", use_checkbox=True)
         gb.configure_column("시군구", headerName="시군구", use_checkbox=True)
         gb.configure_column("desertionNo", headerName="유기번호", use_checkbox=True)
         gb.configure_column("happenDt", headerName="발견일", use_checkbox=True)
         gb.configure_column("kindCd", headerName="품종", use_checkbox=True)
         gb.configure_column("age", headerName="나이", use_checkbox=True)
         gb.configure_column("sexCd", headerName="성별", use_checkbox=True)
-        gb.configure_column("careNm", headerName="보호소", use_checkbox=True, rowGroup=True, hide=True)
+        gb.configure_column("careNm", headerName="보호소", use_checkbox=True)
 
         grid_options = gb.build()
 
@@ -592,7 +595,7 @@ class BreedInfo:
         grid_response = AgGrid(
             display_data,
             gridOptions=grid_options,
-            enable_enterprise_modules=True,
+            enable_enterprise_modules=False,
             height=600,
             width='100%',
             fit_columns_on_grid_load=True,
@@ -601,7 +604,7 @@ class BreedInfo:
 
         return grid_response
     
-    def show_map(self, petinshelter):
+    def show_map(self, petinshelter, radius=30):
         shelterlist = pd.read_csv('./static/database/보호소코드.csv')
         shelterlist = shelterlist[shelterlist['주소'].notna()]
 
@@ -626,7 +629,7 @@ class BreedInfo:
             data=shelterlist_status,
             get_position='[lon, lat]',
             get_fill_color='[255, 0, 0, 160]',
-            get_radius='count_pet * 30',
+            get_radius=f'count_pet * {radius}',
             pickable=True,
         )
         
@@ -1099,11 +1102,14 @@ class BreedInfo:
     def search_breed(self, breed_name):
         search_result = self.breed_info[self.breed_info['breed_name_kor'].str.contains(breed_name)]
         if search_result.empty:
-            st.info(f"{breed_name} 품종에 대한 정보가 없습니다.")
-            return None
+            search_result = self.breed_info[self.breed_info['breed_name'].str.contains(breed_name)]
+            if search_result.empty:
+                st.info(f"{breed_name} 품종에 대한 정보가 없습니다.")
+                return None
+            else:
+                return pd.DataFrame({'품종': search_result['breed_name_kor'].values, '품종_영문': search_result['breed_name'].values})
         else:
-            # Series 대신 DataFrame 반환
-            return pd.DataFrame({'품종': search_result['breed_name_kor'].values})
+            return pd.DataFrame({'품종': search_result['breed_name_kor'].values, '품종_영문': search_result['breed_name'].values})
     
         
         

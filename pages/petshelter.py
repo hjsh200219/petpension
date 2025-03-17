@@ -34,7 +34,7 @@ def show_pet_list(upkind):
     elif data_key not in st.session_state or st.session_state[data_key].empty:
         with st.expander("필터 옵션 보기", expanded=False):
             st.write("검색 후 필터 옵션을 보고 조건을 선택해 검색 결과를 조정할 수 있습니다.", unsafe_allow_html=False)
-        st.subheader("전체 목록")
+        st.subheader("🐾 전체 목록")
         breedinfo.show_map_null()
         with st.expander("상세 정보 보기", expanded=False):
             st.write("검색 결과를 상세하게 표시합니다.", unsafe_allow_html=False)
