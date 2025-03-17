@@ -189,14 +189,14 @@ class UI:
         grid_options = gb.build()
         
         grid_response = AgGrid(
-            df,
-            gridOptions=grid_options,
-            enable_enterprise_modules=True,
+                df,
+                gridOptions=grid_options,
+                enable_enterprise_modules=True,
             height=500,
-            width='100%',
+                width='100%',
             fit_columns_on_grid_load=True,
             use_container_width = True
-        )
+            )
         
         # 결과 개수 표시
         st.info(f"총 {len(df)}개의 결과가 있습니다.")
@@ -399,7 +399,7 @@ class UI:
                 use_container_width=True, 
                 hide_index=True
             )
-        
+
     def total_count(self, upkind):
         total_count = Public().totalCount(upkind=upkind)
         count_placeholder = st.empty()
@@ -579,7 +579,8 @@ class BreedInfo:
 
     def display_text_input(self, label, value, col):
         with col:
-            st.text_input(label, disabled=True, value=value)
+            unique_key = f"breed_info_{label}_{id(self)}_{id(col)}"
+            st.text_input(label, disabled=True, value=value, key=unique_key)
     
     def show_shelter_detail(self, filtered_data, breed = None):
         display_columns = ['시도', 'careNm', '시군구', 'desertionNo', 'happenDt', 'kindCd', 'age', 'sexCd']
@@ -724,7 +725,7 @@ class BreedInfo:
             desertion_no = int(first_row['desertionNo'])
             petinshelter = pd.read_csv('./static/database/petinshelter.csv')
             selected_pet = petinshelter[petinshelter['desertionNo'] == desertion_no]
-            
+    
             if len(selected_pet) == 0:
                 st.warning(f"유기번호 {desertion_no}에 해당하는 데이터를 찾을 수 없습니다.")
                 return
@@ -753,17 +754,17 @@ class BreedInfo:
         self.show_shelter_info(selected_pet)
     
     def show_pet_info(self, selected_pet):
-        col1, col2, col3 = st.columns([2, 1, 1])
-        with col1:
-            st.image(selected_pet['popfile'].iloc[0], use_container_width=True)
-            st.markdown('<style>img { max-height: 500px; }</style>', unsafe_allow_html=True)
-            st.markdown('<style>img { object-fit: contain; }</style>', unsafe_allow_html=True)
-        self.display_text_input('나이', selected_pet['age'].iloc[0], col2)
-        self.display_text_input('체중', selected_pet['weight'].iloc[0], col2)
-        self.display_text_input('성별', selected_pet['sexCd'].iloc[0], col2)
-        self.display_text_input('색상', selected_pet['colorCd'].iloc[0], col3)
-        self.display_text_input('중성화 여부', selected_pet['neuterYn'].iloc[0], col3)
-        self.display_text_input('특징', selected_pet['specialMark'].iloc[0], col3)
+            col1, col2, col3 = st.columns([2, 1, 1])
+            with col1:
+                st.image(selected_pet['popfile'].iloc[0], use_container_width=True)
+                st.markdown('<style>img { max-height: 500px; }</style>', unsafe_allow_html=True)
+                st.markdown('<style>img { object-fit: contain; }</style>', unsafe_allow_html=True)
+                self.display_text_input('나이', selected_pet['age'].iloc[0], col2)
+                self.display_text_input('체중', selected_pet['weight'].iloc[0], col2)
+                self.display_text_input('성별', selected_pet['sexCd'].iloc[0], col2)
+                self.display_text_input('색상', selected_pet['colorCd'].iloc[0], col3)
+                self.display_text_input('중성화 여부', selected_pet['neuterYn'].iloc[0], col3)
+                self.display_text_input('특징', selected_pet['specialMark'].iloc[0], col3)
             
     def show_notice_info(self, selected_pet):
         with st.expander("공고정보", expanded=False):
@@ -791,13 +792,20 @@ class BreedInfo:
         kindCd = kindCd.replace("믹스", "").replace("잡종", "").strip()
         return kindCd
 
-    def show_breed_info(self, kindCd, expandedoption=True):
-        # kindCd가 없거나 빈 문자열인 경우 정보 표시 스킵
+    def show_breed_info(self, kindCd, expandedoption=True, matching_score=False):
         if kindCd is None or kindCd == "":
             st.info("품종 정보가 없습니다.")
             return
             
         with st.expander(f"{kindCd} 상세 정보", expanded=expandedoption):
+            if matching_score:
+                
+                col1, col2 = st.columns([2, 6])
+                with col1:
+                    st.subheader(kindCd)
+                with col2:
+                    st.subheader(f"매칭 점수: {matching_score:.1f}%")
+
             col2, col3, col4 = st.columns([1, 1, 1])            
             if kindCd in self.breed_info['breed_name_kor'].values:
                 height, weight, life_expectancy = self.get_breed_info_basic(kindCd)
@@ -930,7 +938,8 @@ class BreedInfo:
                 )
 
                 # 고유한 key 추가
-                st.plotly_chart(fig, use_container_width=True, key=f"chart_{traits[i]}_{i+1}")
+                unique_key = f"example_plot_{i}_{id(self)}_{id(col1)}"
+                st.plotly_chart(fig, use_container_width=True, key=unique_key)  # 고유한 키 추가
                 st.write(f"<span style='color:gray;'>{trait_desc}</span>", unsafe_allow_html=True)
 
             with col2:
@@ -1125,3 +1134,19 @@ class BreedInfo:
         else:
             return pd.DataFrame({'품종': search_result['breed_name_kor'].values, '품종_영문': search_result['breed_name'].values})
     
+    def show_breed_in_shelter(self, upkind, selected_breed):
+        col1, col2, col3 = st.columns((1,1,1))
+        with col2:
+            search_shelter = st.button(
+                "임시보호소에서 찾기",
+                key="search_shelter",
+                use_container_width=True,
+                type="primary"
+            )
+        if search_shelter:
+            petinshelter = Public().show_petinshelter(upkind, data_key = None, refresh_button = None)
+            petinshelter = petinshelter[petinshelter['kindCd'] == selected_breed]
+            with st.expander("지도 보기", expanded=True):
+                BreedInfo().show_map(petinshelter, radius=500)
+            grid_response = BreedInfo().show_shelter_detail(petinshelter)            
+            BreedInfo().show_pet_detail(grid_response)

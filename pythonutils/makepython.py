@@ -13,6 +13,7 @@ from src.data import Naver, Public, AKC, Common
 from datetime import datetime, timedelta
 import pandas as pd
 from tqdm import tqdm
+from src.ui import BreedInfo
 
 naver = Naver()
 public = Public()
@@ -68,8 +69,8 @@ common = Common()
 # rating_data = naver.get_photo('1306861767')
 # print(rating_data)
 
-"""공공 데이터 - 보호소 정보 업데이트 테스트"""
-public.update_shelter_info()
+# """공공 데이터 - 보호소 정보 업데이트 테스트"""
+# public.update_shelter_info()
 
 # """공공 데이터 - 유기동물 찾기 테스트"""
 # result = public.find_pet()
@@ -133,3 +134,13 @@ public.update_shelter_info()
 
 # shelterlist = shelterlist[~shelterlist['kindCd'].isin(result['breed_name_kor'])]['kindCd'].drop_duplicates()
 # print(shelterlist)
+
+# result = pd.read_csv('./static/database/survey.csv')
+# print(result)
+
+
+kindCd = '알라스칸 말라뮤트'
+i = 1
+
+
+print(BreedInfo().show_breed_info(kindCd, expandedoption=False))

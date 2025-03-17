@@ -49,25 +49,25 @@ def show_findmybreed(upkind):
         if selected_breed:
             BreedInfo().show_breed_info(selected_breed, expandedoption=True)
             st.warning("임시보호소에서 보호 중인 검색한 품종을 찾아보세요.")
-            show_breed_in_shelter(upkind, selected_breed)
+            BreedInfo().show_breed_in_shelter(upkind, selected_breed)
 
-def show_breed_in_shelter(upkind, selected_breed):
-    col1, col2, col3 = st.columns((1,1,1))
-    with col2:
-        search_shelter = st.button(
-            "임시보호소에서 찾기",
-            key="search_shelter",
-            use_container_width=True,
-            type="primary"
-        )
-    if search_shelter:
-        petinshelter = Public().show_petinshelter(upkind, data_key = None, refresh_button = None)
-        petinshelter = petinshelter[petinshelter['kindCd'] == selected_breed]
-        with st.expander("지도 보기", expanded=True):
-            BreedInfo().show_map(petinshelter, radius=500)
-        grid_response = BreedInfo().show_shelter_detail(petinshelter)            
-        st.write(grid_response)
-        BreedInfo().show_pet_detail(grid_response)
+# def show_breed_in_shelter(upkind, selected_breed):
+#     col1, col2, col3 = st.columns((1,1,1))
+#     with col2:
+#         search_shelter = st.button(
+#             "임시보호소에서 찾기",
+#             key="search_shelter",
+#             use_container_width=True,
+#             type="primary"
+#         )
+#     if search_shelter:
+#         petinshelter = Public().show_petinshelter(upkind, data_key = None, refresh_button = None)
+#         petinshelter = petinshelter[petinshelter['kindCd'] == selected_breed]
+#         with st.expander("지도 보기", expanded=True):
+#             BreedInfo().show_map(petinshelter, radius=500)
+#         grid_response = BreedInfo().show_shelter_detail(petinshelter)            
+#         st.write(grid_response)
+#         BreedInfo().show_pet_detail(grid_response)
 
 def show_findmybreed_page():
     st.subheader("🔍 나의 반려동물 찾기")
