@@ -284,12 +284,18 @@ def show_survey_page():
     breed_info = pd.read_csv('./static/database/akcBreedInfo.csv')
     akcTraits = pd.read_csv('./static/database/akcTraits.csv')
     
-    total_steps = len(survey_data)
-    current_step = st.session_state.current_step
+    tab1, tab2, tab3 = st.tabs(["강아지","고양이","기타"])
+    with tab1:
+        total_steps = len(survey_data)
+        current_step = st.session_state.current_step
     
-    show_progress_bar(current_step, total_steps)
-    
-    if current_step < total_steps:
-        handle_survey_navigation(survey_data, current_step)
-    else:
-        handle_survey_completion(breed_info, akcTraits)
+        show_progress_bar(current_step, total_steps)
+        
+        if current_step < total_steps:
+            handle_survey_navigation(survey_data, current_step)
+        else:
+            handle_survey_completion(breed_info, akcTraits)
+    with tab2:
+        st.warning("페이지 준비중입니다.")
+    with tab3:
+        st.warning("페이지 준비중입니다.")

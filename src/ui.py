@@ -1150,3 +1150,20 @@ class BreedInfo:
                 BreedInfo().show_map(petinshelter, radius=500)
             grid_response = BreedInfo().show_shelter_detail(petinshelter)            
             BreedInfo().show_pet_detail(grid_response)
+
+
+    def match_breed(self, upkind, breed_name):
+        col1, col2, col3 = st.columns((1,1,1))
+        with col2:
+            search_shelter = st.button(
+                "임시보호소에서 찾기",
+                key="search_shelter",
+                use_container_width=True,
+                type="primary"
+            )
+
+        if search_shelter:
+            petinshelter = Public().show_petinshelter(upkind)
+            petinshelter = petinshelter[petinshelter['kindCd'].str.contains(breed_name)]
+            grid_response = BreedInfo().show_shelter_detail(petinshelter)          
+            st.write(petinshelter)
