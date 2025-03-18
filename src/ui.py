@@ -1175,6 +1175,7 @@ class BreedInfo:
                 type="secondary"
             )
         
+        
         if search_shelter:
             with st.spinner("임시보호소 정보를 가져오는 중..."):
                 petinshelter = Public().show_petinshelter(upkind)
