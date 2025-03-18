@@ -12,6 +12,7 @@ import plotly.graph_objects as go
 from src.data import Public, Common
 import pydeck as pdk
 import pandas as pd
+from streamlit_javascript import st_javascript
 
 class UI:
     def __init__(self) -> None:
@@ -25,6 +26,14 @@ class UI:
                 unsafe_allow_html=True
             )
 
+    def is_mobile(self):
+        width = st_javascript("window.innerWidth")
+        if width < 768:
+            st.session_state.is_mobile = True
+        else:
+            st.session_state.is_mobile = False
+        return st.session_state.is_mobile
+        
     def display_banner(self):
         st.markdown(
             """
