@@ -7,13 +7,8 @@ from src.data import Public, Common
 import pydeck as pdk
 import pandas as pd
 
-def initialize_session_state():
-    pass
-
     
 def show_findmybreed(upkind):
-    initialize_session_state()
-    
     if upkind != '417000':
         st.warning(f"{upkind} 페이지는 준비중입니다.")
         return

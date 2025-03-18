@@ -703,21 +703,16 @@ class BreedInfo:
         if selected is None or len(selected) == 0:
             return
         
-        # 디버깅을 위해 타입 확인
         try:
-            # DataFrame인 경우
             if isinstance(selected, pd.DataFrame):
                 if len(selected) == 0:
                     return
-                # DataFrame의 첫 번째 행을 딕셔너리로 변환
                 first_row = selected.iloc[0].to_dict()
             else:
-                # 리스트인 경우
                 if len(selected) == 0:
                     return
                 first_row = selected[0]
                 
-            # 'desertionNo' 키가 없는 경우 대체 키를 찾거나 오류 처리
             if 'desertionNo' not in first_row:
                 st.warning("개별 유기번호를 선택해주세요.")
                 return
@@ -754,6 +749,7 @@ class BreedInfo:
         self.show_shelter_info(selected_pet)
     
     def show_pet_info(self, selected_pet):
+        with st.expander("보호동물 상세 정보", expanded=False):
             col1, col2, col3 = st.columns([2, 1, 1])
             with col1:
                 st.image(selected_pet['popfile'].iloc[0], use_container_width=True)
@@ -810,9 +806,30 @@ class BreedInfo:
             if kindCd in self.breed_info['breed_name_kor'].values:
                 height, weight, life_expectancy = self.get_breed_info_basic(kindCd)
                 
-                height = ', '.join(height) if isinstance(height, pd.Series) and not height.empty else ""
-                weight = ', '.join(weight) if isinstance(weight, pd.Series) and not weight.empty else ""
-                life_expectancy = ', '.join(life_expectancy) if isinstance(life_expectancy, pd.Series) and not life_expectancy.empty else ""
+                # 안전하게 문자열로 변환
+                if isinstance(height, pd.Series):
+                    height = [str(h) for h in height]
+                    height = ', '.join(height) if height else ""
+                elif height is not None:
+                    height = str(height)
+                else:
+                    height = ""
+                    
+                if isinstance(weight, pd.Series):
+                    weight = [str(w) for w in weight]
+                    weight = ', '.join(weight) if weight else ""
+                elif weight is not None:
+                    weight = str(weight)
+                else:
+                    weight = ""
+                    
+                if isinstance(life_expectancy, pd.Series):
+                    life_expectancy = [str(le) for le in life_expectancy]
+                    life_expectancy = ', '.join(life_expectancy) if life_expectancy else ""
+                elif life_expectancy is not None:
+                    life_expectancy = str(life_expectancy)
+                else:
+                    life_expectancy = ""
 
                 self.display_text_input('키', height, col2)
                 self.display_text_input('체중', weight, col3)
@@ -1015,7 +1032,7 @@ class BreedInfo:
         )
 
         # 고유한 key 추가
-        unique_key = f"trait_chart_{breed_name}_{trait}".replace(" ", "_").replace("/", "_")
+        unique_key = f"trait_chart_{breed_name}_{trait}_{id(self)}_{id(fig)}".replace(" ", "_").replace("/", "_")
         st.plotly_chart(fig, use_container_width=True, key=unique_key)
         st.write(trait_desc)
 
@@ -1101,7 +1118,7 @@ class BreedInfo:
                 }
                 fig = create_coat_type_figure(coat_types, preset_color, height=410)
                 # 고유한 key 추가
-                coat_type_key = f"coat_type_chart_{breed_name}".replace(" ", "_")
+                coat_type_key = f"coat_type_chart_{breed_name}_{id(self)}_{id(fig)}".replace(" ", "_")
                 st.plotly_chart(fig, use_container_width=True, key=coat_type_key)
                 st.write(coat_type_desc)
 
@@ -1114,7 +1131,7 @@ class BreedInfo:
                 }
                 fig = create_coat_type_figure(coat_lengths, preset_length, height=180)
                 # 고유한 key 추가
-                coat_length_key = f"coat_length_chart_{breed_name}".replace(" ", "_")
+                coat_length_key = f"coat_length_chart_{breed_name}_{id(self)}_{id(fig)}".replace(" ", "_")
                 st.plotly_chart(fig, use_container_width=True, key=coat_length_key)
                 st.write(coat_length_desc)
 
@@ -1134,36 +1151,43 @@ class BreedInfo:
         else:
             return pd.DataFrame({'품종': search_result['breed_name_kor'].values, '품종_영문': search_result['breed_name'].values})
     
-    def show_breed_in_shelter(self, upkind, selected_breed):
-        col1, col2, col3 = st.columns((1,1,1))
-        with col2:
-            search_shelter = st.button(
-                "임시보호소에서 찾기",
-                key="search_shelter",
-                use_container_width=True,
-                type="primary"
-            )
-        if search_shelter:
-            petinshelter = Public().show_petinshelter(upkind, data_key = None, refresh_button = None)
-            petinshelter = petinshelter[petinshelter['kindCd'] == selected_breed]
-            with st.expander("지도 보기", expanded=True):
-                BreedInfo().show_map(petinshelter, radius=500)
-            grid_response = BreedInfo().show_shelter_detail(petinshelter)            
-            BreedInfo().show_pet_detail(grid_response)
-
 
     def match_breed(self, upkind, breed_name):
+        data_key = f"match_breed_data_{upkind}_{breed_name.replace(' ', '_')}"
+        grid_key = f"match_breed_grid_{upkind}_{breed_name.replace(' ', '_')}"
+        
         col1, col2, col3 = st.columns((1,1,1))
         with col2:
+            unique_key = f"match_breed_shelter_{id(self)}_{id(col2)}"
             search_shelter = st.button(
-                "임시보호소에서 찾기",
-                key="search_shelter",
+                f"[{breed_name}] 입양하기",
+                key=unique_key,
                 use_container_width=True,
-                type="primary"
+                type="secondary"
             )
-
+        
         if search_shelter:
-            petinshelter = Public().show_petinshelter(upkind)
-            petinshelter = petinshelter[petinshelter['kindCd'].str.contains(breed_name)]
-            grid_response = BreedInfo().show_shelter_detail(petinshelter)          
-            st.write(petinshelter)
+            with st.spinner("임시보호소 정보를 가져오는 중..."):
+                petinshelter = Public().show_petinshelter(upkind)
+                
+                if petinshelter is None or petinshelter.empty:
+                    st.error("임시보호소 데이터를 가져오지 못했습니다.")
+                    return
+                
+                filtered_data = petinshelter[petinshelter['kindCd'].str.contains(breed_name, na=False, case=False)]
+                
+                st.session_state[data_key] = filtered_data
+        
+        if data_key in st.session_state:
+            filtered_data = st.session_state[data_key]
+            
+            if filtered_data is not None and not filtered_data.empty:                
+                with st.expander("지도 보기", expanded=True):
+                    self.show_map(filtered_data, radius=500)
+                
+                grid_response = self.show_shelter_detail(filtered_data)
+                st.session_state[grid_key] = grid_response
+                
+                self.show_pet_detail(grid_response)
+            else:
+                st.warning(f"임시보호소에서 {breed_name} 품종을 찾을 수 없습니다.")

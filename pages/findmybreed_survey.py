@@ -128,11 +128,10 @@ def show_breed_results(matched_breeds, breed_info):
 
         if i == 1:
             BreedInfo().show_breed_info(kindCd, expandedoption=True, matching_score=score)
+            BreedInfo().match_breed(upkind, kindCd)
         else:
             BreedInfo().show_breed_info(kindCd, expandedoption=False, matching_score=score)
-
-        # BreedInfo().show_breed_in_shelter(upkind, kindCd)
-        
+            BreedInfo().match_breed(upkind, kindCd)
 
 def show_progress_bar(current_step, total_steps):
     """진행 상황을 보여주는 프로그레스 바를 표시합니다."""
@@ -200,11 +199,13 @@ def reset_answers(survey_data, current_step):
 
 def handle_conditional_questions(row, answer):
     if pd.notna(row['if_question_k']) and pd.notna(row['if_option_k']):
+        # "예" 응답 시 추가 질문 표시
         if answer == "예":
             try:
                 if_options = ast.literal_eval(row['if_option_k'])
                 if isinstance(if_options, list) and if_options:
-                    if row['question_k'] == "가정에 다른 동물이 있습니까?":
+                    # 다른 동물이 있는 경우 복수 응답 처리
+                    if row['question_k'] in ["가정에 다른 동물이 있습니까?", "집에서 키우는 다른 동물이 있습니까?"]:
                         st.write(row['if_question_k'])
                         selected_animals = []
                         for option in if_options:
@@ -214,6 +215,8 @@ def handle_conditional_questions(row, answer):
                                 value=option in st.session_state.user_answers.get(row['if_question_k'], [])
                             ):
                                 selected_animals.append(option)
+                        
+                        # 선택된 항목이 있는 경우에만 다음 버튼 활성화
                         if selected_animals:
                             st.session_state.user_answers[row['if_question_k']] = selected_animals
                             col1, col2 = st.columns([1, 5])
@@ -221,11 +224,13 @@ def handle_conditional_questions(row, answer):
                                 if st.button(
                                     "다음",
                                     type="primary",
+                                    key=f"next_button_animals_{id(row)}",
                                     use_container_width=True
                                 ):
                                     st.session_state.current_step += 1
                                     st.rerun()
                     else:
+                        # 일반 단일 응답 질문
                         if_answer = st.radio(
                             row['if_question_k'],
                             if_options,
@@ -236,9 +241,12 @@ def handle_conditional_questions(row, answer):
                             st.session_state.user_answers[row['if_question_k']] = if_answer
                             st.session_state.current_step += 1
                             st.rerun()
-            except (ValueError, SyntaxError):
-                st.error(f"조건부 질문 '{row['if_question_k']}'의 옵션을 처리하는 중 오류가 발생했습니다.")
-        elif answer == "아니오" and row['question_k'] in ["가정에 어린이가 있습니까?", "가정에 다른 동물이 있습니까?"]:
+            except (ValueError, SyntaxError) as e:
+                st.error(f"조건부 질문 '{row['if_question_k']}'의 옵션을 처리하는 중 오류가 발생했습니다: {str(e)}")
+        
+        # "아니오" 응답 시 바로 다음 질문으로 이동
+        elif answer == "아니오" and row['question_k'] in ["가정에 어린이가 있습니까?", "집에 자녀가 있습니까?", 
+                                                       "가정에 다른 동물이 있습니까?", "집에서 키우는 다른 동물이 있습니까?"]:
             st.session_state.current_step += 1
             st.rerun()
 
@@ -257,11 +265,6 @@ def handle_survey_completion(breed_info, akcTraits):
                 st.warning("더 많은 질문에 답해주세요!")
                 return
             
-    scores = calculate_breed_match(st.session_state.user_answers, breed_info)
-    matched_breeds = sorted(scores.items(), key=lambda x: x[1], reverse=True)
-    
-    show_breed_results(matched_breeds, breed_info)
-    
     with col2:
         if st.button(
             "처음부터 다시 시작",
@@ -271,6 +274,12 @@ def handle_survey_completion(breed_info, akcTraits):
             st.session_state.user_answers = {}
             st.session_state.current_step = 0
             st.rerun()
+            
+    scores = calculate_breed_match(st.session_state.user_answers, breed_info)
+    matched_breeds = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+    
+    show_breed_results(matched_breeds, breed_info)
+    
 
 def show_survey_page():
     st.subheader("🔍 나의 반려동물 찾기")
