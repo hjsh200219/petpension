@@ -5,8 +5,7 @@ from typing import List, Dict, Any, Callable, Optional, Union, Tuple
 from src.settings import verify_password
 from pathlib import Path
 from src.data import Public
-import time
-import re
+import time, random, string, re
 from st_aggrid import AgGrid, GridOptionsBuilder
 import plotly.graph_objects as go
 from src.data import Public, Common
@@ -26,12 +25,17 @@ class UI:
                 unsafe_allow_html=True
             )
         
-    def is_mobile(self):
-        width = st_javascript("window.innerWidth")
-        if width < 768:
-            st.session_state.is_mobile = True
-        else:
-            st.session_state.is_mobile = False
+    def is_mobile(self):        
+        random_str = ''.join(random.choice(string.ascii_letters) for _ in range(8))
+        unique_key = f"mobile_check_{random_str}_{time.time()}"
+        
+        if "is_mobile" not in st.session_state:
+            width = st_javascript("window.innerWidth", key=unique_key)
+            if width is None or width < 768:
+                st.session_state.is_mobile = True
+            else:
+                st.session_state.is_mobile = False
+        
         return st.session_state.is_mobile
 
     def display_banner(self):
@@ -62,19 +66,8 @@ class UI:
         )
 
     def add_input_focus_js(self, selector="input[type='password']", delay=800):
-        """
-        특정 입력 필드에 자동 포커스를 추가하는 JavaScript 코드
-        
-        Parameters:
-        -----------
-        selector : str
-            포커스할 HTML 요소의 CSS 선택자
-        delay : int
-            페이지 로드 후 포커스를 적용할 지연 시간(밀리초)
-        """
         js_code = f"""
         <script>
-        // 페이지 로드 후 {delay}ms 후에 포커스 시도
         setTimeout(function() {{
             const inputs = parent.document.querySelectorAll('{selector}');
             if (inputs.length > 0) {{
@@ -90,30 +83,11 @@ class UI:
                             has_error: bool = False,
                             placeholder: str = "비밀번호를 입력하세요",
                             key: str = "password_input"):
-        """
-        비밀번호 입력 양식을 생성합니다.
-        
-        Parameters:
-        -----------
-        on_change_callback : Callable
-            비밀번호 입력 시 호출될 콜백 함수
-        error_message : str
-            오류 발생 시 표시할 메시지
-        has_error : bool
-            오류 상태 여부
-        placeholder : str
-            입력 필드에 표시할 안내 텍스트
-        key : str
-            입력 필드의 고유 키 (기본값: "password_input")
-        """
-        # 자동 포커스 스크립트 추가
         self.add_input_focus_js()
         
-        # 오류 메시지 표시
         if has_error:
             st.error(error_message)
         
-        # 비밀번호 입력 UI
         col1, col2, col3 = st.columns((2,1,6))
         with col1:
             password = st.text_input(
@@ -138,24 +112,8 @@ class UI:
                         filter_values: Dict[str, str], 
                         on_change_callbacks: Dict[str, Callable],
                         column_names: Dict[str, str]) -> None:
-        """
-        필터링 UI를 생성합니다.
-        
-        Parameters:
-        -----------
-        data : pd.DataFrame
-            필터링할 데이터
-        filter_values : Dict[str, str]
-            현재 필터 값 (key: 필터 이름, value: 선택된 값)
-        on_change_callbacks : Dict[str, Callable]
-            각 필터의 값이 변경될 때 호출할 콜백 함수
-        column_names : Dict[str, str]
-            컬럼 매핑 정보 (key: 내부 컬럼명, value: 표시 컬럼명)
-        """
-        # 컬럼 생성
         filter_cols = st.columns(len(filter_values))
         
-        # 필터 값 목록 추출
         for i, (filter_key, current_value) in enumerate(filter_values.items()):
             if filter_key not in column_names:
                 continue
@@ -163,17 +121,14 @@ class UI:
             display_name = column_names[filter_key]
             column_name = column_names[filter_key]
             
-            # 필터 옵션 생성
             options = ["전체"]
             if filter_key in data.columns:
                 options.extend(list(data[filter_key].unique()))
             
-            # 현재 선택 인덱스
             selected_index = 0
             if current_value in options:
                 selected_index = options.index(current_value)
                 
-            # 셀렉트박스 생성
             with filter_cols[i]:
                 st.selectbox(
                     f"{display_name} 선택",
@@ -187,7 +142,6 @@ class UI:
                                 hide_index: bool = True, 
                                 use_container_width: bool = True) -> None:
 
-        # 가격 칼럼 천단위 콤마 추가
         if '가격' in df.columns:
             df['가격'] = df['가격'].apply(lambda x: "{:,.0f}".format(x) if pd.notnull(x) and isinstance(x, (int, float)) else x)
 
@@ -207,36 +161,17 @@ class UI:
             use_container_width = True
             )
         
-        # 결과 개수 표시
         st.info(f"총 {len(df)}개의 결과가 있습니다.")
 
     def show_date_range_selector(self, default_start_date=None, 
                                 default_end_date=None, 
                                 search_button_label="검색") -> Tuple:
-        """
-        날짜 범위 선택기를 표시합니다.
-        
-        Parameters:
-        -----------
-        default_start_date : datetime.date, optional
-            기본 시작 날짜
-        default_end_date : datetime.date, optional
-            기본 종료 날짜
-        search_button_label : str
-            검색 버튼 라벨
-            
-        Returns:
-        --------
-        Tuple[datetime.date, datetime.date, bool]
-            선택된 시작 날짜, 종료 날짜, 검색 버튼 클릭 여부
-        """
         if default_start_date is None:
             default_start_date = (datetime.now() + timedelta(days=1)).date()
             
         if default_end_date is None:
             default_end_date = (datetime.now() + timedelta(days=7)).date()
         
-        # 날짜 선택 레이아웃
         col1, col2, col3, col4 = st.columns((1, 1, 1, 4))
         
         with col1:
@@ -263,7 +198,6 @@ class UI:
         return start_date, end_date, search_button
     
     def display_success_message(self, message=None):
-        """성공 메시지 표시 (세션 상태 활용)"""
         if message:
             st.success(message)
         elif st.session_state.get('success_message'):
@@ -271,11 +205,9 @@ class UI:
             st.session_state.success_message = None
     
     def display_error_message(self, message):
-        """에러 메시지 표시"""
         st.error(message)
     
     def create_date_region_selection(self):
-        """날짜 및 지역 선택 UI 생성"""
         col1, col2, col3 = st.columns([1, 1, 1])
         
         with col1:
@@ -287,14 +219,11 @@ class UI:
             end_date = st.date_input("종료일", default_end_date, key="end_date")
         
         with col3:
-            # 해당 함수에서는 regions 인자를 받아와야 함
-            # 여기서는 예시로만 작성
             selected_region = st.selectbox("지역 선택", ["전체"], key="region")
         
         return start_date, end_date, selected_region
     
     def create_pension_selection(self, pensions, default=None, key="selected_pensions"):
-        """펜션 선택 UI 생성"""
         st.write("비교할 펜션 선택 (복수 선택 가능)")
         selected_pensions = st.multiselect(
             "펜션 선택",
@@ -305,7 +234,6 @@ class UI:
         return selected_pensions
     
     def create_chart_type_selection(self, current_type="bar"):
-        """차트 유형 선택 UI 생성"""
         chart_type = st.radio(
             "차트 유형 선택:",
             options=["바 차트", "히트맵", "레이더 차트"],
@@ -315,7 +243,6 @@ class UI:
             key="chart_type_radio"
         )
         
-        # 영문 차트 타입 반환
         if chart_type == "바 차트":
             return "bar"
         elif chart_type == "히트맵":
@@ -324,52 +251,27 @@ class UI:
             return "radar"
     
     def create_logout_button(self, key="logout"):
-        """로그아웃 버튼 생성"""
         if st.button("로그아웃", key=key, type="primary"):
             st.session_state.password_verified = False
             st.rerun()
     
     def verify_user_password(self, password_field_key="password_input", session_key="password_verified", error_key="password_error", password_verify_function=None):
-        """
-        사용자 비밀번호 검증을 위한 공통 함수
-        
-        Parameters:
-        -----------
-        password_field_key : str
-            비밀번호 입력 필드의 키 이름
-        session_key : str
-            비밀번호 검증 상태를 저장할 세션 키
-        error_key : str
-            오류 상태를 저장할 세션 키
-        password_verify_function : callable
-            비밀번호 검증 함수
-        
-        Returns:
-        --------
-        bool
-            비밀번호 검증 성공 여부
-        """
-        # 세션 상태 초기화
         st.session_state.setdefault(session_key, False)
         st.session_state.setdefault(error_key, False)
         
-        # 비밀번호 검증 콜백 함수
         def check_password():
             password = st.session_state[password_field_key]
             if password_verify_function:
                 verified = password_verify_function(password)
             else:
-                # 기본 검증(커스텀 함수가 제공되지 않은 경우)
-                verified = (password == "1234")  # 예시 기본값
+                verified = (password == "1234")
             
             st.session_state[session_key] = verified
             st.session_state[error_key] = not verified
         
-        # 이미 검증된 상태면 바로 True 반환
         if st.session_state[session_key]:
             return True
         
-        # 검증이 필요한 경우 UI 표시
         st.subheader("🔒 로그인")
         UI().create_password_input(
             on_change_callback=check_password,
@@ -380,15 +282,12 @@ class UI:
         return st.session_state[session_key]
     
     def create_progress_bar(self):
-        """진행 상황 표시 바 생성"""
         return st.progress(0)
     
     def create_analysis_button(self):
-        """분석 버튼 생성"""
         return st.button("분석 시작", use_container_width=True, key="analyze_button")
     
     def create_expandable_detail_section(self, title, dataframe, columns=None):
-        """펼칠 수 있는 상세 정보 섹션 생성"""
         with st.expander(title):
             if columns:
                 st.dataframe(dataframe[columns], use_container_width=True, hide_index=True)
@@ -396,7 +295,6 @@ class UI:
                 st.dataframe(dataframe, use_container_width=True, hide_index=True)
     
     def display_detailed_data(self, data, display_columns, title="상세 데이터 보기", sort_by=None):
-        """상세 데이터 표시 섹션"""
         with st.expander(title):
             if sort_by:
                 sorted_data = data.sort_values(sort_by)
@@ -423,148 +321,6 @@ class UI:
             for i in range(0, total_count + 1, update_interval):
                 time.sleep(0.001)
                 count_placeholder.subheader(f"🏠 전국에는 {i:,}마리가 보호 중입니다.")
-
-    def apply_filters(self, data, upkind):
-        """
-        데이터에 필터를 적용하는 함수
-        
-        Parameters:
-        - data: 필터링할 원본 데이터프레임
-        - upkind: 동물 유형 코드(위젯 키를 고유하게 만들기 위해 사용)
-        
-        Returns:
-        - filtered_data: 필터링된 데이터프레임
-        """
-        # 세션 상태 키 (위젯과 다른 키 사용)
-        filter_state_key = f"filter_state_{upkind}"
-        
-        # 세션 상태 초기화
-        if filter_state_key not in st.session_state:
-            st.session_state[filter_state_key] = False
-        
-        # 필터 적용 버튼의 콜백 함수
-        def set_filter_active():
-            st.session_state[filter_state_key] = True
-        
-        # 필터 섹션을 숨김 처리된 expander로 생성
-        with st.expander("🔍 필터 옵션 보기", expanded=False):
-            # 필터 적용을 위한 데이터 준비
-            all_kinds = sorted(data['kindCd'].unique().tolist())
-            
-            # 출생년도 처리 - 안전하게 추출
-            birth_years = []
-            if '출생년도' in data.columns:
-                for year in data['출생년도'].dropna().unique():
-                    if pd.notna(year) and str(year).isdigit() and len(str(int(year))) == 4:
-                        birth_years.append(int(year))
-            
-            all_birth_years = sorted([f"{y}년생" for y in birth_years], reverse=True) if birth_years else []
-            
-            all_sexes = sorted([s for s in data['sexCd'].unique().tolist() if s and s != ' '])
-            all_sidos = sorted([s for s in data['시도'].unique().tolist() if s != '정보 없음'])
-            
-            col1, col2, col3, col4 = st.columns(4)
-            with col1:
-                min_date = pd.to_datetime(data['happenDt'].min()).date().strftime('%Y-%m-%d')
-                max_date = pd.to_datetime(data['happenDt'].max()).date().strftime('%Y-%m-%d')
-                
-                date_from = st.date_input("발견일 시작", 
-                                        value=min_date,
-                                        min_value=min_date, 
-                                        max_value=max_date,
-                                        key=f"date_from_{upkind}")
-            
-            with col2:
-                date_to = st.date_input("발견일 종료", 
-                                    value=max_date,
-                                    min_value=min_date, 
-                                    max_value=max_date,
-                                    key=f"date_to_{upkind}")
-            
-
-            with col3:
-                selected_sido = st.selectbox("시도", 
-                                        ["모든 지역"] + all_sidos,
-                                        key=f"sido_{upkind}")
-            
-            with col4:
-                if selected_sido != "모든 지역":
-                    filtered_sigungu = sorted(data[data['시도'] == selected_sido]['시군구'].unique().tolist())
-                    selected_sigungu = st.selectbox("시군구", 
-                                                ["모든 시군구"] + filtered_sigungu,
-                                                key=f"sigungu_{upkind}")
-                else:
-                    selected_sigungu = "모든 시군구"
-
-            col1, col2, col3, col4 = st.columns(4)
-            with col1:
-                selected_kind = st.selectbox("품종", 
-                                            ["모든 품종"] + all_kinds,
-                                            key=f"kind_{upkind}")
-            with col2:
-                selected_birth_year = st.selectbox("출생년도", 
-                                                ["모든 년도"] + all_birth_years,
-                                                key=f"birth_year_{upkind}")
-            with col3:
-                selected_sex = st.selectbox("성별", 
-                                        ["모두", "M", "F"],
-                                        key=f"sex_{upkind}")
-            
-            col1, col2, col3 = st.columns(3)
-            with col2:
-                st.button("필터 적용", 
-                        type="primary", 
-                        use_container_width=True,
-                    key=f"btn_filter_{upkind}",  # 버튼 위젯용 키 (세션 상태 키와 다름)
-                    on_click=set_filter_active)  # 클릭 시 콜백 함수 호출
-        
-        # 필터가 활성화되지 않았다면 모든 데이터 반환
-        if not st.session_state[filter_state_key]:
-            return data
-        
-        # 필터 적용
-        filtered_data = data.copy()
-        
-        # 날짜 필터 적용을 위해 happenDt를 datetime 형식으로 변환
-        filtered_data['happenDt'] = pd.to_datetime(filtered_data['happenDt'], errors='coerce')
-
-        # 날짜 필터 적용
-        filtered_data = filtered_data[
-            (filtered_data['happenDt'].dt.date >= date_from) & 
-            (filtered_data['happenDt'].dt.date <= date_to)
-        ]
-        
-        # 품종 필터 적용
-        if selected_kind != "모든 품종":
-            filtered_data = filtered_data[filtered_data['kindCd'] == selected_kind]
-        
-        # 년생 필터 적용
-        if selected_birth_year != "모든 년도" and '출생년도' in filtered_data.columns:
-            try:
-                # "년생" 텍스트 제거하고 숫자만 추출
-                year_only = selected_birth_year.replace('년생', '').strip()
-                if year_only.isdigit():
-                    year_value = int(year_only)
-                    filtered_data = filtered_data[filtered_data['출생년도'] == year_value]
-            except Exception as e:
-                st.error(f"출생년도 필터링 중 오류 발생: {str(e)}")
-        
-        # 성별 필터 적용
-        if selected_sex != "모두":
-            filtered_data = filtered_data[filtered_data['sexCd'] == selected_sex]
-        
-        # 시도 필터 적용
-        if selected_sido != "모든 지역":
-            filtered_data = filtered_data[filtered_data['시도'] == selected_sido]
-            
-            # 시군구 필터 적용
-            if selected_sigungu != "모든 시군구":
-                filtered_data = filtered_data[filtered_data['시군구'] == selected_sigungu]
-        
-        # 날짜 형식을 "YYYY-MM-DD"로 변환
-        filtered_data['happenDt'] = filtered_data['happenDt'].dt.strftime('%Y-%m-%d')
-        
-        return filtered_data
     
     def show_preview(self):
         with st.expander("필터 옵션 보기", expanded=False):
@@ -629,7 +385,9 @@ class UI:
                         lambda row: f"{int(row['출생년도'])}년생" if pd.notna(row['출생년도']) else "", 
                         axis=1
                     )
-
+                    if self.is_mobile() == True:
+                        st.write("mobile")
+                        petinshelter = petinshelter[['desertionNo', 'kindCd', 'age', 'sexCd', 'careNm', '년생']]
                     st.session_state[data_key] = petinshelter
                     
                     if refresh_button:
@@ -646,6 +404,121 @@ class UI:
                     st.session_state[data_key] = pd.DataFrame()
         return petinshelter
 
+    def apply_filters(self, data, upkind):
+        filter_state_key = f"filter_state_{upkind}"
+        
+        if filter_state_key not in st.session_state:
+            st.session_state[filter_state_key] = False
+        
+        def set_filter_active():
+            st.session_state[filter_state_key] = True
+        
+        with st.expander("🔍 필터 옵션 보기", expanded=False):
+            all_kinds = sorted(data['kindCd'].unique().tolist())
+            
+            birth_years = []
+            if '출생년도' in data.columns:
+                for year in data['출생년도'].dropna().unique():
+                    if pd.notna(year) and str(year).isdigit() and len(str(int(year))) == 4:
+                        birth_years.append(int(year))
+            
+            all_birth_years = sorted([f"{y}년생" for y in birth_years], reverse=True) if birth_years else []
+            
+            all_sexes = sorted([s for s in data['sexCd'].unique().tolist() if s and s != ' '])
+            all_sidos = sorted([s for s in data['시도'].unique().tolist() if s != '정보 없음'])
+            
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                min_date = pd.to_datetime(data['happenDt'].min()).date().strftime('%Y-%m-%d')
+                max_date = pd.to_datetime(data['happenDt'].max()).date().strftime('%Y-%m-%d')
+                
+                date_from = st.date_input("발견일 시작", 
+                                        value=min_date,
+                                        min_value=min_date, 
+                                        max_value=max_date,
+                                        key=f"date_from_{upkind}")
+            
+            with col2:
+                date_to = st.date_input("발견일 종료", 
+                                    value=max_date,
+                                    min_value=min_date, 
+                                    max_value=max_date,
+                                    key=f"date_to_{upkind}")
+            
+
+            with col3:
+                selected_sido = st.selectbox("시도", 
+                                        ["모든 지역"] + all_sidos,
+                                        key=f"sido_{upkind}")
+            
+            with col4:
+                if selected_sido != "모든 지역":
+                    filtered_sigungu = sorted(data[data['시도'] == selected_sido]['시군구'].unique().tolist())
+                    selected_sigungu = st.selectbox("시군구", 
+                                                ["모든 시군구"] + filtered_sigungu,
+                                                key=f"sigungu_{upkind}")
+                else:
+                    selected_sigungu = "모든 시군구"
+
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                selected_kind = st.selectbox("품종", 
+                                            ["모든 품종"] + all_kinds,
+                                            key=f"kind_{upkind}")
+            with col2:
+                selected_birth_year = st.selectbox("출생년도", 
+                                                ["모든 년도"] + all_birth_years,
+                                                key=f"birth_year_{upkind}")
+            with col3:
+                selected_sex = st.selectbox("성별", 
+                                        ["모두", "M", "F"],
+                                        key=f"sex_{upkind}")
+            
+            col1, col2, col3 = st.columns(3)
+            with col2:
+                st.button("필터 적용", 
+                        type="primary", 
+                        use_container_width=True,
+                    key=f"btn_filter_{upkind}",  
+                    on_click=set_filter_active)  
+        
+        if not st.session_state[filter_state_key]:
+            return data
+        
+        filtered_data = data.copy()
+        
+        filtered_data['happenDt'] = pd.to_datetime(filtered_data['happenDt'], errors='coerce')
+
+        filtered_data = filtered_data[
+            (filtered_data['happenDt'].dt.date >= date_from) & 
+            (filtered_data['happenDt'].dt.date <= date_to)
+        ]
+        
+        if selected_kind != "모든 품종":
+            filtered_data = filtered_data[filtered_data['kindCd'] == selected_kind]
+        
+        if selected_birth_year != "모든 년도" and '출생년도' in filtered_data.columns:
+            try:
+                year_only = selected_birth_year.replace('년생', '').strip()
+                if year_only.isdigit():
+                    year_value = int(year_only)
+                    filtered_data = filtered_data[filtered_data['출생년도'] == year_value]
+            except Exception as e:
+                st.error(f"출생년도 필터링 중 오류 발생: {str(e)}")
+        
+        if selected_sex != "모두":
+            filtered_data = filtered_data[filtered_data['sexCd'] == selected_sex]
+        
+        if selected_sido != "모든 지역":
+            filtered_data = filtered_data[filtered_data['시도'] == selected_sido]
+            
+            if selected_sigungu != "모든 시군구":
+                filtered_data = filtered_data[filtered_data['시군구'] == selected_sigungu]
+        
+        filtered_data['happenDt'] = filtered_data['happenDt'].dt.strftime('%Y-%m-%d')
+        
+        return filtered_data
+    
 class BreedInfo:
     def __init__(self) -> None:
         self.breed_info = pd.read_csv('./static/database/akcBreedInfo.csv')
@@ -663,13 +536,11 @@ class BreedInfo:
             filtered_data = filtered_data[filtered_data['kindCd'].str.contains(breed)]
         display_data = filtered_data[display_columns].copy()
 
-        # 시도 기준으로 정렬
         display_data = display_data.sort_values(by='시도', ascending=True)
 
         gb = GridOptionsBuilder.from_dataframe(display_data)
         gb.configure_selection(selection_mode="single", use_checkbox=True)
 
-        # 컬럼 헤더 및 그룹화 설정
         gb.configure_column("시도", headerName="시도", use_checkbox=True)
         gb.configure_column("시군구", headerName="시군구", use_checkbox=True)
         gb.configure_column("desertionNo", headerName="유기번호", use_checkbox=True)
@@ -681,7 +552,6 @@ class BreedInfo:
 
         grid_options = gb.build()
 
-        # AgGrid 표시
         grid_response = AgGrid(
             display_data,
             gridOptions=grid_options,
@@ -698,7 +568,6 @@ class BreedInfo:
         shelterlist = pd.read_csv('./static/database/보호소코드.csv')
         shelterlist = shelterlist[shelterlist['주소'].notna()]
 
-        # 보호소별 동물 수 카운트
         shelterlist['count_pet'] = shelterlist['보호소명'].map(petinshelter['careNm'].value_counts())
 
         with st.spinner("보호소의 위경도 정보를 업데이트 중입니다..."):
@@ -713,7 +582,6 @@ class BreedInfo:
         shelterlist_status = shelterlist[['보호소명', 'count_pet', '주소', 'lat', 'lon']]
         shelterlist_status = shelterlist_status.dropna(subset=['count_pet'])
         
-        # pydeck의 ScatterplotLayer를 사용하여 각 보호소를 원형 마커로 표시합니다.
         layer = pdk.Layer(
             "ScatterplotLayer",
             data=shelterlist_status,
@@ -723,7 +591,6 @@ class BreedInfo:
             pickable=True,
         )
         
-        # 초기 지도 뷰 설정 (전체 데이터의 중심 좌표 기준)
         view_state = pdk.ViewState(
             latitude=37.515586, 
             longitude=127.056992,
@@ -731,13 +598,11 @@ class BreedInfo:
             pitch=0,
         )
         
-        # 툴팁 설정: 마우스 오버 시 보호소명과 count_pet 표시
         tooltip = {
             "html": "<b>보호소:</b> {보호소명} <br/><b>보호 중:</b> {count_pet}<br/><b>보호 중:</b> {주소}",
             "style": {"backgroundColor": "steelblue", "color": "white"}
         }
         
-        # pydeck Deck 객체 생성
         deck = pdk.Deck(
             layers=[layer],
             initial_view_state=view_state,
@@ -810,10 +675,8 @@ class BreedInfo:
         self.show_notice_info(selected_pet)
         self.show_pet_info(selected_pet)
 
-        # 품종 정보 추출 및 매핑
         if 'kindCd' in selected_pet.columns:
             kindCd = selected_pet['kindCd'].iloc[0]
-            # "[개]", "[고양이]" 등의 접두사 제거
             if isinstance(kindCd, str):
                 kindCd = kindCd.replace("[개]", "").replace("[고양이]", "").replace("[기타축종]", "").strip()
             kindCd = self.kindCd_mapping(kindCd)
@@ -851,7 +714,6 @@ class BreedInfo:
             self.display_text_input('상태', selected_pet['processState'].iloc[0], col4)
             
     def kindCd_mapping(self, kindCd):
-        # None 또는 빈 문자열 처리
         if kindCd is None or not isinstance(kindCd, str) or kindCd.strip() == '':
             return ""
             
@@ -881,7 +743,6 @@ class BreedInfo:
             if kindCd in self.breed_info['breed_name_kor'].values:
                 height, weight, life_expectancy = self.get_breed_info_basic(kindCd)
                 
-                # 안전하게 문자열로 변환
                 if isinstance(height, pd.Series):
                     height = [str(h) for h in height]
                     height = ', '.join(height) if height else ""
@@ -972,7 +833,6 @@ class BreedInfo:
             self.display_text_input('담당자연락처', selected_pet['officetel'].iloc[0], col3)
 
     def get_breed_info_basic(self, breed_name):
-        # 해당 품종이 breed_info에 있는지 확인
         if breed_name not in self.breed_info['breed_name_kor'].values:
             return "", "", ""
             
@@ -1089,16 +949,13 @@ class BreedInfo:
                     column_2_mobile(score_low, score_high, scores, average_scores)
 
     def show_breed_trait_5scale(self, breed_name, trait):
-        # 해당 품종이 breed_info에 있는지 확인
         if breed_name not in self.breed_info['breed_name_kor'].values:
             st.info(f"{breed_name} 품종에 대한 정보가 없습니다.")
             return
         
-        # 해당 품종의 데이터 필터링
         filtered_data = self.breed_info.loc[self.breed_info['breed_name_kor'] == breed_name, trait]
         trait_name = self.trait_info.loc[self.trait_info['trait'] == trait, 'trait_ko'].values[0]
         
-        # 필터링된 데이터가 비어있는지 확인
         if filtered_data.empty:
             st.info(f"{breed_name} 품종의 '{trait_name}' 속성 정보가 없습니다.")
             return
@@ -1128,7 +985,6 @@ class BreedInfo:
             delta={'reference': average_score}
         ))
 
-        # 차트 레이아웃 설정 - 높이와 마진을 일정하게 조정
         fig.update_layout(
             height=200,
             margin=dict(t=60, b=10, l=10, r=10),
@@ -1136,21 +992,17 @@ class BreedInfo:
             font=dict(size=16)
         )
 
-        # 고유한 key 추가
         unique_key = f"trait_chart_{breed_name}_{trait}_{id(self)}_{id(fig)}".replace(" ", "_").replace("/", "_")
         st.plotly_chart(fig, use_container_width=True, key=unique_key)
         st.write(trait_desc)
 
     def show_breed_trait_hair(self, breed_name, trait=None):
-        """품종의 털 타입과 털 길이를 체크박스 형태로 표시합니다."""
-        # 해당 품종이 breed_info에 있는지 확인
         if breed_name not in self.breed_info['breed_name_kor'].values:
             st.info(f"{breed_name} 품종에 대한 털 정보가 없습니다.")
             return
             
         selected_breed = self.breed_info[self.breed_info['breed_name_kor'] == breed_name]
         
-        # 선택된 데이터가 비어있는지 확인
         if selected_breed.empty:
             st.info(f"{breed_name} 품종 정보를 찾을 수 없습니다.")
             return
@@ -1164,7 +1016,6 @@ class BreedInfo:
             trait_name_length = self.trait_info.loc[self.trait_info['trait'] == 'Coat Length', 'trait_ko'].values[0]
             coat_length_desc = self.trait_info.loc[self.trait_info['trait'] == 'Coat Length', 'trait_desc_ko'].values[0]
             
-            # 털 타입과 길이가 여러 개일 수 있으므로 리스트로 분리
             if isinstance(coat_type, str):
                 coat_types = [t.strip() for t in coat_type.split(',')]
             else:
@@ -1175,7 +1026,6 @@ class BreedInfo:
             else:
                 coat_lengths = []
                 
-            # UI에 표시
             col1, col2 = st.columns(2)
             def create_coat_type_figure(coat_types, preset_color, height=410):
                 for type in coat_types:
@@ -1222,7 +1072,6 @@ class BreedInfo:
                     'Rough': {'bubbleX': 3, 'bubbleY': 3, 'text': 'Rough', 'color': 'gray'}
                 }
                 fig = create_coat_type_figure(coat_types, preset_color, height=410)
-                # 고유한 key 추가
                 coat_type_key = f"coat_type_chart_{breed_name}_{id(self)}_{id(fig)}".replace(" ", "_")
                 st.plotly_chart(fig, use_container_width=True, key=coat_type_key)
                 st.write(coat_type_desc)
@@ -1235,7 +1084,6 @@ class BreedInfo:
                     'Long': {'bubbleX': 3, 'bubbleY': 1, 'text': 'Long', 'color': 'gray'},
                 }
                 fig = create_coat_type_figure(coat_lengths, preset_length, height=180)
-                # 고유한 key 추가
                 coat_length_key = f"coat_length_chart_{breed_name}_{id(self)}_{id(fig)}".replace(" ", "_")
                 st.plotly_chart(fig, use_container_width=True, key=coat_length_key)
                 st.write(coat_length_desc)
