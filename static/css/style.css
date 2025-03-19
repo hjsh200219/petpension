@@ -42,3 +42,7 @@
 iframe {
     margin-bottom: 0 !important;
 }
+
+.txt-center {
+    text-align: center;
+}

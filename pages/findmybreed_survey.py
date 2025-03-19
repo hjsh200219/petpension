@@ -18,6 +18,7 @@ def calculate_breed_match(user_answers, breed_info):
         scores[breed['breed_name_kor']] = final_score
     
     return scores
+
 def calculate_scores(user_answers, breed):
     score = 0
     total_weight = 0
@@ -153,7 +154,6 @@ def handle_survey_navigation(survey_data, current_step):
     else:
         st.write("")
     
-    # 선택지가 있는 경우에만 질문 표시
     if options and isinstance(options, list):
         answer = st.radio(
             "답변을 선택해주세요",
@@ -188,25 +188,21 @@ def reset_answers(survey_data, current_step):
     if current_question in st.session_state.user_answers:
         del st.session_state.user_answers[current_question]
     
-    # 조건부 질문이 있는 경우 해당 답변도 초기화
     current_row = survey_data.iloc[current_step]
     if pd.notna(current_row['if_question_k']):
         if current_row['if_question_k'] in st.session_state.user_answers:
             del st.session_state.user_answers[current_row['if_question_k']]
     
-    # 이전 단계의 답변도 초기화
     prev_question = survey_data.iloc[current_step - 1]['question_k']
     if prev_question in st.session_state.user_answers:
         del st.session_state.user_answers[prev_question]
 
 def handle_conditional_questions(row, answer):
     if pd.notna(row['if_question_k']) and pd.notna(row['if_option_k']):
-        # "예" 응답 시 추가 질문 표시
         if answer == "예":
             try:
                 if_options = ast.literal_eval(row['if_option_k'])
                 if isinstance(if_options, list) and if_options:
-                    # 다른 동물이 있는 경우 복수 응답 처리
                     if row['question_k'] in ["가정에 다른 동물이 있습니까?", "집에서 키우는 다른 동물이 있습니까?"]:
                         st.write(row['if_question_k'])
                         selected_animals = []
@@ -218,7 +214,6 @@ def handle_conditional_questions(row, answer):
                             ):
                                 selected_animals.append(option)
                         
-                        # 선택된 항목이 있는 경우에만 다음 버튼 활성화
                         if selected_animals:
                             st.session_state.user_answers[row['if_question_k']] = selected_animals
                             col1, col2 = st.columns([1, 5])
@@ -232,7 +227,6 @@ def handle_conditional_questions(row, answer):
                                     st.session_state.current_step += 1
                                     st.rerun()
                     else:
-                        # 일반 단일 응답 질문
                         if_answer = st.radio(
                             row['if_question_k'],
                             if_options,
@@ -246,7 +240,6 @@ def handle_conditional_questions(row, answer):
             except (ValueError, SyntaxError) as e:
                 st.error(f"조건부 질문 '{row['if_question_k']}'의 옵션을 처리하는 중 오류가 발생했습니다: {str(e)}")
         
-        # "아니오" 응답 시 바로 다음 질문으로 이동
         elif answer == "아니오" and row['question_k'] in ["가정에 어린이가 있습니까?", "집에 자녀가 있습니까?", 
                                                        "가정에 다른 동물이 있습니까?", "집에서 키우는 다른 동물이 있습니까?"]:
             st.session_state.current_step += 1
@@ -281,32 +274,60 @@ def handle_survey_completion(breed_info, akcTraits):
     matched_breeds = sorted(scores.items(), key=lambda x: x[1], reverse=True)
     
     show_breed_results(matched_breeds, breed_info)
+
+def show_intro_page():
+    UI().load_css()
+    st.image("static/images/survey_intro.png", use_container_width=True)
+    st.markdown("<p class='txt-center'>이 설문을 통해 당신의 생활 방식과 선호도에 맞는 반려견 품종을 찾아보세요.</p>", unsafe_allow_html=True)
     
+    st.markdown("<p class='txt-center'>설문에 응답하면 당신의 라이프스타일과 가장 잘 맞는 강아지 품종을 추천해 드립니다.</p>", unsafe_allow_html=True)
+
+    col1, col2, col3 = st.columns([1, 1, 1])
+    with col2:
+        if st.button(
+            "설문 시작",
+            type="primary",
+            use_container_width=True
+            ):
+            st.session_state.show_intro = False
+            st.rerun()
+
+def survey_page(survey_data, breed_info, akcTraits):
+    total_steps = len(survey_data)
+    current_step = st.session_state.current_step
+
+    show_progress_bar(current_step, total_steps)
+    
+    if current_step < total_steps:
+        handle_survey_navigation(survey_data, current_step)
+    else:
+        handle_survey_completion(breed_info, akcTraits)
 
 def show_survey_page():
     st.subheader("🔍 나의 반려동물 찾기")
+    
     
     if 'user_answers' not in st.session_state:
         st.session_state.user_answers = {}
     if 'current_step' not in st.session_state:
         st.session_state.current_step = 0
+    if 'show_intro' not in st.session_state:
+        st.session_state.show_intro = True
     
     survey_data = pd.read_csv('./static/database/survey.csv')
     breed_info = pd.read_csv('./static/database/akcBreedInfo.csv')
     akcTraits = pd.read_csv('./static/database/akcTraits.csv')
     
     tab1, tab2, tab3 = st.tabs(["강아지","고양이","기타"])
-    with tab1:
-        total_steps = len(survey_data)
-        current_step = st.session_state.current_step
     
-        show_progress_bar(current_step, total_steps)
-        
-        if current_step < total_steps:
-            handle_survey_navigation(survey_data, current_step)
+    with tab1:
+        if st.session_state.show_intro:
+            show_intro_page()
         else:
-            handle_survey_completion(breed_info, akcTraits)
+            survey_page(survey_data, breed_info, akcTraits)
+    
     with tab2:
         st.warning("페이지 준비중입니다.")
+    
     with tab3:
         st.warning("페이지 준비중입니다.")
