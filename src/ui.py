@@ -385,9 +385,6 @@ class UI:
                         lambda row: f"{int(row['출생년도'])}년생" if pd.notna(row['출생년도']) else "", 
                         axis=1
                     )
-                    if self.is_mobile() == True:
-                        st.write("mobile")
-                        petinshelter = petinshelter[['desertionNo', 'kindCd', 'age', 'sexCd', 'careNm', '년생']]
                     st.session_state[data_key] = petinshelter
                     
                     if refresh_button:
