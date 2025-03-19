@@ -17,8 +17,7 @@ public = Public()
 ui = UI()
 breedinfo = BreedInfo()
 
-
-def show_pet_list(upkind):     
+def show_pet_list(upkind):
     data_key = f"pet_data_{upkind}"
     refresh_key = f"refresh_data_{upkind}"
 
@@ -27,7 +26,7 @@ def show_pet_list(upkind):
         refresh_button = st.button("임시보호소 현황조회", key=refresh_key, use_container_width=True, type="primary")
     
     if refresh_button:
-        public.show_petinshelter(upkind, data_key, refresh_button)
+        ui.show_petinshelter(upkind, data_key, refresh_button)
     elif data_key not in st.session_state or st.session_state[data_key].empty:
         ui.show_preview()
     

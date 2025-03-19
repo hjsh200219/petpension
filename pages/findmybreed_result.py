@@ -15,7 +15,7 @@ def show_findmybreed(upkind):
     
     data_key = f"petinshelter_{upkind}"
     
-    col1, col2, col3 = st.columns((2,1,4))
+    col1, col2, col3 = st.columns((1,1,4))
     with col1:
         breed_input = st.text_input(
             "반려동물 종류를 입력하세요",
@@ -25,7 +25,7 @@ def show_findmybreed(upkind):
         )
     with col2:
         search_breed = st.button(
-            "나의 반려동물 찾기",
+            "품종 찾기",
             use_container_width=True,
             key=f"{data_key}_search_breed",
             type="secondary"

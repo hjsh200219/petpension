@@ -25,7 +25,7 @@ class UI:
                 f'<style>{f.read()}</style>', 
                 unsafe_allow_html=True
             )
-
+        
     def is_mobile(self):
         width = st_javascript("window.innerWidth")
         if width < 768:
@@ -33,7 +33,7 @@ class UI:
         else:
             st.session_state.is_mobile = False
         return st.session_state.is_mobile
-        
+
     def display_banner(self):
         st.markdown(
             """
@@ -580,6 +580,72 @@ class UI:
         with st.expander("보호소 정보", expanded=False):
             st.write("보호소 정보를 확인할 수 있습니다.", unsafe_allow_html=False)
 
+    def show_petinshelter(self, upkind, data_key = None, refresh_button = None):
+        with st.spinner("임시보호소 정보를 가져오고 있습니다..."):
+            try:
+                petinshelter = Public().find_pet(upkind=upkind)
+                petinshelter.to_csv('./static/database/petinshelter.csv', index=False)
+                if petinshelter is not None and not petinshelter.empty:
+                    petinshelter = petinshelter[
+                        petinshelter['processState'].isin(["보호중", "공고중"])
+                    ]
+                    petinshelter = petinshelter[['desertionNo', 'happenDt', 'kindCd', 'age', 'sexCd', 'careNm']].copy()
+                    
+                    petinshelter['happenDt'] = pd.to_datetime(petinshelter['happenDt'], errors='coerce').dt.strftime('%Y-%m-%d')
+                    petinshelter = petinshelter.dropna(subset=['happenDt'])
+                    
+                    petinshelter['kindCd'] = petinshelter['kindCd'].str.replace('[개]', '').str.replace('[고양이]', '').str.replace('[기타축종] ', '').str.strip()
+                    
+                    if not Public().shelter_to_sido:
+                        st.warning("시도 매핑 정보가 비어 있습니다. 시도 정보를 '정보 없음'으로 설정합니다.")
+                        petinshelter['시도'] = '정보 없음'
+                    else:
+                        petinshelter['시도'] = petinshelter['careNm'].map(Public().shelter_to_sido)
+                        
+                        missing_sido = petinshelter['시도'].isna().sum()
+                        if missing_sido > 0:
+                            st.warning(f"{missing_sido}개의 보호소에 시도 정보가 매핑되지 않았습니다.")
+                            
+                            missing_shelters = petinshelter.loc[petinshelter['시도'].isna(), 'careNm'].unique()
+                            if len(missing_shelters) > 0:
+                                sample_missing = missing_shelters[:min(5, len(missing_shelters))]
+                                st.warning(f"매핑되지 않은 보호소 예시: {', '.join(sample_missing)}")
+                                
+                                for shelter_name in sample_missing:
+                                    similar_names = [name for name in Public().shelter_to_sido.keys() 
+                                                    if shelter_name in name or name in shelter_name]
+                                    if similar_names:
+                                        st.info(f"'{shelter_name}'와(과) 비슷한 이름: {', '.join(similar_names[:3])}")
+                        
+                        petinshelter['시도'] = petinshelter['시도'].fillna('정보 없음')
+                    
+                    if not Public().shelter_to_sigungu:
+                        petinshelter['시군구'] = '정보 없음'
+                    else:
+                        petinshelter['시군구'] = petinshelter['careNm'].map(Public().shelter_to_sigungu).fillna('정보 없음')                  
+                    
+                    petinshelter['출생년도'] = petinshelter['age'].apply(Public().extract_birth_year)
+                    petinshelter['년생'] = petinshelter.apply(
+                        lambda row: f"{int(row['출생년도'])}년생" if pd.notna(row['출생년도']) else "", 
+                        axis=1
+                    )
+
+                    st.session_state[data_key] = petinshelter
+                    
+                    if refresh_button:
+                        filter_state_key = f"filter_state_{upkind}"
+                        st.session_state[filter_state_key] = False
+                        st.rerun()
+                else:
+                    st.error("데이터를 가져오는 데 실패했습니다.")
+                    if data_key not in st.session_state:
+                        st.session_state[data_key] = pd.DataFrame()
+            except Exception as e:
+                st.error(f"데이터 처리 중 오류가 발생했습니다: {str(e)}")
+                if data_key not in st.session_state:
+                    st.session_state[data_key] = pd.DataFrame()
+        return petinshelter
+
 class BreedInfo:
     def __init__(self) -> None:
         self.breed_info = pd.read_csv('./static/database/akcBreedInfo.csv')
@@ -929,68 +995,98 @@ class BreedInfo:
         st.write("##### 속성 점수를 이해하는 방법")
         scores = [2, 4]
         average_scores = [4.5, 2.5]
-        trait_desc = "속성에 대한 설명이 이 영역에 표시됩니다. ex. 훈련에 얼마나 잘 반응하며 새로운 것을 배우려는 의지가 어느 정도인지를 나타냅니다. 일부 품종은 주인을 기쁘게 하려고 노력하지만, 다른 품종은 자기 주장이 강해 스스로 원하는 대로 행동합니다."
+        trait_desc = """속성에 대한 설명이 이 영역에 표시됩니다. 
+        ex. 훈련에 얼마나 잘 반응하며 새로운 것을 배우려는 의지가 어느 정도인지를 나타냅니다.
+        일부 품종은 주인을 기쁘게 하려고 노력하지만, 다른 품종은 자기 주장이 강해 스스로 원하는 대로 행동합니다."""
         score_low = "낮은 점수의 의미"
         score_high = "높은 점수의 의미"
         traits = ["속성 이름(1)", "속성 이름(2)"]
+        is_mobile = UI().is_mobile()
 
-        for i in range(2):
-            col1, col2 = st.columns([1, 1])
-            with col1:
-                fig = go.Figure(go.Indicator(
-                    mode="gauge+number+delta",
-                    value=scores[i],
-                    title={'text': traits[i]},
-                    gauge={
-                        'axis': {'range': [1, 5],
-                                 'tickmode': "array",
-                                 "tickvals": [1, 2, 3, 4, 5],
-                                 "ticktext": [f"{score_low}", "", "", "", f"{score_high}"]},
-                        'bar': {'color': "blue"},
-                        'threshold': {
-                            'line': {'color': "red", 'width': 4},
-                            'thickness': 0.75,
-                            'value': average_scores[i]
-                        }
-                    },
-                    delta={'reference': average_scores[i]}
-                ))
+        def column_1(i, traits, score_low, score_high, scores):
+            st.write(f"<span style='color:gray;'>{traits[i]}</span>", unsafe_allow_html=True)
+            st.write(f"<span style='color:gray;'>{score_low}</span>", unsafe_allow_html=True)
+            st.write(f"<span style='color:gray;'>{score_high}</span>", unsafe_allow_html=True)
+            st.write(f"<span style='color:gray;'>{scores[i]}</span>", unsafe_allow_html=True)
+            delta = scores[i] - average_scores[i]
+            color = 'red' if delta < 0 else 'green'
+            st.markdown(f"<span style='color:{color};'>&#9660; {delta}</span> ", unsafe_allow_html=True)
+            st.write("<span style='color:red;'>|</span>", unsafe_allow_html=True)
+            st.write(f"<span style='color:gray;'>{trait_desc[:9]}...</span>", unsafe_allow_html=True)
 
-                fig.update_layout(
-                    height=200,
-                    margin=dict(t=60, b=10, l=10, r=10),
-                    autosize=False,
-                    font=dict(size=16, color="gray")  # 폰트 색상을 gray로 변경
-                )
+        def column_2_mobile(score_low, score_high, scores, average_scores):
+            st.write(f"{traits[i]}<code>속성 이름</code>", unsafe_allow_html=True)
+            st.write(f"{score_low}<code>속성의 점수가 낮을 때의 품종이 어떤 성향을 가지는지 설명</code>", unsafe_allow_html=True)
+            st.write(f"{score_high}<code>속성의 점수가 높을 때의 품종이 어떤 성향을 가지는지 설명</code>", unsafe_allow_html=True)
+            st.write(f"{scores[i]}<code>해당 품종의 속성 점수</code>", unsafe_allow_html=True)
+            delta = scores[i] - average_scores[i]
+            color = 'red' if delta < 0 else 'green'
+            st.markdown(f"<span style='color:{color};'>&#9660; {delta}</span><code>다른 품종의 평균 대비 상대 점수</code>", unsafe_allow_html=True)
+            st.write(f"<span style='color:red;'>|</span><code>다른 품종의 평균 점수를 그래프에 표시</code>", unsafe_allow_html=True)
+            st.write(f"{trait_desc[:9]}...<code>품종의 특성에 대한 설명</code>", unsafe_allow_html=True)
+        
+        def column_2():
+            st.write("<code>속성 이름</code>", unsafe_allow_html=True)
+            st.write("<code>속성의 점수가 낮을 때의 품종이 어떤 성향을 가지는지 설명</code>", unsafe_allow_html=True)
+            st.write("<code>속성의 점수가 높을 때의 품종이 어떤 성향을 가지는지 설명</code>", unsafe_allow_html=True)
+            st.write("<code>해당 품종의 속성 점수</code>", unsafe_allow_html=True)
+            st.write("<code>다른 품종의 평균 대비 상대 점수</code>", unsafe_allow_html=True)
+            st.write("<code>다른 품종의 평균 점수를 그래프에 표시</code>", unsafe_allow_html=True)
+            st.write("<code>품종의 특성에 대한 설명</code>", unsafe_allow_html=True)
 
-                # 고유한 key 추가
-                unique_key = f"example_plot_{i}_{id(self)}_{id(col1)}"
-                st.plotly_chart(fig, use_container_width=True, key=unique_key)  # 고유한 키 추가
-                st.write(f"<span style='color:gray;'>{trait_desc}</span>", unsafe_allow_html=True)
+        def figure(i, traits, score_low, score_high, scores, average_scores):
+            fig = go.Figure(go.Indicator(
+                mode="gauge+number+delta",
+                value=scores[i],
+                title={'text': traits[i]},
+                gauge={
+                    'axis': {'range': [1, 5],
+                            'tickmode': "array",
+                            "tickvals": [1, 2, 3, 4, 5],
+                            "ticktext": [f"{score_low}", "", "", "", f"{score_high}"]},
+                    'bar': {'color': "blue"},
+                    'threshold': {
+                        'line': {'color': "red", 'width': 4},
+                        'thickness': 0.75,
+                        'value': average_scores[i]
+                    }
+                },
+                delta={'reference': average_scores[i]}
+            ))
 
-            with col2:
-                col2_1, col2_2 = st.columns([1, 3])
-                with col2_1:
-                    st.write(f"<span style='color:gray;'>{traits[i]}</span>", unsafe_allow_html=True)
-                    st.write(f"<span style='color:gray;'>{score_low}</span>", unsafe_allow_html=True)
-                    st.write(f"<span style='color:gray;'>{score_high}</span>", unsafe_allow_html=True)
-                    st.write(f"<span style='color:gray;'>{scores[i]}</span>", unsafe_allow_html=True)
-                    delta = scores[i] - average_scores[i]
-                    color = 'red' if delta < 0 else 'green'
-                    st.markdown(f"<span style='color:{color};'>&#9660; {delta}</span> ", unsafe_allow_html=True)
-                    st.write("<span style='color:red;'>|</span>", unsafe_allow_html=True)
-                    st.write(f"<span style='color:gray;'>{trait_desc[:9]}...</span>", unsafe_allow_html=True)
-                with col2_2:
-                    st.write("<span style='color:gray;'>속성 이름</span>", unsafe_allow_html=True)
-                    st.write("<span style='color:gray;'>속성의 점수가 낮을 때의 품종이 어떤 성향을 가지는지 설명</span>", unsafe_allow_html=True)
-                    st.write("<span style='color:gray;'>속성의 점수가 높을 때의 품종이 어떤 성향을 가지는지 설명</span>", unsafe_allow_html=True)
-                    st.write("<span style='color:gray;'>해당 품종의 속성 점수</span>", unsafe_allow_html=True)
-                    st.write("<span style='color:gray;'>다른 품종의 평균 대비 상대 점수</span>", unsafe_allow_html=True)
-                    st.write("<span style='color:gray;'>다른 품종의 평균 점수를 그래프에 표시</span>", unsafe_allow_html=True)
-                    st.write("<span style='color:gray;'>품종의 특성에 대한 설명</span>", unsafe_allow_html=True)
+            fig.update_layout(
+                height=200,
+                margin=dict(t=60, b=10, l=10, r=10),
+                autosize=False,
+                font=dict(size=16, color="gray")
+            )
 
-            if i != len(scores) - 1:
-                st.divider()
+            unique_key = f"example_plot_{i}_{id(self)}_{id(col1)}"
+            st.plotly_chart(fig, use_container_width=True, key=unique_key)
+            st.write(f"<span style='color:gray;'>{trait_desc}</span>", unsafe_allow_html=True)
+
+        if is_mobile == False:
+            for i in range(2):
+                col1, col2 = st.columns([1, 1])
+                with col1:
+                    figure(i, traits, score_low, score_high, scores, average_scores)
+
+                with col2:
+                    col2_1, col2_2 = st.columns([1, 3])
+                    with col2_1:
+                        column_1(i, traits, score_low, score_high, scores)
+                    with col2_2:
+                        column_2()
+
+                if i != len(scores) - 1:
+                    st.divider()
+        else:
+            for i in range(1):
+                col1, col2 = st.columns([1, 1])
+                with col1:
+                    figure(i, traits, score_low, score_high, scores, average_scores)
+                with col2:
+                    column_2_mobile(score_low, score_high, scores, average_scores)
 
     def show_breed_trait_5scale(self, breed_name, trait):
         # 해당 품종이 breed_info에 있는지 확인
@@ -1164,29 +1260,38 @@ class BreedInfo:
     def match_breed(self, upkind, breed_name):
         data_key = f"match_breed_data_{upkind}_{breed_name.replace(' ', '_')}"
         grid_key = f"match_breed_grid_{upkind}_{breed_name.replace(' ', '_')}"
+        button_key = f"match_breed_button_{upkind}_{breed_name.replace(' ', '_')}"
+        
         
         col1, col2, col3 = st.columns((1,1,1))
         with col2:
-            unique_key = f"match_breed_shelter_{id(self)}_{id(col2)}"
             search_shelter = st.button(
                 f"[{breed_name}] 입양하기",
-                key=unique_key,
+                key=button_key,
                 use_container_width=True,
                 type="secondary"
             )
-        
-        
+            
         if search_shelter:
-            with st.spinner("임시보호소 정보를 가져오는 중..."):
-                petinshelter = Public().show_petinshelter(upkind)
-                
-                if petinshelter is None or petinshelter.empty:
-                    st.error("임시보호소 데이터를 가져오지 못했습니다.")
-                    return
-                
-                filtered_data = petinshelter[petinshelter['kindCd'].str.contains(breed_name, na=False, case=False)]
-                
-                st.session_state[data_key] = filtered_data
+            petinshelter = UI().show_petinshelter(upkind)
+            
+            if petinshelter is None or petinshelter.empty:
+                st.error("임시보호소 데이터를 가져오지 못했습니다.")
+                return
+            
+            search_keywords = breed_name.split()
+            main_keyword = search_keywords[0] if search_keywords else breed_name
+            
+            filtered_data = petinshelter[petinshelter['kindCd'].str.contains(main_keyword, na=False, case=False)]
+            
+            if filtered_data.empty and len(search_keywords) > 1:
+                main_keyword = search_keywords[1]
+                filtered_data = petinshelter[petinshelter['kindCd'].str.contains(main_keyword, na=False, case=False)]
+            
+            if filtered_data.empty:
+                st.warning(f"'{breed_name}' 품종을 찾을 수 없습니다. 다른 검색어로 시도해보세요.")
+            
+            st.session_state[data_key] = filtered_data
         
         if data_key in st.session_state:
             filtered_data = st.session_state[data_key]

@@ -1,21 +1,16 @@
 from tqdm import tqdm
 import pandas as pd
 import requests as req
-import json
-import math
-import datetime
 from io import BytesIO, StringIO
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 import numpy as np
 from pathlib import Path
-import os
 from bs4 import BeautifulSoup as BS
 from playwright.sync_api import sync_playwright
 import streamlit as st
 from typing import List, Dict, Any, Callable, Optional, Union, Tuple
-import time
-import random
+import time, random,os, json, math, datetime
 from fake_useragent import UserAgent
 from requests_html import HTMLSession
 from math import ceil
@@ -960,93 +955,7 @@ class Public:
         except Exception:
             return None
         
-    def show_petinshelter(self, upkind, data_key = None, refresh_button = None):
-        with st.spinner("임시보호소 정보를 가져오고 있습니다..."):
-            try:
-                petinshelter = self.find_pet(upkind=upkind)
-                petinshelter.to_csv('./static/database/petinshelter.csv', index=False)
-                if petinshelter is not None and not petinshelter.empty:
-                    petinshelter = petinshelter[
-                        petinshelter['processState'].isin(["보호중", "공고중"])
-                    ]
-                    petinshelter = petinshelter[['desertionNo', 'happenDt', 'kindCd', 'age', 'sexCd', 'careNm']].copy()
-                    
-                    # 날짜 변환 및 오류 처리
-                    petinshelter['happenDt'] = pd.to_datetime(petinshelter['happenDt'], errors='coerce').dt.strftime('%Y-%m-%d')
-                    petinshelter = petinshelter.dropna(subset=['happenDt'])
-                    
-                    # 품종 정보 정리
-                    petinshelter['kindCd'] = petinshelter['kindCd'].str.replace(
-                        '[개]', ''
-                    ).str.replace(
-                        '[고양이]', ''
-                    ).str.replace(
-                        '[기타축종] ', ''
-                    ).str.strip()
-                    
-                    # 보호소 이름으로 시도, 시군구 정보 추가
-                    # 매핑 정보 디버깅
-                    if not self.shelter_to_sido:
-                        st.warning("시도 매핑 정보가 비어 있습니다. 시도 정보를 '정보 없음'으로 설정합니다.")
-                        petinshelter['시도'] = '정보 없음'
-                    else:
-                        # 일반 매핑 시도
-                        # 매핑 시도
-                        petinshelter['시도'] = petinshelter['careNm'].map(self.shelter_to_sido)
-                        
-                        # 매핑 결과 확인
-                        missing_sido = petinshelter['시도'].isna().sum()
-                        if missing_sido > 0:
-                            st.warning(f"{missing_sido}개의 보호소에 시도 정보가 매핑되지 않았습니다.")
-                            
-                            # 일부 보호소 이름 출력
-                            missing_shelters = petinshelter.loc[petinshelter['시도'].isna(), 'careNm'].unique()
-                            if len(missing_shelters) > 0:
-                                sample_missing = missing_shelters[:min(5, len(missing_shelters))]
-                                st.warning(f"매핑되지 않은 보호소 예시: {', '.join(sample_missing)}")
-                                
-                                # 비슷한 이름 찾기 시도
-                                for shelter_name in sample_missing:
-                                    similar_names = [name for name in self.shelter_to_sido.keys() 
-                                                    if shelter_name in name or name in shelter_name]
-                                    if similar_names:
-                                        st.info(f"'{shelter_name}'와(과) 비슷한 이름: {', '.join(similar_names[:3])}")
-                        
-                        # 누락된 값 '정보 없음'으로 채우기
-                        petinshelter['시도'] = petinshelter['시도'].fillna('정보 없음')
-                    
-                    # 시군구 정보 매핑
-                    if not self.shelter_to_sigungu:
-                        petinshelter['시군구'] = '정보 없음'
-                    else:
-                        petinshelter['시군구'] = petinshelter['careNm'].map(self.shelter_to_sigungu).fillna('정보 없음')                  
-                    
-                    # 출생년도 추출 및 년생 표시 생성
-                    petinshelter['출생년도'] = petinshelter['age'].apply(self.extract_birth_year)
-                    petinshelter['년생'] = petinshelter.apply(
-                        lambda row: f"{int(row['출생년도'])}년생" if pd.notna(row['출생년도']) else "", 
-                        axis=1
-                    )
-                    
-                    # 세션 상태에 데이터 저장
-                    st.session_state[data_key] = petinshelter
-                    
-                    # 필터 상태 초기화 (새로고침 시)
-                    if refresh_button:
-                        filter_state_key = f"filter_state_{upkind}"
-                        st.session_state[filter_state_key] = False
-                        st.rerun()  # 페이지 새로고침
-                else:
-                    st.error("데이터를 가져오는 데 실패했습니다.")
-                    # 이전 데이터가 없으면 빈 데이터프레임 생성
-                    if data_key not in st.session_state:
-                        st.session_state[data_key] = pd.DataFrame()
-            except Exception as e:
-                st.error(f"데이터 처리 중 오류가 발생했습니다: {str(e)}")
-                # 이전 데이터가 없으면 빈 데이터프레임 생성
-                if data_key not in st.session_state:
-                    st.session_state[data_key] = pd.DataFrame()
-        return petinshelter
+    
     
 
 class AKC:

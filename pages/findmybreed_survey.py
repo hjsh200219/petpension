@@ -40,7 +40,9 @@ def calculate_scores(user_answers, breed):
         
         if question in user_answers:
             answer = user_answers[question]
-            score, total_weight = update_score_and_weight(score, total_weight, weight, breed, trait, answer, levels, is_shedding, is_size)
+            score, total_weight = update_score_and_weight(
+                score, total_weight, weight, breed, trait, answer, levels, is_shedding, is_size
+            )
 
     return score, total_weight
 
