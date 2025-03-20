@@ -53,7 +53,7 @@ def show_findmybreed(upkind):
             BreedInfo().match_breed(upkind, selected_breed)
 
 def show_findmybreed_page():
-    st.subheader("🔍 나의 반려동물 찾기")
+    st.subheader("🔍 반려동물 입양 정보")
 
     tab1, tab2, tab3 = st.tabs(["강아지","고양이","기타"])
     with tab1:

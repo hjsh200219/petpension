@@ -308,7 +308,7 @@ def show_survey_page():
     """메인 페이지를 표시하는 함수"""
     # CSS 및 PWA 컴포넌트 로드
     ui = UI()
-    ui.load_css()
+    # ui.load_css()
     # ui.load_pwa_components()
     
     st.subheader("🔍 나의 반려동물 찾기")
