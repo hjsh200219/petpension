@@ -161,7 +161,6 @@ def show_schedule_page():
             
             # 진행 상황 완료 표시
             progress_bar.progress(1.0)
-            status_text.text(f"완료: {total_threads}/{total_threads} (100%)")
             
             # 오류 메시지 표시 (메인 스레드에서)
             errors = [r for r in all_results if isinstance(r, dict) and r.get('error')]
@@ -306,58 +305,56 @@ def show_schedule_page():
         if 'available_items' not in st.session_state:
             st.session_state.available_items = ["전체"] + list(st.session_state.result['숙박상품'].unique())
         
-        # 숙박업소와 지역 필터를 위한 UI 컴포넌트 생성
-        col1, col2, col3 = st.columns(3)
-        
-        with col1:
-            # 모든 숙박업소 옵션
-            all_businesses = ["전체"] + list(st.session_state.result['숙박업소'].unique())
-            selected_index = 0
-            if st.session_state.business_name_filter in all_businesses:
-                selected_index = all_businesses.index(st.session_state.business_name_filter)
-                
-            st.selectbox(
-                "숙박업소 선택",
-                options=all_businesses,
-                key="숙박업소_filter_widget",
-                index=selected_index,
-                on_change=on_business_filter_change
-            )
-        
-        with col2:
-            # 선택한 숙박업소에 따라 필터링된 숙박상품 옵션
-            available_items = st.session_state.available_items
-            selected_index = 0
-            if st.session_state.biz_item_name_filter in available_items:
-                selected_index = available_items.index(st.session_state.biz_item_name_filter)
-                
-            st.selectbox(
-                "숙박상품 선택",
-                options=available_items,
-                key="숙박상품_filter_widget",
-                index=selected_index,
-                on_change=on_item_filter_change
-            )
-        
-        with col3:
-            # 모든 지역 옵션
-            all_regions = ["전체"] + list(st.session_state.result['지역'].unique())
-            selected_index = 0
-            if st.session_state.region_filter in all_regions:
-                selected_index = all_regions.index(st.session_state.region_filter)
-                
-            st.selectbox(
-                "지역 선택",
-                options=all_regions,
-                key="지역_filter_widget",
-                index=selected_index,
-                on_change=on_region_filter_change
-            )
+        with st.expander("숙박업소 필터"):
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                # 모든 숙박업소 옵션
+                all_businesses = ["전체"] + list(st.session_state.result['숙박업소'].unique())
+                selected_index = 0
+                if st.session_state.business_name_filter in all_businesses:
+                    selected_index = all_businesses.index(st.session_state.business_name_filter)
+                    
+                st.selectbox(
+                    "숙박업소 선택",
+                    options=all_businesses,
+                    key="숙박업소_filter_widget",
+                    index=selected_index,
+                    on_change=on_business_filter_change
+                )
+            
+            with col2:
+                # 선택한 숙박업소에 따라 필터링된 숙박상품 옵션
+                available_items = st.session_state.available_items
+                selected_index = 0
+                if st.session_state.biz_item_name_filter in available_items:
+                    selected_index = available_items.index(st.session_state.biz_item_name_filter)
+                    
+                st.selectbox(
+                    "숙박상품 선택",
+                    options=available_items,
+                    key="숙박상품_filter_widget",
+                    index=selected_index,
+                    on_change=on_item_filter_change
+                )
+            
+            with col3:
+                # 모든 지역 옵션
+                all_regions = ["전체"] + list(st.session_state.result['지역'].unique())
+                selected_index = 0
+                if st.session_state.region_filter in all_regions:
+                    selected_index = all_regions.index(st.session_state.region_filter)
+                    
+                st.selectbox(
+                    "지역 선택",
+                    options=all_regions,
+                    key="지역_filter_widget",
+                    index=selected_index,
+                    on_change=on_region_filter_change
+                )
 
         # 처음 로드 시 필터 적용
         if search_button:
             apply_filters()
-
             
         # 필터링된 결과 표시
         try:

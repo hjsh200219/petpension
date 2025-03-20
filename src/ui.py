@@ -155,7 +155,7 @@ class UI:
                 df,
                 gridOptions=grid_options,
                 enable_enterprise_modules=True,
-            height=500,
+                height=500,
                 width='100%',
             fit_columns_on_grid_load=True,
             use_container_width = True
