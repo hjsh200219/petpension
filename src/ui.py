@@ -25,6 +25,46 @@ class UI:
                 unsafe_allow_html=True
             )
         
+    def load_pwa_components(self):
+        """PWA 관련 컴포넌트와 스크립트를 로드합니다."""
+        # 매니페스트 링크 추가
+        st.markdown(
+            '<link rel="manifest" href="/static/pwa/manifest.json">',
+            unsafe_allow_html=True
+        )
+        
+        # iOS용 메타 태그 추가
+        st.markdown(
+            '''
+            <meta name="apple-mobile-web-app-capable" content="yes">
+            <meta name="apple-mobile-web-app-status-bar-style" content="black">
+            <meta name="apple-mobile-web-app-title" content="펫펜션">
+            <link rel="apple-touch-icon" href="/static/pwa/icons/icon-192x192.png">
+            <meta name="theme-color" content="#4CAF50">
+            ''',
+            unsafe_allow_html=True
+        )
+        
+        # PWA 스크립트 로드
+        st.markdown(
+            f'<script src="/static/pwa/pwa.js"></script>',
+            unsafe_allow_html=True
+        )
+        
+        # 설치 버튼 추가
+        st.markdown(
+            '''
+            <div class="pwa-install-container">
+                <button id="install-pwa">앱 설치하기</button>
+            </div>
+            
+            <div class="offline-notification">
+                오프라인 모드입니다. 일부 기능이 제한될 수 있습니다.
+            </div>
+            ''',
+            unsafe_allow_html=True
+        )
+        
     def is_mobile(self):        
         random_str = ''.join(random.choice(string.ascii_letters) for _ in range(8))
         unique_key = f"mobile_check_{random_str}_{time.time()}"
