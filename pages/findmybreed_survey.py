@@ -309,7 +309,7 @@ def show_survey_page():
     # CSS 및 PWA 컴포넌트 로드
     ui = UI()
     ui.load_css()
-    ui.load_pwa_components()
+    # ui.load_pwa_components()
     
     st.subheader("🔍 나의 반려동물 찾기")
     
