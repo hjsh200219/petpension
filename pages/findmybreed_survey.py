@@ -305,29 +305,48 @@ def survey_page(survey_data, breed_info, akcTraits):
         Survey().handle_survey_completion(breed_info, akcTraits)
 
 def show_survey_page():
+    """메인 페이지를 표시하는 함수"""
+    # CSS 및 PWA 컴포넌트 로드
+    ui = UI()
+    ui.load_css()
+    ui.load_pwa_components()
+    
     st.subheader("🔍 나의 반려동물 찾기")
     
+    # 세션 상태 초기화
     if 'user_answers' not in st.session_state:
         st.session_state.user_answers = {}
     if 'current_step' not in st.session_state:
         st.session_state.current_step = 0
     if 'show_intro' not in st.session_state:
         st.session_state.show_intro = True
+    if 'animal_type' not in st.session_state:
+        st.session_state.animal_type = "강아지"
     
+    # 데이터 로드
     survey_data = pd.read_csv('./static/database/survey.csv')
     breed_info = pd.read_csv('./static/database/akcBreedInfo.csv')
     akcTraits = pd.read_csv('./static/database/akcTraits.csv')
     
-    tab1, tab2, tab3 = st.tabs(["강아지","고양이","기타"])
-    
-    with tab1:
-        if st.session_state.show_intro:
-            Survey().show_intro_page()
-        else:
+    # 인트로 화면과 설문 화면 분기
+    if st.session_state.show_intro:
+        Survey().show_intro_page()
+    else:
+        # 동물 유형 선택 탭
+        animal_type = st.radio(
+            "반려동물 유형 선택",
+            ["강아지", "고양이", "기타"],
+            horizontal=True,
+            index=0 if st.session_state.animal_type == "강아지" else 
+                  1 if st.session_state.animal_type == "고양이" else 2,
+            key="animal_type_selector"
+        )
+        
+        st.session_state.animal_type = animal_type
+        
+        if animal_type == "강아지":
             survey_page(survey_data, breed_info, akcTraits)
-    
-    with tab2:
-        st.warning("페이지 준비중입니다.")
-    
-    with tab3:
-        st.warning("페이지 준비중입니다.")
+        elif animal_type == "고양이":
+            st.warning("고양이 설문은 준비중입니다.")
+        else:
+            st.warning("기타 동물 설문은 준비중입니다.")

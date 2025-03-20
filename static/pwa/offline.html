@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오프라인 - 펫펜션</title>
+    <style>
+        body {
+            font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            max-width: 90%;
+            width: 400px;
+        }
+        
+        .icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #ff9800;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        
+        p {
+            color: #666;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+        
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">📶</div>
+        <h1>오프라인 상태입니다</h1>
+        <p>인터넷 연결이 없습니다. 인터넷에 다시 연결되면 앱을 사용할 수 있습니다.</p>
+        <button class="btn" onclick="checkConnection()">다시 시도</button>
+    </div>
+
+    <script>
+        function checkConnection() {
+            if (navigator.onLine) {
+                window.location.reload();
+            } else {
+                alert('인터넷 연결이 여전히 없습니다. 네트워크 연결을 확인해 주세요.');
+            }
+        }
+        
+        // 온라인 상태가 되면 자동으로 페이지 새로고침
+        window.addEventListener('online', function() {
+            window.location.reload();
+        });
+    </script>
+</body>
+</html> 

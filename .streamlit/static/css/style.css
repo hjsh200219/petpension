@@ -1,0 +1,267 @@
+.footer {
+    position: fixed;
+    bottom: 0px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    padding: 10px;
+    border-top: 1px solid #ddd;
+    z-index: 999;
+}
+
+.banner {
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.banner iframe {
+    display: block;
+    width: 100%;
+    height: 140px;
+    border: none;
+    overflow: hidden;
+    margin: 0;
+}
+
+.banner img {
+    max-width: 100%;
+    height: auto;
+    cursor: pointer;
+}
+
+iframe {
+    margin-bottom: 0 !important;
+}
+
+.txt-center {
+    text-align: center;
+}
+
+.stApp {
+    margin-bottom: 0px;
+}
+
+.dataframe-container {
+    margin-bottom: 0px;
+}
+
+/* Streamlit 상단 메뉴 여백 제거 */
+[data-testid="stToolbar"] {
+    display: none !important;
+}
+
+/* Streamlit 로고 제거 */
+a[data-testid="stSidebarNavLink"] {
+    display: none !important;
+}
+
+/* stDecoration 공백 제거 */
+[data-testid="stDecoration"] {
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* 탭 상단 공백 제거 */
+.stTabs {
+    margin-top: 0px !important;
+}
+
+/* Streamlit 기본 상단 여백 제거 */
+header {
+    display: none !important;
+}
+
+footer {
+    display: none !important;
+}
+
+/* 상단 간격 최소화 */
+div[data-testid="stHeader"] {
+    display: none !important;
+}
+
+/* 모든 상단 컨테이너 여백 제거 */
+.block-container {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+
+/* 상단 간격 최소화 */
+div[data-testid="stHeader"] {
+    display: none !important;
+}
+
+/* 모든 상단 컨테이너 여백 제거 */
+.block-container {
+    margin-top: 0px !important;
+}
+
+/* 그래프 컨테이너 스타일 */
+.stPlotlyChart {
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    overflow: hidden !important;
+}
+
+/* Plotly 모드바 숨기기 */
+.js-plotly-plot .plotly .modebar {
+    display: none !important;
+}
+
+/* 확장 패널 스타일 */
+.streamlit-expanderHeader {
+    padding-right: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.streamlit-expanderContent {
+    padding-right: 0 !important;
+    margin-top: 0 !important;
+    overflow-x: hidden !important;
+}
+
+.main .block-container {
+    padding-right: 1rem !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+}
+
+/* 세로 스크롤만 허용 */
+body {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+}
+
+/* 그래프 줌 및 상호작용 비활성화 */
+.js-plotly-plot, .plotly {
+    pointer-events: none !important;
+    touch-action: none !important;
+    user-select: none !important;
+}
+
+.stPlotlyChart {
+    pointer-events: none !important;
+    touch-action: none !important;
+    overflow: hidden !important;
+    width: 100% !important;
+}
+
+/* 반려동물 찾기 설문 스타일 */
+.survey-title {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+.survey-description {
+    text-align: center;
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    color: #555;
+}
+
+.survey-button {
+    text-align: center;
+    margin: 2rem auto;
+    max-width: 300px;
+}
+
+.survey-progress {
+    margin-bottom: 2rem;
+}
+
+.survey-question {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+.survey-result-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #333;
+    margin-top: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.breed-card {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.breed-match-score {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #4CAF50;
+}
+
+/* PWA 설치 버튼 스타일 */
+.pwa-install-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+#install-pwa {
+    display: none; /* 기본적으로 숨김, PWA 설치 가능할 때 JavaScript로 표시 */
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+#install-pwa:hover {
+    background-color: #45a049;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+    transform: translateY(-2px);
+}
+
+/* PWA 오프라인 알림 스타일 */
+.offline-notification {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: #ff9800;
+    color: white;
+    text-align: center;
+    padding: 8px;
+    z-index: 10000;
+    display: none;
+}
+
+.offline-notification.visible {
+    display: block;
+    animation: slideDown 0.5s forwards;
+}
+
+@keyframes slideDown {
+    0% {
+        transform: translateY(-100%);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
