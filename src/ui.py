@@ -325,7 +325,7 @@ class UI:
     def show_preview(self):
         with st.expander("필터 옵션 보기", expanded=False):
             st.write("검색 후 필터 옵션을 보고 조건을 선택해 검색 결과를 조정할 수 있습니다.", unsafe_allow_html=False)
-        st.subheader("🐾 전체 목록")
+        st.info("조회 결과가 없습니다.")
         BreedInfo().show_map_null()
         with st.expander("상세 정보 보기", expanded=False):
             st.write("검색 결과를 상세하게 표시합니다.", unsafe_allow_html=False)
@@ -337,7 +337,7 @@ class UI:
             st.write("보호소 정보를 확인할 수 있습니다.", unsafe_allow_html=False)
 
     def show_petinshelter(self, upkind, data_key = None, refresh_button = None):
-        with st.spinner("임시보호소 정보를 가져오고 있습니다..."):
+        with st.spinner("보호소 정보를 가져오고 있습니다..."):
             try:
                 petinshelter = Public().find_pet(upkind=upkind)
                 petinshelter.to_csv('./static/database/petinshelter.csv', index=False)
@@ -538,14 +538,25 @@ class BreedInfo:
         gb = GridOptionsBuilder.from_dataframe(display_data)
         gb.configure_selection(selection_mode="single", use_checkbox=True)
 
-        gb.configure_column("시도", headerName="시도", use_checkbox=True)
-        gb.configure_column("시군구", headerName="시군구", use_checkbox=True)
-        gb.configure_column("desertionNo", headerName="유기번호", use_checkbox=True)
-        gb.configure_column("happenDt", headerName="발견일", use_checkbox=True)
-        gb.configure_column("kindCd", headerName="품종", use_checkbox=True)
-        gb.configure_column("age", headerName="나이", use_checkbox=True)
-        gb.configure_column("sexCd", headerName="성별", use_checkbox=True)
-        gb.configure_column("careNm", headerName="보호소", use_checkbox=True)
+
+        if st.session_state.is_mobile == False:
+            gb.configure_column("시도", headerName="시도", use_checkbox=True)
+            gb.configure_column("시군구", headerName="시군구", use_checkbox=True)
+            gb.configure_column("desertionNo", headerName="유기번호", use_checkbox=True)
+            gb.configure_column("happenDt", headerName="발견일", use_checkbox=True)
+            gb.configure_column("kindCd", headerName="품종", use_checkbox=True)
+            gb.configure_column("age", headerName="나이", use_checkbox=True)
+            gb.configure_column("sexCd", headerName="성별", use_checkbox=True)
+            gb.configure_column("careNm", headerName="보호소", use_checkbox=True)
+        else:
+            gb.configure_column("시도", headerName="시도", use_checkbox=True)
+            gb.configure_column("시군구", headerName="시군구", use_checkbox=True, hide=True)
+            gb.configure_column("desertionNo", headerName="유기번호", use_checkbox=True, hide = True)
+            gb.configure_column("happenDt", headerName="발견일", use_checkbox=True, hide = True)
+            gb.configure_column("kindCd", headerName="품종", use_checkbox=True)
+            gb.configure_column("age", headerName="나이", use_checkbox=True, hide = True)
+            gb.configure_column("sexCd", headerName="성별", use_checkbox=True, hide=True)
+            gb.configure_column("careNm", headerName="보호소", use_checkbox=True)
 
         grid_options = gb.build()
 
@@ -1114,14 +1125,14 @@ class BreedInfo:
                 f"[{breed_name}] 입양하기",
                 key=button_key,
                 use_container_width=True,
-                type="secondary"
+                type="primary"
             )
             
         if search_shelter:
             petinshelter = UI().show_petinshelter(upkind)
             
             if petinshelter is None or petinshelter.empty:
-                st.error("임시보호소 데이터를 가져오지 못했습니다.")
+                st.error("보호소 데이터를 가져오지 못했습니다.")
                 return
             
             search_keywords = breed_name.split()
@@ -1150,4 +1161,4 @@ class BreedInfo:
                 
                 self.show_pet_detail(grid_response)
             else:
-                st.warning(f"임시보호소에서 {breed_name} 품종을 찾을 수 없습니다.")
+                st.warning(f"보호소에서 {breed_name} 품종을 찾을 수 없습니다.")

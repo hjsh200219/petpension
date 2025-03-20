@@ -23,7 +23,7 @@ def show_pet_list(upkind):
 
     col1, col2, col3 = st.columns(3)
     with col2:
-        refresh_button = st.button("임시보호소 현황조회", key=refresh_key, use_container_width=True, type="primary")
+        refresh_button = st.button("보호소 현황조회", key=refresh_key, use_container_width=True, type="primary")
     
     if refresh_button:
         ui.show_petinshelter(upkind, data_key, refresh_button)
@@ -37,9 +37,9 @@ def show_pet_list(upkind):
         
         filter_state_key = f"filter_state_{upkind}"
         if st.session_state.get(filter_state_key, False):
-            st.subheader(f"🐾 검색 결과 ({len(filtered_data):,}마리)")
+            st.info(f"조회 결과: ({len(filtered_data):,}마리)")
         else:
-            st.subheader(f"🐾 전체 목록 ({len(filtered_data):,}마리)")
+            st.info(f"조회 결과: ({len(filtered_data):,}마리)")
         
         if filtered_data.empty:
             st.info("검색 조건에 맞는 동물이 없습니다.")
@@ -51,7 +51,7 @@ def show_pet_list(upkind):
 
 
 def show_petshelter_page():
-    st.subheader("📊 임시보호소 현황")
+    st.subheader("📊 보호소 현황")
     tab1, tab2, tab3 = st.tabs(["강아지","고양이","기타"])
     with tab1:
         show_pet_list(upkind='417000')

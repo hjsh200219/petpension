@@ -1,7 +1,6 @@
-/* 푸터 스타일 */
 .footer {
     position: fixed;
-    bottom: 20px;
+    bottom: 0px;
     left: 0;
     right: 0;
     text-align: center;
@@ -10,7 +9,6 @@
     z-index: 999;
 }
 
-/* 배너 스타일 */
 .banner {
     text-align: center;
     margin-top: 20px;
@@ -38,11 +36,122 @@
     cursor: pointer;
 }
 
-/* iframe 관련 Streamlit 기본 여백 제거 */
 iframe {
     margin-bottom: 0 !important;
 }
 
 .txt-center {
     text-align: center;
+}
+
+.stApp {
+    margin-bottom: 0px;
+}
+
+.dataframe-container {
+    margin-bottom: 0px;
+}
+
+/* Streamlit 상단 메뉴 여백 제거 */
+[data-testid="stToolbar"] {
+    display: none !important;
+}
+
+/* Streamlit 로고 제거 */
+a[data-testid="stSidebarNavLink"] {
+    display: none !important;
+}
+
+/* stDecoration 공백 제거 */
+[data-testid="stDecoration"] {
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* 탭 상단 공백 제거 */
+.stTabs {
+    margin-top: 0px !important;
+}
+
+/* Streamlit 기본 상단 여백 제거 */
+header {
+    display: none !important;
+}
+
+footer {
+    display: none !important;
+}
+
+/* 상단 간격 최소화 */
+div[data-testid="stHeader"] {
+    display: none !important;
+}
+
+/* 모든 상단 컨테이너 여백 제거 */
+.block-container {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+
+/* 상단 간격 최소화 */
+div[data-testid="stHeader"] {
+    display: none !important;
+}
+
+/* 모든 상단 컨테이너 여백 제거 */
+.block-container {
+    margin-top: 0px !important;
+}
+
+/* 그래프 컨테이너 스타일 */
+.stPlotlyChart {
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    overflow: hidden !important;
+}
+
+/* Plotly 모드바 숨기기 */
+.js-plotly-plot .plotly .modebar {
+    display: none !important;
+}
+
+/* 확장 패널 스타일 */
+.streamlit-expanderHeader {
+    padding-right: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.streamlit-expanderContent {
+    padding-right: 0 !important;
+    margin-top: 0 !important;
+    overflow-x: hidden !important;
+}
+
+.main .block-container {
+    padding-right: 1rem !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+}
+
+/* 세로 스크롤만 허용 */
+body {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+}
+
+/* 그래프 줌 및 상호작용 비활성화 */
+.js-plotly-plot, .plotly {
+    pointer-events: none !important;
+    touch-action: none !important;
+    user-select: none !important;
+}
+
+.stPlotlyChart {
+    pointer-events: none !important;
+    touch-action: none !important;
+    overflow: hidden !important;
+    width: 100% !important;
 }

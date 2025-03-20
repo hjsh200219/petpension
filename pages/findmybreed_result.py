@@ -49,7 +49,7 @@ def show_findmybreed(upkind):
         
         if selected_breed:
             BreedInfo().show_breed_info(selected_breed, expandedoption=True)
-            st.warning("임시보호소에서 보호 중인 검색한 품종을 찾아보세요.")
+            st.warning("보호소에서 보호 중인 검색한 품종을 찾아보세요.")
             BreedInfo().match_breed(upkind, selected_breed)
 
 def show_findmybreed_page():
