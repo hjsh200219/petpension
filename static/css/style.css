@@ -44,6 +44,53 @@ iframe {
     text-align: center;
 }
 
+.stMarkdown {
+    margin-bottom: 0 !important;
+    padding-top: 0px !important;
+}
+
+/* 모바일 환경 대응 */
+@media (max-width: 768px) {
+    .banner {
+        margin-bottom: 40px;
+        margin-top: 10px;
+    }
+    
+    .banner iframe {
+        height: 100px;
+        max-width: 100%;
+    }
+    .stMarkdown div {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    div[data-testid="column"] {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    div[data-testid="stVerticalBlock"] > div {
+        padding-bottom: 0 !important;
+    }
+    /* 테이블 셀 줄임 */
+    .stDataFrame td, .stDataFrame th {
+        padding: 4px !important;
+        font-size: 12px !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    /* 의료기관명 열은 좀 더 넓게 */
+    .stDataFrame td:first-child, .stDataFrame th:first-child {
+        max-width: 150px !important;
+    }
+    
+    /* 주소 열은 좀 더 축소 */
+    .stDataFrame td:nth-child(3), .stDataFrame th:nth-child(3) {
+        max-width: 120px !important;
+    }
+}
+
 .stApp {
     margin-bottom: 0px;
 }
@@ -71,7 +118,7 @@ a[data-testid="stSidebarNavLink"] {
 
 /* 탭 상단 공백 제거 */
 .stTabs {
-    margin-top: 0px !important;
+    margin-top: 15px !important;
 }
 
 /* Streamlit 기본 상단 여백 제거 */
